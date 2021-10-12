@@ -138,7 +138,7 @@ void Graphics::RenderFrame()
 		//enemy.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//ステージ描画
-		//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		//ライト描画
@@ -495,9 +495,9 @@ bool Graphics::InitializeScene()
 		//	return false;//
 		//gameObject.PlayAnimation(6, AnimationPlayStyle::PlayLoop);
 
-		if (!test.Initialize("Data\\Objects\\testdev.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;//
-		test.SetRotation(XMFLOAT3(-3.14 / 2, 0, 0));
+		if (!test.Initialize("Data\\Objects\\Sphere.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		test.SetPosition(0,100,0);
 
 		//エネミー初期化
 		//if (!enemy.Initialize("Data\\Objects\\samurai\\Mesh\\T-Pose.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -507,8 +507,8 @@ bool Graphics::InitializeScene()
 		//enemy.PlayAnimation(3, AnimationPlayStyle::PlayLoop);//block idle
 
 		//ゲームステージ初期化
-		//if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-		//	return false;
+		if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
 
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//
@@ -541,8 +541,12 @@ bool Graphics::InitializeScene()
 		//カメラ設置
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
 
-		Camera3D.SetPosition(300.0f, 100.0f, -200.0f);
-		Camera3D.SetRotation(0, -3.14 / 2, 0);
+		//camera3D
+		auto testpos = test.GetPositionVector() + test.GetBackwardVector() * 20;
+		DirectX::XMFLOAT3 temp;
+		DirectX::XMStoreFloat3(&temp, testpos);
+		temp = DirectX::XMFLOAT3(temp.x, temp.y + 200, temp.z);
+		Camera3D.SetPosition(temp);
 		Camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
 	}
 	catch (COMException & exception)
