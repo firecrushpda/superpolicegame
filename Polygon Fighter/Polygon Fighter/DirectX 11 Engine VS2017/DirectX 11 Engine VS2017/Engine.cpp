@@ -97,6 +97,7 @@ void Engine::Update()
 				gfx.skybox.ChangeSkyBoxSRV();
 				gfx.InitializeIBLStatus();
 			}
+			
 		}
 	}
 
@@ -129,19 +130,26 @@ void Engine::Update()
 	{
 		if (keyboard.KeyIsPressed('W'))
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			this->gfx.test.AdjustPosition(this->gfx.test.GetForwardVector() * Camera3DSpeed * dt);
 		}
 		if (keyboard.KeyIsPressed('S'))
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+			this->gfx.test.AdjustPosition(this->gfx.test.GetBackwardVector() * Camera3DSpeed * dt);
+
 		}
 		if (keyboard.KeyIsPressed('A'))
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+			//this->gfx.test.AdjustPosition(this->gfx.test.GetLeftVector() * Camera3DSpeed * dt);
+			this->gfx.test.AdjustRotation(XMFLOAT3(0, -0.001, 0));
 		}
 		if (keyboard.KeyIsPressed('D'))
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+			//this->gfx.test.AdjustPosition(this->gfx.test.GetRightVector() * Camera3DSpeed * dt);
+			this->gfx.test.AdjustRotation(XMFLOAT3(0, 0.001, 0));
 		}
 		if (keyboard.KeyIsPressed(VK_SPACE))
 		{
@@ -170,14 +178,21 @@ void Engine::Update()
 		this->gfx.light.SetRotation(this->gfx.Camera3D.GetRotationFloat3());
 	}
 
-	//collision
-	//Õ“Ë”»’è
-	auto playerblade = gfx.gameObject.GetBladeCollsionObject();
-	auto playerbody = gfx.gameObject.GetBodyCollsionObject();
-	auto enemyblade = gfx.enemy.GetBladeCollsionObject();
-	auto enemybody = gfx.enemy.GetBodyCollsionObject();
+	
+	auto testpos = gfx.test.GetPositionVector() + gfx.test.GetBackwardVector() * 100;
+	DirectX::XMFLOAT3 temp;
+	DirectX::XMStoreFloat3(&temp, testpos);
+	temp = DirectX::XMFLOAT3(temp.x, temp.y + 100, temp.z);
+	gfx.Camera3D.SetPosition(temp);
+	gfx.Camera3D.SetLookAtPos(gfx.test.GetPositionFloat3());
 
 	//collision
+	//Õ“Ë”»’è
+	//auto playerblade = gfx.gameObject.GetBladeCollsionObject();
+	//auto playerbody = gfx.gameObject.GetBodyCollsionObject();
+	//auto enemyblade = gfx.enemy.GetBladeCollsionObject();
+	//auto enemybody = gfx.enemy.GetBodyCollsionObject();
+
 	//DirectX::ContainmentType coresult = playerblade->aabb.Contains(enemybody->aabb);
 	//if (precoreslut == 0 && coresult != 0)
 	//{
