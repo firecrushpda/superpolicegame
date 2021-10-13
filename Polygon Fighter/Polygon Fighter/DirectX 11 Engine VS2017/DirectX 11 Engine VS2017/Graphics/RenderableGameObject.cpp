@@ -93,20 +93,6 @@ float RenderableGameObject::GetAnimationSpeed() {
 }
 
 //=============================================================================
-// 剣の当たり判定ボックスを取る
-//=============================================================================
-CollsionObject* RenderableGameObject::GetBladeCollsionObject() {
-	return model.GetBladeCollsionObject();
-}
-
-//=============================================================================
-// 体の当たり判定ボックスを取る
-//=============================================================================
-CollsionObject* RenderableGameObject::GetBodyCollsionObject() {
-	return model.GetBodyCollsionObject();
-}
-
-//=============================================================================
 // 骨を見るか
 //=============================================================================
 void RenderableGameObject::ShowBones()
@@ -119,4 +105,19 @@ void RenderableGameObject::ShowBones()
 //=============================================================================
 std::vector<Mesh> RenderableGameObject::GetMesh() {
 	return this->model.GetMesh();
+}
+
+//=============================================================================
+// ワールドマトリックスを取る
+//=============================================================================
+DirectX::XMMATRIX RenderableGameObject::GetWorldMatirx() {
+	return  this->worldMatrix;
+}
+
+//=============================================================================
+// 調整マトリックスを設置
+//=============================================================================
+void RenderableGameObject::SetGlobalMatirx(DirectX::XMMATRIX worldmat)
+{
+	this->model.m_GlobalInverseTransform = worldmat;
 }

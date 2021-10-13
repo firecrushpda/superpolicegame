@@ -52,13 +52,7 @@ bool Model::Initialize(const std::string & filePath, ID3D11Device * device, ID3D
 		//assimpからモデル情報を読み込む
 		if (!this->LoadModel_Assimp(filePath))
 			return false;
-		
-		//もしモデルは骨を付けているなら各骨の位置を表示する小箱を読み込む
-		//load debug block for the bone 
-		if (bHasBone)
-		{
-			LoadBoneDebugBlock(device, deviceContext, cb_vs_vertexshader);
-		}
+
 		
 		//アニメーションを読み込む
 		//load animation
@@ -170,50 +164,8 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 			}
 		}
 
-		//collision debug block
-		if (!(bodyco == nullptr))
-		{
-			if (bodyco->debugmeshflag)
-			{
-				for (size_t i = 0; i < bodyco->debugmesh.size(); i++)
-				{
-					this->cb_vs_vertexshader->data.wvpMatrix = bodyco->debugmesh.at(i).GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
-					this->cb_vs_vertexshader->data.worldMatrix = bodyco->debugmesh.at(i).GetTransformMatrix() * worldMatrix;
-					this->cb_vs_vertexshader->ApplyChanges();
-					bodyco->debugmesh.at(i).Draw();
-				}
-			}
-		}
 		
-		if (!(bladeco == nullptr))
-		{
-			if (bladeco->debugmeshflag)
-			{
-				for (size_t i = 0; i < bladeco->debugmesh.size(); i++)
-				{
-					this->cb_vs_vertexshader->data.wvpMatrix = bladeco->debugmesh.at(i).GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
-					this->cb_vs_vertexshader->data.worldMatrix = bladeco->debugmesh.at(i).GetTransformMatrix() * worldMatrix;
-					this->cb_vs_vertexshader->ApplyChanges();
-					bladeco->debugmesh.at(i).Draw();
-				}
-			}
-		}
 
-		/*if (!(testco == nullptr))
-		{
-			if (testco->debugmeshflag)
-			{
-				for (size_t i = 0; i < testco->debugmesh.size(); i++)
-				{
-					this->cb_vs_vertexshader->data.wvpMatrix = testco->debugmesh.at(i).GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
-					this->cb_vs_vertexshader->data.worldMatrix = testco->debugmesh.at(i).GetTransformMatrix() * worldMatrix;
-					this->cb_vs_vertexshader->ApplyChanges();
-					testco->debugmesh.at(i).Draw();
-				}
-			}
-		}*/
-		
-	//}
 }
 
 //=============================================================================
@@ -1084,91 +1036,6 @@ DirectX::XMMATRIX Model::ToMatrix4f(const aiMatrix4x4 *ai_mat)
 }
 
 //=============================================================================
-//デイバッグメッシュ関数
-//=============================================================================
-//load debug block (obj file)
-void Model::LoadBoneDebugBlock(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader) {
-	Assimp::Importer importer;
-
-	const aiScene* Scene = importer.ReadFile("Data\\Objects\\debugBlock.obj",
-		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded|
-		aiProcess_JoinIdenticalVertices
-		);
-
-	if (!Scene)
-		return ;
-
-	ProcessDebugNode(Scene->mRootNode, Scene, DirectX::XMMatrixIdentity());
-	
-	ProcessCollsion(Scene->mRootNode, Scene);
-}
-
-//=============================================================================
-//デイバッグメッシュ関数
-//=============================================================================
-//create debug block fit the bone array size
-void Model::ProcessDebugNode(aiNode * node, const aiScene * pmScene, const XMMATRIX & parentTransformMatrix)
-{
-	DirectX::XMMATRIX nodeTransformMatrix;
-	for (UINT i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = pmScene->mMeshes[node->mMeshes[i]];
-
-		//debugblockmesh = this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity());
-		for (size_t j = 0; j < mBoneInfo.size(); j++)
-		{
-			nodeTransformMatrix = mBoneInfo.at(j)->Nodetransform;
-			debugBlocks.push_back(this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity()));
-		}
-	}
-
-	for (UINT i = 0; i < node->mNumChildren; i++)
-	{
-		this->ProcessDebugNode(node->mChildren[i], pmScene, nodeTransformMatrix);
-	}
-}
-
-//=============================================================================
-//当たり判定ブロック
-//=============================================================================
-void Model::ProcessCollsion(aiNode * node, const aiScene * pmScene) {
-	//body collision
-	bodyco = new CollsionObject();
-	bodyco->boneindex = 1;//pelvis index
-	bodyco->ct = CollsionType::Player;
-	bodyco->debugmeshflag = false;
-	auto cnode = node->mChildren[0];
-	aiMesh* mesh = pmScene->mMeshes[cnode->mMeshes[0]];
-	bodyco->debugmesh.push_back(this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity()));
-	bodyco->aabb = BoundingBox();
-	bodyco->oritransform = DirectX::XMMatrixScaling(150.0f, 50.0f, 50.0f);
-
-	//blade collision
-	bladeco = new CollsionObject();
-	bladeco->boneindex = 51;//right blade index
-	bladeco->ct = CollsionType::Blade;
-	bladeco->debugmeshflag = false;
-	bladeco->debugmesh.push_back(this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity()));
-	bladeco->aabb = BoundingBox();
-	auto bScale = DirectX::XMMatrixScaling(10.0f, 10.0f, 100.0f);
-	auto bTrans = DirectX::XMMatrixTranslation(0.0f, 0.0f, 50.0f);
-	bladeco->oritransform = bScale * bTrans;
-
-	//test collision
-	/*testco = new CollsionObject();
-	testco->boneindex = -1;
-	testco->ct = CollsionType::Enemy;
-	testco->debugmeshflag = true;
-	testco->debugmesh.push_back(this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity()));
-	testco->aabb = BoundingBox();
-	auto tScale = DirectX::XMMatrixScaling(50.0f, 150.0f, 50.0f);
-	auto tTrans = DirectX::XMMatrixTranslation(0.0f, 75.0f, -350.0f);
-	testco->oritransform = tScale * tTrans;*/
-}
-
-//=============================================================================
 //デイバッグノードツリー関数
 //=============================================================================
 //debug display the structure of Assimp node
@@ -1588,8 +1455,7 @@ void Model::Update(float dt, const XMMATRIX & worldMatrix, const XMMATRIX & view
 	if (this->IfHasBone())
 	{
 		this->UpdateAnimation(dt);
-		this->UpdateCollisionBox(worldMatrix, viewProjectionMatrix);
-		this->UpdateAnimationPosition();
+		//this->UpdateAnimationPosition();
 	}
 }
 
@@ -1606,78 +1472,6 @@ void Model::UpdateAnimation(float dt)
 
 }
 
-//=============================================================================
-//衝突更新処理関数
-//=============================================================================
-void Model::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
-{
-	if (bodyco->boneindex != -1)//pelvis transformation
-	{
-		auto bodymatrix = debugBlocks.at(bodyco->boneindex).transformMatrix;
-		//auto trans = bodymatrix * m_GlobalInverseTransform;
-
-		for (size_t i = 0; i < bodyco->debugmesh.size(); i++) 
-		{
-			bodyco->debugmesh.at(i).transformMatrix = bodyco->oritransform * bodymatrix;
-			bodyco->aabb.Center = XMFLOAT3(0, 0, 0);
-			bodyco->aabb.Extents = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			auto collisonWorldMatrix = bodyco->debugmesh.at(i).transformMatrix * worldMatrix * viewProjectionMatrix;
-			bodyco->aabb.Transform(bodyco->aabb, collisonWorldMatrix);
-		}
-	}
-
-	if (bladeco->boneindex != -1)//pelvis transformation
-	{
-		auto bladematrix = debugBlocks.at(bladeco->boneindex).transformMatrix;
-		//auto trans = bladematrix * m_GlobalInverseTransform;
-		for (size_t i = 0; i < bladeco->debugmesh.size(); i++)
-		{
-			bladeco->debugmesh.at(i).transformMatrix = bladeco->oritransform * bladematrix; //*trans;
-			bladeco->aabb.Center = XMFLOAT3(0, 0, 0);
-			bladeco->aabb.Extents = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			auto collisonWorldMatrix = bladeco->debugmesh.at(i).transformMatrix * worldMatrix * viewProjectionMatrix;
-			bladeco->aabb.Transform(bladeco->aabb, collisonWorldMatrix);
-		}
-	}
-
-	//test collision
-	/*for (size_t i = 0; i < testco->debugmesh.size(); i++)
-	{
-		testco->debugmesh.at(i).transformMatrix = testco->oritransform;
-		testco->aabb.Center = XMFLOAT3(0, 0, 0);
-		testco->aabb.Extents = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		testco->aabb.Transform(testco->aabb, testco->debugmesh.at(i).transformMatrix);
-	}*/
-
-	//blade - test
-	//DirectX::ContainmentType coresult = bladeco->aabb.Contains(testco->aabb);
-	//if (precoreslut == 0 && coresult != 0)
-	//{
-	//	//hit
-	//	bladeco->debugmeshflag = true;
-	//	testco->debugmeshflag = false;
-	//}
-	//if (precoreslut != 0 && coresult == 0)
-	//{
-	//	bladeco->debugmeshflag = false;
-	//	testco->debugmeshflag = true;
-	//}
-	//precoreslut = coresult;
-}
-
-//=============================================================================
-//アニメーションから位置を移動する関数
-//アニメーションを再生する時モデルを移動させるから
-//もし何らかの理由があって途中でアニメーションを中止しましたら
-//この結果を元の位置に加えたら正しい位置を得る
-//=============================================================================
-void Model::UpdateAnimationPosition() {
-	auto pelvisbonetrans = debugBlocks.at(bodyco->boneindex).transformMatrix;
-	DirectX::XMFLOAT4X4 mat44;
-	XMStoreFloat4x4(&mat44, pelvisbonetrans);
-	curanimpos.x = mat44._41;
-	curanimpos.y = mat44._42;
-}
 
 //=============================================================================
 //モデル骨があるの確認関数
@@ -1929,26 +1723,12 @@ bool Bone::CheckIfHaveBoneChild(Bone* cbone)
 //-------------------------------
 //CollsionObject Function(衝突判定関数)
 //-------------------------------
-CollsionObject::CollsionObject(const CollsionObject & co) {
-	this->aabb = co.aabb;
-	this->ct = co.ct;
-	this->debugmesh = co.debugmesh;
-	this->debugmeshflag = co.debugmeshflag;
-}
-
-CollsionObject::CollsionObject() {
-
-}
-
-CollsionObject* Model::GetBladeCollsionObject() 
-{
-	return bladeco;
-}
-
-CollsionObject* Model::GetBodyCollsionObject() 
-{
-	return bodyco;
-}
+//CollsionObject::CollsionObject(const CollsionObject & co) {
+//	this->aabb = co.aabb;
+//	this->ct = co.ct;
+//	this->debugmesh = co.debugmesh;
+//	this->debugmeshflag = co.debugmeshflag;
+//}
 
 //-------------------------------------------
 //mesh(メッシュ情報関数)

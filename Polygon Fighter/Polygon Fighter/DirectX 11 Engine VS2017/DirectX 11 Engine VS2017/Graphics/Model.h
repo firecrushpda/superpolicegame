@@ -140,8 +140,8 @@ enum CollsionType
 class CollsionObject
 {
 public:
-	CollsionObject();
-	CollsionObject(const CollsionObject & co);
+	//CollsionObject();
+	//CollsionObject(const CollsionObject & co);
 	bool debugmeshflag;
 	int boneindex = -1;
 	DirectX::XMMATRIX oritransform;
@@ -172,6 +172,8 @@ public:
 	//mesh
 	std::vector<Mesh> GetMesh();
 
+	DirectX::XMMATRIX m_GlobalInverseTransform;//調整マトリクス
+
 	bool IfHasBone();
 	bool m_showskeleton = false;//デバッグ用
 
@@ -200,10 +202,7 @@ public:
 		this->animationPlayStyle = model.animationPlayStyle;
 		this->isFbxModel = model.isFbxModel;
 		memcpy(&this->debugBlocks, &model.debugBlocks, sizeof(model.debugBlocks));
-		memcpy(&this->bodyco, &model.bodyco, sizeof(model.bodyco));
-		memcpy(&this->bladeco, &model.bladeco, sizeof(model.bladeco));
-		//memcpy(&this->testco, &model.testco, sizeof(model.testco));
-		this->precoreslut = model.precoreslut;
+
 	}
 
 private:
@@ -241,7 +240,7 @@ private:
 	bool bHasBone = false;//骨がある？
 	unsigned int mNumBones = 0;//インデックス
 	Bone* rootbone;//ルートボン
-	DirectX::XMMATRIX m_GlobalInverseTransform;//足元マトリクス
+	
 	DirectX::XMMATRIX rootbonetrans = DirectX::XMMatrixIdentity();//ルートボンマトリクス
 	std::map<std::string, unsigned int> mBoneMaping;//ボンマップ
 	std::vector<Bone*> mBoneInfo;//骨アレー
@@ -288,18 +287,7 @@ private:
 	Mesh ProcessDebugMesh(aiMesh * mesh, const aiScene * pmScene, const XMMATRIX & transformMatrix);
 	void LoadBoneDebugBlock(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 
-	//collision
-	CollsionObject* bodyco = nullptr;
-	CollsionObject* bladeco = nullptr;
-	//CollsionObject* testco = nullptr;
-	DirectX::ContainmentType precoreslut;
-	void ProcessCollsion(aiNode * node, const aiScene * pmScene);
-	void UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
-	//BoundingBox::CreateFromPoints(this->boundingBox, vertices.size(), &(vertices.at(0)), sizeof(XMFLOAT3));
-
 	//tool
 	DirectX::XMMATRIX ToMatrix4f(const aiMatrix4x4 *ai_mat);
 
 };
-
-

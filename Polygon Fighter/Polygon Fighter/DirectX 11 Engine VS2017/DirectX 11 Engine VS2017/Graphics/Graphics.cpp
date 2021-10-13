@@ -129,13 +129,15 @@ void Graphics::RenderFrame()
 		this->deviceContext->PSSetShaderResources(5, 1, &skyIBLSRV);
 		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
 
-		test.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		//test.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//ゲームオブジェクト描画
 		//gameObject.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//エネミー描画
 		//enemy.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
+		car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//ステージ描画
 		stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
@@ -179,11 +181,6 @@ void Graphics::RenderFrame()
 		ImGui::NewFrame();
 		//Create ImGui Test Window
 		ImGui::Begin("Light Controls");
-		//set animation speed
-		auto speed = gameObject.GetAnimationSpeed();
-		ImGui::SliderFloat("animaiton speed", &speed, 0.0f, 1.0f);
-		gameObject.SetAnimationSpeed(speed);
-
 		//ImGui::NewLine();
 		//ImGui::DragFloat3("Ambient Light Color", &this->cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
@@ -490,21 +487,8 @@ bool Graphics::InitializeScene()
 		cb_ps_iblstatus.data.metallic = 0.0f;
 		cb_ps_iblstatus.data.roughness = 0.0f;
 
-		//ゲームオブジェクト初期化
-		//if (!gameObject.Initialize("Data\\Objects\\samurai\\Mesh\\T-Pose.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-		//	return false;//
-		//gameObject.PlayAnimation(6, AnimationPlayStyle::PlayLoop);
-
-		if (!test.Initialize("Data\\Objects\\Sphere.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		if(!car.CarInitialize("Data\\Objects\\taxi\\testtaxi.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		test.SetPosition(0,100,0);
-
-		//エネミー初期化
-		//if (!enemy.Initialize("Data\\Objects\\samurai\\Mesh\\T-Pose.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-		//	return false;
-		//enemy.AdjustPosition(0, 0, -400);
-		//enemy.AdjustRotation(0, -3.14, 0);
-		//enemy.PlayAnimation(3, AnimationPlayStyle::PlayLoop);//block idle
 
 		//ゲームステージ初期化
 		if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -542,10 +526,10 @@ bool Graphics::InitializeScene()
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
 
 		//camera3D
-		auto testpos = test.GetPositionVector() + test.GetBackwardVector() * 20;
+		auto testpos = car.carrender.GetPositionVector() + car.carrender.GetBackwardVector() * 20;
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMStoreFloat3(&temp, testpos);
-		temp = DirectX::XMFLOAT3(temp.x, temp.y + 200, temp.z);
+		//temp = DirectX::XMFLOAT3(temp.x, temp.y + 200, temp.z);
 		Camera3D.SetPosition(temp);
 		Camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
 	}

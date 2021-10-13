@@ -56,6 +56,10 @@ public:
 
 	void ShowBones();
 
+	DirectX::XMMATRIX GetWorldMatirx();
+
+	void SetGlobalMatirx(DirectX::XMMATRIX worldmat);
+
 protected:
 	Model model;//ƒ‚ƒfƒ‹
 

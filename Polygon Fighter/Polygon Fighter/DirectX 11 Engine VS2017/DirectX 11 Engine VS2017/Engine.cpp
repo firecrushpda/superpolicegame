@@ -41,8 +41,6 @@ void Engine::Update()
 
 	auto cameratype = gfx.Camera3D.cameratype;
 
-	//gfx.gameObject.AdjustRotation(XMFLOAT3(0, 0.001, 0));
-
 	// キーボードの読み込む
 	while (!keyboard.CharBufferIsEmpty())
 	{
@@ -55,49 +53,14 @@ void Engine::Update()
 		unsigned char keycode = kbe.GetKeyCode();
 		if (kbe.IsPress())
 		{
-			if (keycode == 'Q')
-			{
-				auto index = gfx.gameObject.GetCurrentAnimationClipIndex();
-				//auto max = gfx.gameObject.GetAnimationClipSize();
-				if (index == 4)
-				{
-					gfx.gameObject.PlayAnimation(0, AnimationPlayStyle::PlayOnce);
-				}
-			}
-			if (keycode == 'E')
-			{
-				auto index = gfx.gameObject.GetCurrentAnimationClipIndex();
-				if (index != 4 && index != 5)
-				{
-					gfx.gameObject.PlayAnimation(5, AnimationPlayStyle::PlayOnce);//
-				}
-			}
-			if (keycode == 'P')
-			{
-				auto playerblade = gfx.gameObject.GetBladeCollsionObject();
-				auto playerbody = gfx.gameObject.GetBodyCollsionObject();
-				auto enemyblade = gfx.enemy.GetBladeCollsionObject();
-				auto enemybody = gfx.enemy.GetBodyCollsionObject();
-				playerblade->debugmeshflag = !playerblade->debugmeshflag;
-				playerbody->debugmeshflag = !playerbody->debugmeshflag;
-				enemyblade->debugmeshflag = !enemyblade->debugmeshflag;
-				enemybody->debugmeshflag = !enemybody->debugmeshflag;
-			}
 			if (keycode == 'O')
 			{
 				gfx.showImgui = !gfx.showImgui;
 			}
-			if (keycode == 'I')
+			if (keycode == 'P')
 			{
-				gfx.gameObject.ShowBones();
-				gfx.enemy.ShowBones();
+				gfx.car.carrender.SetSkeletonDebugFlag();
 			}
-			if (keycode == 'U')
-			{
-				gfx.skybox.ChangeSkyBoxSRV();
-				gfx.InitializeIBLStatus();
-			}
-			
 		}
 	}
 
@@ -105,6 +68,13 @@ void Engine::Update()
 	while (!mouse.EventBufferIsEmpty())
 	{
 		MouseEvent me = mouse.ReadEvent();
+
+
+		if (me.GetType() == MouseEvent::EventType::WheelDown)
+		{
+			
+		}
+
 
 		if (mouse.IsRightDown())
 		{
@@ -118,38 +88,25 @@ void Engine::Update()
 	float Camera3DSpeed = 0.06f;
 
 	//ゲームオブジェクトについての処理
-	//gfx.enemy.Update(dt, gfx.Camera3D.GetViewMatrix() *gfx.Camera3D.GetProjectionMatrix());
-	//gfx.gameObject.Update(dt, gfx.Camera3D.GetViewMatrix() *gfx.Camera3D.GetProjectionMatrix());
-
-	if (keyboard.KeyIsPressed('Y'))
-	{
-		gfx.gameObject.SetSkeletonDebugFlag();
-	}
 
 	if (cameratype == 0)
 	{
 		if (keyboard.KeyIsPressed('W'))
 		{
-			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
-			this->gfx.test.AdjustPosition(this->gfx.test.GetForwardVector() * Camera3DSpeed * dt);
+			this->gfx.car.carrender.AdjustPosition(this->gfx.car.carrender.GetForwardVector() * Camera3DSpeed * dt);
 		}
 		if (keyboard.KeyIsPressed('S'))
 		{
-			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
-			this->gfx.test.AdjustPosition(this->gfx.test.GetBackwardVector() * Camera3DSpeed * dt);
+			this->gfx.car.carrender.AdjustPosition(this->gfx.car.carrender.GetBackwardVector() * Camera3DSpeed * dt);
 
 		}
 		if (keyboard.KeyIsPressed('A'))
 		{
-			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
-			//this->gfx.test.AdjustPosition(this->gfx.test.GetLeftVector() * Camera3DSpeed * dt);
-			this->gfx.test.AdjustRotation(XMFLOAT3(0, -0.001, 0));
+			this->gfx.car.carrender.AdjustRotation(XMFLOAT3(0, -0.001, 0));
 		}
 		if (keyboard.KeyIsPressed('D'))
 		{
-			//this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
-			//this->gfx.test.AdjustPosition(this->gfx.test.GetRightVector() * Camera3DSpeed * dt);
-			this->gfx.test.AdjustRotation(XMFLOAT3(0, 0.001, 0));
+			this->gfx.car.carrender.AdjustRotation(XMFLOAT3(0, 0.001, 0));
 		}
 		if (keyboard.KeyIsPressed(VK_SPACE))
 		{
@@ -162,13 +119,8 @@ void Engine::Update()
 	}
 	else if (cameratype == 1)
 	{
-		//gfx.Camera3D.SetLookAtPos(gfx.gameObject.GetPositionFloat3());
-	}
 
-	if (keyboard.KeyIsPressed('V')) {
-		gfx.Camera3D.ChangeFocusMode(1, &gfx.gameObject);
 	}
-	
 
 	if (keyboard.KeyIsPressed('C'))
 	{
@@ -178,13 +130,12 @@ void Engine::Update()
 		this->gfx.light.SetRotation(this->gfx.Camera3D.GetRotationFloat3());
 	}
 
-	
-	auto testpos = gfx.test.GetPositionVector() + gfx.test.GetBackwardVector() * 100;
+	auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetBackwardVector() * 10;
 	DirectX::XMFLOAT3 temp;
 	DirectX::XMStoreFloat3(&temp, testpos);
-	temp = DirectX::XMFLOAT3(temp.x, temp.y + 100, temp.z);
+	temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
 	gfx.Camera3D.SetPosition(temp);
-	gfx.Camera3D.SetLookAtPos(gfx.test.GetPositionFloat3());
+	gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 
 	//collision
 	//衝突判定
