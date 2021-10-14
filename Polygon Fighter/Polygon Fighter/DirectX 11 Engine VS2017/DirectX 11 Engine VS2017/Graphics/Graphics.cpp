@@ -167,8 +167,14 @@ void Graphics::RenderFrame()
 		fpsCounter = 0;
 		fpsTimer.Restart();
 	}
-	spriteBatch->Begin();
+
+	auto accvalue = std::to_string(car.accflag);
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
+	std::wstring wsnum = cv.from_bytes(accvalue);
+
+	spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f,0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
 	//サポートUI描画

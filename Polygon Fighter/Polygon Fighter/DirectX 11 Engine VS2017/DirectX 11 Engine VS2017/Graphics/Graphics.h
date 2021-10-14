@@ -5,6 +5,7 @@
 //
 //=============================================================================
 #pragma once
+#include <codecvt>
 #include "AdapterReader.h"
 #include "Shaders.h"
 #include <SpriteBatch.h>

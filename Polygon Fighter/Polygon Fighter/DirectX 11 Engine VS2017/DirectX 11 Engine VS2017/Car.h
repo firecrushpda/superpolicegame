@@ -7,6 +7,17 @@ public:
 	//renderobject
 	RenderableGameObject carrender;
 
+	//rotatespeed
+	float rotatespeed = 0.001f;
+
+	//acceleration
+	bool accflag = false;
+	float acc = 0;
+	float accincrease = 0.5f;
+	float hoizontalacc = 0;
+	float verticalacc = 0;
+	float accmax = 100;
+
 	bool CarInitialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 	void Update(float delta_time, const XMMATRIX & viewProjectionMatrix);
 	void Draw(const XMMATRIX & viewProjectionMatrix);
