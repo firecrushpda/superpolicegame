@@ -114,7 +114,7 @@ void Car::ProcessCollsion(aiNode * node, const aiScene * pmScene) {
 	carco = new CollsionObject();
 	carco->boneindex = 1;//pelvis index
 	carco->ct = CollsionType::Player;
-	carco->debugmeshflag = true;
+	carco->debugmeshflag = false;
 	auto cnode = node->mChildren[0];
 	aiMesh* mesh = pmScene->mMeshes[cnode->mMeshes[0]];
 	carco->debugmesh.push_back(this->ProcessDebugMesh(mesh, pmScene, DirectX::XMMatrixIdentity()));
@@ -334,4 +334,12 @@ int Car::GetTextureIndex(aiString * pStr)
 {
 	assert(pStr->length >= 2);
 	return atoi(&pStr->C_Str()[1]);
+}
+
+//=============================================================================
+//ƒRƒŠƒWƒ‡ƒ“î•ñ
+//=============================================================================
+CollsionObject* Car::GetCarCollisionObject()
+{
+	return this->carco;
 }

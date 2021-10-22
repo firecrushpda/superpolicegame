@@ -33,8 +33,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 		return false;
 
 	//effekseer 
-	//if (!InitializeEffekseer())
-	//	return false;
+	/*if (!InitializeEffekseer())
+		return false;*/
 
 	//ImGui (デイバッグサポートUI)初期化
 	//Setup ImGui
@@ -493,8 +493,8 @@ bool Graphics::InitializeScene()
 		cb_ps_iblstatus.data.metallic = 0.0f;
 		cb_ps_iblstatus.data.roughness = 0.0f;
 
-		if(!car.CarInitialize("Data\\Objects\\taxi\\testtaxi.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;
+		if(!car.CarInitialize("Data\\Objects\\p.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;// bill.obj p.obj taxi\\testtaxi.obj
 
 		//ゲームステージ初期化
 		if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))

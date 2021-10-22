@@ -12,7 +12,6 @@ class RenderableGameObject : public GameObject3D
 public:
 	void operator = (const RenderableGameObject& gobject) {
 		this->model = gobject.model;
-		//memcpy(&this->model, &gobject.model, sizeof(Model));
 		this->pos = gobject.pos;
 		this->posVector = gobject.posVector;
 		this->rot = gobject.rot;
@@ -50,17 +49,33 @@ public:
 
 	std::vector<Mesh> GetMesh();
 
-	CollsionObject* GetBladeCollsionObject();
-
-	CollsionObject* GetBodyCollsionObject();
-
 	void ShowBones();
 
 	DirectX::XMMATRIX GetWorldMatirx();
 
 	void SetGlobalMatirx(DirectX::XMMATRIX worldmat);
 
+	CollsionObject* GetCollisionObject();
+
+private:
+	//collision
+	CollsionObject* collision = nullptr;
+
+	void ProcessCollsion(aiNode * node, const aiScene * pmScene,CollsionType cotype, bool showflag, DirectX::XMMATRIX oritrans);
+	void UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
+	Mesh ProcessDebugMesh(aiMesh * mesh, const aiScene * pmScene, const XMMATRIX & transformMatrix);
+	void LoadBoneDebugBlock(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
+	void ProcessDebugNode(aiNode * node, const aiScene * pmScene, const XMMATRIX & parentTransformMatrix);
+	
+	//debug
+	std::vector<Mesh> debugBlocks;//衝突デバッグ箱
+
+	std::vector<Texture> LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
+	TextureStorageType DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType);
+	int GetTextureIndex(aiString * pStr);
+
 protected:
+
 	Model model;//モデル
 
 	void UpdateMatrix() override;

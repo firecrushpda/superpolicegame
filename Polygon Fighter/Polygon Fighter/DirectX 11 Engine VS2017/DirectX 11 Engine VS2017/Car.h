@@ -21,6 +21,7 @@ public:
 	bool CarInitialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 	void Update(float delta_time, const XMMATRIX & viewProjectionMatrix);
 	void Draw(const XMMATRIX & viewProjectionMatrix);
+	CollsionObject* GetCarCollisionObject();
 
 private:
 	std::string directory = "";
