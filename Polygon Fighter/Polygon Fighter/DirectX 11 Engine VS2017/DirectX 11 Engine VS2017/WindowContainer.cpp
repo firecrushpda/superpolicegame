@@ -36,7 +36,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	switch (uMsg)
 	{
-	//Keyboard Messages
+		//Keyboard Messages
 	case WM_KEYDOWN:
 	{
 		unsigned char keycode = static_cast<unsigned char>(wParam);
@@ -145,7 +145,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 		UINT dataSize;
 		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER)); //Need to populate data size first
-		
+
 		if (dataSize > 0)
 		{
 			std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
@@ -158,7 +158,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 				}
 			}
 		}
-		
+
 		return DefWindowProc(hwnd, uMsg, wParam, lParam); //Need to call DefWindowProc for WM_INPUT messages
 	}
 	default:
@@ -166,6 +166,6 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	}
 
 
-return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 
 }

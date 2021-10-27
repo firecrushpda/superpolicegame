@@ -164,8 +164,6 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 			}
 		}
 
-		
-
 }
 
 //=============================================================================

@@ -39,6 +39,7 @@ protected:
 	DirectX::XMFLOAT3 pos;//ポジション
 	DirectX::XMFLOAT3 rot;//ローテーション
 
+	DirectX::XMVECTOR scaleVector;//計算用ローテーション
 	DirectX::XMFLOAT3 scale;//スケール
 
 	

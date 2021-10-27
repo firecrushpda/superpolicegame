@@ -20,7 +20,7 @@ public:
 	const XMMATRIX & GetProjectionMatrix() const;
 
 	float focusLength = 50;
-	unsigned int cameratype = 0;
+	unsigned int cameratype = 0;//0 follow  1 free
 	GameObject3D* focusgo;
 private:
 	void UpdateMatrix() override;

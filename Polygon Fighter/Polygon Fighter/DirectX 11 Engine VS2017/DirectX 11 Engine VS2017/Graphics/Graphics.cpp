@@ -129,14 +129,6 @@ void Graphics::RenderFrame()
 		this->deviceContext->PSSetShaderResources(5, 1, &skyIBLSRV);
 		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
 
-		//test.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-
-		//ゲームオブジェクト描画
-		//gameObject.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-
-		//エネミー描画
-		//enemy.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-
 		car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//ステージ描画
@@ -168,9 +160,10 @@ void Graphics::RenderFrame()
 		fpsTimer.Restart();
 	}
 
-	auto accvalue = std::to_string(car.accflag);
+	auto carpos = car.carrender.GetPositionFloat3();
+	std::string pos = std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
-	std::wstring wsnum = cv.from_bytes(accvalue);
+	std::wstring wsnum = cv.from_bytes(pos);
 
 	spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f,0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -178,7 +171,6 @@ void Graphics::RenderFrame()
 	spriteBatch->End();
 
 	//サポートUI描画
-	//static int counter = 0;
 	if (showImgui)
 	{
 		// Start the Dear ImGui frame
@@ -493,15 +485,24 @@ bool Graphics::InitializeScene()
 		cb_ps_iblstatus.data.metallic = 0.0f;
 		cb_ps_iblstatus.data.roughness = 0.0f;
 
-		if(!car.CarInitialize("Data\\Objects\\p.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;// bill.obj p.obj taxi\\testtaxi.obj
+		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj
+		//car.carrender.SetScale(50.0f, 100.0f, 50.0f);
+		//car.carrender.SetCollisionBoxView(true);
 
 		//ゲームステージ初期化
 		if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
+		
+		auto stageco = stage.GetCollisionObject();
+		stageco->collisionuse = false;
+		stage.SetCollisionBoxView(false);
 
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//
+		auto quadco = quad.GetCollisionObject();
+		quadco->collisionuse = false;
+		quad.SetCollisionBoxView(false);
 
 		//スカイボックス初期化
 		if (!skybox.Initialize("Data\\Objects\\skybox.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -522,7 +523,6 @@ bool Graphics::InitializeScene()
 		PointLight* pointlight = new PointLight();
 		pointlight->SetPosition(0, 0, -100);
 		pointLights.push_back(pointlight);
-		
 
 		//スプライト初期化
 		//if (!sprite.Initialize(this->device.Get(), this->deviceContext.Get(), 256, 256, "Data/Textures/sprite_256x256.png", cb_vs_vertexshader_2d))

@@ -23,15 +23,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	Engine engine;
+
+	Timer fpstimer;
+	fpstimer.Start();
 	// ウィンドウの作成
 	if (engine.Initialize(hInstance, "Title", "MyWindowClass", 800, 600))
 	{
+		
 		// メッセージループ
 		while (engine.ProcessMessages() == true)
 		{
-			engine.Update();		// 更新処理
-			engine.RenderFrame();	// 描画処理
+			if (fpstimer.GetMilisecondsElapsed() >= 1000.0f / 60.0f)
+			{
+				engine.Update();		// 更新処理 deltatime_mili
+				engine.RenderFrame();	// 描画処理
+
+				fpstimer.Restart();
+			}
 		}
+
 	}
 	return 0;
 }

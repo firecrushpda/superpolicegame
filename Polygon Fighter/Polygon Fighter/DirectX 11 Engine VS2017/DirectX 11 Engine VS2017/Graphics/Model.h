@@ -140,8 +140,8 @@ enum CollsionType
 class CollsionObject
 {
 public:
-	//CollsionObject();
-	//CollsionObject(const CollsionObject & co);
+
+	bool collisionuse;
 	bool debugmeshflag;
 	int boneindex = -1;
 	DirectX::XMMATRIX oritransform;

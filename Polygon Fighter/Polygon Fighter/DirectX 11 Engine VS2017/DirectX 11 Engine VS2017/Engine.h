@@ -16,8 +16,11 @@ public:
 	bool ProcessMessages();
 	void Update();
 	void RenderFrame();
+
 private:
 	Timer timer;//タイマー
 
-	DirectX::ContainmentType precoreslut;
+	//DirectX::ContainmentType precoreslut;
+
+	bool mIsInput;
 };

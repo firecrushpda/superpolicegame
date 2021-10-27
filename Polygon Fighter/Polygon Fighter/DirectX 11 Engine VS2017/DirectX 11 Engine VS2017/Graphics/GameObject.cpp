@@ -120,10 +120,10 @@ void GameObject::AdjustRotation(float x, float y, float z)
 
 void GameObject::SetScale(float xScale, float yScale, float zScale)
 {
-	scale.x = xScale;
-	scale.y = yScale;
-	scale.z = zScale;
-	UpdateMatrix();
+	this->scale.x = xScale;
+	this->scale.y = yScale;
+	this->scale.z = zScale;
+	this->UpdateMatrix();
 }
 
 void GameObject::UpdateMatrix()

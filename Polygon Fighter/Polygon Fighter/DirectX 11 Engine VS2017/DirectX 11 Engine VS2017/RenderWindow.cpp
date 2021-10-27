@@ -12,7 +12,6 @@
 //=============================================================================
 bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
-
 	this->hInstance = hInstance;
 	this->width = width;
 	this->height = height;
@@ -142,25 +141,32 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 //=============================================================================
 // メッセージループ
 //=============================================================================
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+		return true;
+	
 	switch (uMsg)
 	{
-	case WM_NCCREATE://WM_CREATE WM_NCCREATE
-	{
-	const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-	WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
-	if (pWindow == nullptr) //Sanity check
-	{
-		ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
-		exit(-1);
-	}
-	SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
-	SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
+		case WM_NCCREATE:
+		{
+		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+		WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
+		if (pWindow == nullptr) //Sanity check
+		{
+			ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
+			exit(-1);
+		}
 
-	return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
-	}
-	default:
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
+		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
+
+		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
+		}
+		default:
+
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
 

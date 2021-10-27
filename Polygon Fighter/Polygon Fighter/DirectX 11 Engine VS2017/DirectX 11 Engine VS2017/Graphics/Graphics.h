@@ -23,9 +23,7 @@
 #include "SkyBox.h"
 #include "SpotLight.h"
 #include "PointLight.h"
-#include "../Car.h"
-//#include <Effekseer/Effekseer.h>
-//#include <Effekseer/src/EffekseerRendererDX11/EffekseerRendererDX11.h>
+#include "Car.h"
 
 class Graphics
 {
