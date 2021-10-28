@@ -176,6 +176,8 @@ void Engine::Update()
 		gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 	}
 
+	gfx.cac->Update(1.0f/60.0f);
+
 	//collision
 	//Õ“Ë”»’è
 	//auto playerblade = gfx.gameObject.GetBladeCollsionObject();

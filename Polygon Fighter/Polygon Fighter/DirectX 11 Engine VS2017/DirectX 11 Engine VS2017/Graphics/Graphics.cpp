@@ -130,6 +130,7 @@ void Graphics::RenderFrame()
 		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
 
 		car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		//ステージ描画
 		stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
@@ -487,8 +488,18 @@ bool Graphics::InitializeScene()
 
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj
-		//car.carrender.SetScale(50.0f, 100.0f, 50.0f);
-		//car.carrender.SetCollisionBoxView(true);
+		car.carrender.SetScale(5.0f, 5.0f, 5.0f);
+		car.carrender.SetCollisionBoxView(true);
+
+		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		chasecar.carrender.SetScale(5.0f, 5.0f, 5.0f);
+		chasecar.carrender.SetCollisionBoxView(true);
+		
+		cac = new CarAIController();
+		cac->SetAICar(&chasecar);
+		auto carpos = car.carrender.GetPositionFloat3();
+		cac->SetPLayerCarPos(&carpos);
 
 		//ゲームステージ初期化
 		if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))

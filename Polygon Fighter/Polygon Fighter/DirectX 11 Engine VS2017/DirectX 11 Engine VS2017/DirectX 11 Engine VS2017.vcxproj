@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="Graphics\Car.cpp" />
     <ClCompile Include="Graphics\Camera2D.cpp" />
+    <ClCompile Include="Graphics\CarAIController.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
     <ClCompile Include="Graphics\GameObject3D.cpp" />
     <ClCompile Include="Graphics\Color.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="Graphics\Car.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
+    <ClInclude Include="Graphics\CarAIController.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
     <ClInclude Include="Graphics\GameObject3D.h" />
     <ClInclude Include="Graphics\Color.h" />

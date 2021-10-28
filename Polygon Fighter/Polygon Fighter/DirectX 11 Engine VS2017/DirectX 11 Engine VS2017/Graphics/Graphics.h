@@ -24,6 +24,7 @@
 #include "SpotLight.h"
 #include "PointLight.h"
 #include "Car.h"
+#include "CarAIController.h"
 
 class Graphics
 {
@@ -51,6 +52,8 @@ public:
 
 	//
 	Car car;
+	Car chasecar;
+	CarAIController* cac;
 
 	RenderableGameObject quad;
 
