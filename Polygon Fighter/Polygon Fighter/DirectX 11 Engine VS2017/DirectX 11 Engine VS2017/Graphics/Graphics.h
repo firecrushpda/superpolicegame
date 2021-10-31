@@ -43,6 +43,7 @@ public:
 
 	//スプライト2d用
 	Sprite sprite;
+	Sprite sprite1;
 
 	//ステージ
 	RenderableGameObject stage;
@@ -115,6 +116,9 @@ private:
 
 	//ブレンドステート
 	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
+	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_alphaBlend;
+	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_add;
+	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_substract;
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;

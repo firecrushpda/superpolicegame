@@ -168,7 +168,21 @@ void Engine::Update()
 	//fix camera
 	if (cameratype == 0)
 	{
-		auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetBackwardVector() * 10;
+		auto viewrot = gfx.Camera3D.roundviewrot;
+		auto carrot = gfx.car.carrender.GetRotationFloat3();
+		if (viewrot.y != carrot.y)
+		{
+			auto viewrotV = XMLoadFloat3(&viewrot);
+			auto carrotV = XMLoadFloat3(&carrot);
+			auto lerpvalue = XMVectorLerp(viewrotV, carrotV, 0.035f);
+			XMStoreFloat3(&gfx.Camera3D.roundviewrot, lerpvalue);
+		}
+
+		auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+		XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
+		auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+
+		auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * 10;
 		DirectX::XMFLOAT3 temp;
 		DirectX::XMStoreFloat3(&temp, testpos);
 		temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
@@ -177,6 +191,11 @@ void Engine::Update()
 	}
 
 	gfx.cac->Update(1.0f/60.0f);
+
+	auto vel = gfx.car.GetCarVelocity();
+	auto maxspeed = gfx.car.GetMaxSpeed();
+	gfx.car.carsui.Update(1.0f - std::abs(vel) / maxspeed, vel);
+	//gfx.sprite1.UpdateFillAmount(1.0f - std::abs(vel)/ maxspeed);
 
 	//collision
 	//è’ìÀîªíË

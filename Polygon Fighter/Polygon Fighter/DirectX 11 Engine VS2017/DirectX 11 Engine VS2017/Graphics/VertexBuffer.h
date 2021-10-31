@@ -90,10 +90,8 @@ public:
 	}
 
 
-	//not use
 	//動的にバーテックス情報を更新
-	//未使用
-	void Refresh(ID3D11DeviceContext* devicecontext, T* data, UINT vertexCount)// std::vector<Vertex3D> varray
+	void Refresh(ID3D11DeviceContext* devicecontext, T* data, UINT vertexCount)
 	{
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -106,7 +104,7 @@ public:
 		{
 			//  Update the vertex buffer here.
 			//memcpy(mappedResource.pData, varray.data(), sizeof(Vertex3D) * varray.size());
-			memcpy(mappedResource.pData, data, sizeof(Vertex3D) * vertexCount);//stride * vertexCount sizeof(data)
+			memcpy(mappedResource.pData, data, sizeof(T) * vertexCount);//stride * vertexCount sizeof(data)
 			//  Reenable GPU access to the vertex buffer data.
 			devicecontext->Unmap(buffer.Get(), 0);
 		}

@@ -67,7 +67,7 @@ void Camera3D::ChangeFocusMode(unsigned int index,GameObject3D* go)
 	cameratype = index;
 	if (go != nullptr) focusgo = go;
 
-	if (index == 1)
+	if (index == 0)
 	{
 		ResetFollowCamera();
 	}
@@ -76,11 +76,11 @@ void Camera3D::ChangeFocusMode(unsigned int index,GameObject3D* go)
 void Camera3D::ResetFollowCamera() {
 	if (focusgo == nullptr)return;
 
-	pos = { 0,0,0 };
-	rot = { 0,0,0 };
-	//this->SetLookAtPos(focusgo->GetPositionFloat3());
-	auto tgpos = focusgo->GetPositionFloat3();
-	pos.x = tgpos.x - sinf(rot.y) * focusLength;
-	pos.z = tgpos.z - cosf(rot.y) * focusLength;
-	//pos.z = tgpos.z - cosf(rot.y) * focusLength;
+	this->roundviewrot = focusgo->GetRotationFloat3();
+	auto testpos = focusgo->GetPositionVector() + focusgo->GetBackwardVector() * 10;
+	DirectX::XMFLOAT3 temp;
+	DirectX::XMStoreFloat3(&temp, testpos);
+	temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
+	SetPosition(temp);
+	SetLookAtPos(focusgo->GetPositionFloat3());
 }

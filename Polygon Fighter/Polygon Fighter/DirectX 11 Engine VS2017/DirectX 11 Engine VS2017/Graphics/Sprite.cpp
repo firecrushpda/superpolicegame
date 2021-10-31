@@ -25,7 +25,7 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 		Vertex2D(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f), //TopLeft
 		Vertex2D(0.5f, -0.5f, 0.0f, 1.0f, 0.0f), //TopRight
 		Vertex2D(-0.5, 0.5, 0.0f, 0.0f, 1.0f), //Bottom Left
-		Vertex2D(0.5, 0.5, 0.0f, 1.0f, 1.0f), //Bottom Right
+		Vertex2D(0.5f, 0.5, 0.0f, 1.0f, 1.0f), //Bottom Right
 	};
 
 	std::vector<DWORD> indexData =
@@ -79,4 +79,21 @@ float Sprite::GetHeight()
 void Sprite::UpdateMatrix()
 {
 	worldMatrix = XMMatrixScaling(scale.x, scale.y, 1.0f) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
+}
+
+void Sprite::UpdateFillAmount(float rate) {
+	//horizontal type
+	rate = std::clamp(rate, 0.0f, 1.0f);
+	std::vector<Vertex2D> vertexData =
+	{
+		Vertex2D(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f), //TopLeft
+		Vertex2D(0.5f - rate, -0.5f, 0.0f, 1.0f - rate, 0.0f), //TopRight
+		Vertex2D(-0.5, 0.5, 0.0f, 0.0f, 1.0f), //Bottom Left
+		Vertex2D(0.5f - rate, 0.5, 0.0f, 1.0f - rate, 1.0f), //Bottom Right
+	};
+	vertices.Refresh(deviceContext, vertexData.data(), vertexData.size());
+}
+
+void Sprite::UpdateUV(std::vector<Vertex2D> vertexData) {
+	vertices.Refresh(deviceContext, vertexData.data(), vertexData.size());
 }

@@ -20,6 +20,9 @@ public:
 	void Draw(XMMATRIX orthoMatrix); //2d camera orthogonal matrix
 	float GetWidth();
 	float GetHeight();
+
+	void UpdateFillAmount(float rate);
+	void UpdateUV(std::vector<Vertex2D> vertexData);
 private:
 	void UpdateMatrix() override;
 

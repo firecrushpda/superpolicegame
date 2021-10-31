@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderableGameObject.h"
+#include "CarSpeedUI.h"
 
 enum PhysicsMode
 {
@@ -36,6 +37,11 @@ public:
 	void MoveFowards(float delta, float accelfactor);
 	float CalcWheelSpeed(float delta);
 	void Turn(float delta, float accelfactor);
+
+	float GetCarVelocity();
+	float GetMaxSpeed();
+
+	CarSpeedUI carsui;
 
 private:
 

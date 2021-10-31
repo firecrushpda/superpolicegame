@@ -63,7 +63,7 @@ void Graphics::RenderFrame()
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);//D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-	deviceContext->OMSetBlendState(NULL, NULL, 0xFFFFFFFF);
+	deviceContext->OMSetBlendState(blendState.Get(), NULL, 0xFFFFFFFF);
 
 	deviceContext->IASetInputLayout(vertexshader_skyBox.GetInputLayout());
 	deviceContext->VSSetShader(vertexshader_skyBox.GetShader(), NULL, 0);
@@ -144,10 +144,14 @@ void Graphics::RenderFrame()
 		
 	}
 
-	//deviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
-	//deviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
-	//deviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
+	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
+	deviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
+	deviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
+	car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 	//sprite.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+	//sprite1.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
 	//Draw Text
 	//タイマー表示
@@ -166,9 +170,14 @@ void Graphics::RenderFrame()
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 	std::wstring wsnum = cv.from_bytes(pos);
 
+	auto vel = car.GetCarVelocity();
+	std::string veltext = std::to_string(vel);
+	std::wstring velutf8 = cv.from_bytes(veltext);
+
 	spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f,0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
 	//サポートUI描画
@@ -285,7 +294,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state.");
 
-		depthstencildesc.DepthEnable = false;
+		depthstencildesc.DepthEnable = true;
 		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthUnenableStencilState.GetAddressOf());
@@ -322,9 +331,52 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 		D3D11_BLEND_DESC blendDesc = { 0 };
 		blendDesc.RenderTarget[0] = rtbd;
+		blendDesc.AlphaToCoverageEnable = true;
 
 		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
+
+		//rtbd = { 0 };
+		//rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		//rtbd.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		//rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+		//rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+		//rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+		//rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		//rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		//blendDesc.RenderTarget[0] = rtbd;
+
+		//hr = this->device->CreateBlendState(&blendDesc, this->blendState_alphaBlend.GetAddressOf());
+		//COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
+
+		//rtbd = { 0 };
+		//rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		//rtbd.DestBlend = D3D11_BLEND_ONE;
+		//rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+		//rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+		//rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+		//rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		//rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		//blendDesc.RenderTarget[0] = rtbd;
+
+		//hr = this->device->CreateBlendState(&blendDesc, this->blendState_add.GetAddressOf());
+		//COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
+
+		//rtbd = { 0 };
+		//rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		//rtbd.DestBlend = D3D11_BLEND_ONE;
+		//rtbd.BlendOp = D3D11_BLEND_OP_REV_SUBTRACT;
+		//rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+		//rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+		//rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		//rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		//blendDesc.RenderTarget[0] = rtbd;
+
+		//hr = this->device->CreateBlendState(&blendDesc, this->blendState_substract.GetAddressOf());
+		//COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
 
 		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
 		spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -464,7 +516,6 @@ bool Graphics::InitializeScene()
 		hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\seamless_pavement.jpg", nullptr, pavementTexture.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create wic texture from file.");
 
-		
 
 		//Initialize Constant Buffer(s)
 		//定数バッファ初期化
@@ -488,12 +539,12 @@ bool Graphics::InitializeScene()
 
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj
-		car.carrender.SetScale(5.0f, 5.0f, 5.0f);
+		//car.carrender.SetScale(5.0f, 5.0f, 5.0f);
 		car.carrender.SetCollisionBoxView(true);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		chasecar.carrender.SetScale(5.0f, 5.0f, 5.0f);
+		//chasecar.carrender.SetScale(5.0f, 5.0f, 5.0f);
 		chasecar.carrender.SetCollisionBoxView(true);
 		
 		cac = new CarAIController();
@@ -536,18 +587,20 @@ bool Graphics::InitializeScene()
 		pointLights.push_back(pointlight);
 
 		//スプライト初期化
-		//if (!sprite.Initialize(this->device.Get(), this->deviceContext.Get(), 256, 256, "Data/Textures/sprite_256x256.png", cb_vs_vertexshader_2d))
+		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d);
+		//if (!sprite.Initialize(this->device.Get(), this->deviceContext.Get(), 207, 100, "Data/Textures/speedbar1.png", cb_vs_vertexshader_2d))
 		//	return false;
+		//sprite.SetPosition(XMFLOAT3( 0,500,0));
+		//
+		//if (!sprite1.Initialize(this->device.Get(), this->deviceContext.Get(), 207, 100, "Data/Textures/speedbar2.png", cb_vs_vertexshader_2d))
+		//	return false;
+		//sprite1.SetPosition(XMFLOAT3(0, 500, 0));
 
 		//カメラ設置
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
 
 		//camera3D
-		auto testpos = car.carrender.GetPositionVector() + car.carrender.GetBackwardVector() * 20;
-		DirectX::XMFLOAT3 temp;
-		DirectX::XMStoreFloat3(&temp, testpos);
-		//temp = DirectX::XMFLOAT3(temp.x, temp.y + 200, temp.z);
-		Camera3D.SetPosition(temp);
+		Camera3D.ChangeFocusMode(0, &car.carrender);
 		Camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
 	}
 	catch (COMException & exception)

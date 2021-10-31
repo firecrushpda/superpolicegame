@@ -150,6 +150,9 @@
     <ClCompile Include="Graphics\CarAIController.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\CarSpeedUI.cpp">
+      <Filter>Header Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
@@ -288,6 +291,9 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\CarAIController.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CarSpeedUI.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

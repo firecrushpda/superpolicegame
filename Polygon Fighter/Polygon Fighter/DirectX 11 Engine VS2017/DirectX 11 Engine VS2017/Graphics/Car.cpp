@@ -118,3 +118,13 @@ void Car::Turn(float delta, float accelfactor)
 	}
 	carrender.SetRotation(rot);
 }
+
+float Car::GetCarVelocity() 
+{
+	return mCarVelocity.z;
+}
+
+float Car::GetMaxSpeed() 
+{
+	return mMaxSpeed;
+}

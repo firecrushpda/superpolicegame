@@ -22,8 +22,11 @@ public:
 	float focusLength = 50;
 	unsigned int cameratype = 0;//0 follow  1 free
 	GameObject3D* focusgo;
+	XMFLOAT3 roundviewrot;
+
 private:
 	void UpdateMatrix() override;
+	
 	
 	XMMATRIX viewMatrix;//ビューマトリクス
 	XMMATRIX projectionMatrix;//プロジェクトマトリクス
