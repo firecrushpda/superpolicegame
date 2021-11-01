@@ -9,6 +9,12 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 
 	carrender.Initialize(filePath, device, deviceContext, cb_vs_vertexshader);
+	//auto Global= DirectX::XMMatrixSet(
+	//	0, 0, -1, 0,
+	//	0, 1, 0, 0,
+	//	1, 0, 0, 0,
+	//	0, 0, 0, 1
+	//);
 	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity());
 
 	//test

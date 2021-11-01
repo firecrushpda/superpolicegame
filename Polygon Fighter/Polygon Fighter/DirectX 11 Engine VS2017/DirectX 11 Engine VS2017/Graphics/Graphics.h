@@ -25,6 +25,16 @@
 #include "PointLight.h"
 #include "Car.h"
 #include "CarAIController.h"
+#include "Title.h"
+
+enum GameState
+{
+	title,
+	game,
+	tutorial,
+	score,
+	editor
+};
 
 class Graphics
 {
@@ -41,9 +51,8 @@ public:
 	//カメラ2d
 	Camera2D camera2D;
 
-	//スプライト2d用
-	Sprite sprite;
-	Sprite sprite1;
+	//2d用
+	Title title;
 
 	//ステージ
 	RenderableGameObject stage;
@@ -76,6 +85,8 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
+	bool InitalizeBuffers();
+	bool InitializeTitle();
 	
 	bool InitializeEffekseer();
 	void EffekseerUpdate();

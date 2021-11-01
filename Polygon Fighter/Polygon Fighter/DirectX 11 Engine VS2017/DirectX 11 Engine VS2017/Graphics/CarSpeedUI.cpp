@@ -28,6 +28,9 @@ void CarSpeedUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceC
 		speeddigb[i].Initialize(device, deviceContext, 12.5, 74 / 4, "Data/Textures/cartoonnum.png", cb_vs_vertexshader_2d);
 		speeddigb[i].SetPosition(spdigpos.x + 85 +12.5 * i, spdigpos.y + 20, 0);
 	}
+
+	warningUI.Initialize(device, deviceContext, 96, 54, "Data/Textures/ui_sample.jpg", cb_vs_vertexshader_2d);
+	warningUI.SetPosition(XMFLOAT3(400 - 96/2, 300 - 54/2, 0));
 }
 
 void CarSpeedUI::Update(float fillamount, float speed) {
@@ -79,5 +82,10 @@ void CarSpeedUI::Draw(XMMATRIX orthoMatrix) {
 	for (size_t i = 0; i < 2; i++)
 	{
 		speeddigb[i].Draw(orthoMatrix);
+	}
+
+	if (false)
+	{
+		warningUI.Draw(orthoMatrix);
 	}
 }

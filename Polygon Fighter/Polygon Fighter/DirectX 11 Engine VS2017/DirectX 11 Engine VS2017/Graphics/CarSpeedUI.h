@@ -12,6 +12,7 @@ class CarSpeedUI
 public:
 	Sprite speedbar;
 
+	Sprite warningUI;
 	XMFLOAT2 spdigpos = XMFLOAT2(100,550);
 	void Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d);
 	void Update(float fillamount, float speed);

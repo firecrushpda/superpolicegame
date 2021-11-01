@@ -179,6 +179,7 @@
     <ClCompile Include="Graphics\PointLight.cpp" />
     <ClCompile Include="Graphics\SkyBox.cpp" />
     <ClCompile Include="Graphics\SpotLight.cpp" />
+    <ClCompile Include="Graphics\Title.cpp" />
     <ClCompile Include="Keyboard\KeyboardClass.cpp" />
     <ClCompile Include="Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="Graphics\PointLight.h" />
     <ClInclude Include="Graphics\SkyBox.h" />
     <ClInclude Include="Graphics\SpotLight.h" />
+    <ClInclude Include="Graphics\Title.h" />
     <ClInclude Include="Keyboard\KeyboardClass.h" />
     <ClInclude Include="Keyboard\KeyboardEvent.h" />
     <ClInclude Include="Graphics\Model.h" />

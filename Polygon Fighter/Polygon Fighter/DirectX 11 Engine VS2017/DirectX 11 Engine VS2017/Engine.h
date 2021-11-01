@@ -21,6 +21,8 @@ private:
 	Timer timer;//タイマー
 
 	//DirectX::ContainmentType precoreslut;
+	
+	bool testbool = false;
 
 	bool mIsInput;
 };

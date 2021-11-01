@@ -10,7 +10,6 @@
 class GameObject3D : public GameObject
 {
 public:
-	float hp = 100;
 
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 	const DirectX::XMVECTOR & GetForwardVector(bool omitY = false);

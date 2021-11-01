@@ -134,7 +134,8 @@ enum CollsionType
 {
 	Player,
 	Enemy,
-	Blade
+	Blade,
+	Camera
 };
 
 class CollsionObject
@@ -149,6 +150,18 @@ public:
 	BoundingBox aabb;
 	CollsionType ct;
 };
+
+class CollisionCamera
+{
+public:
+	bool collisionuse;
+	DirectX::XMMATRIX oritransform;
+	BoundingFrustum aabb;
+	CollsionType ct;
+private:
+
+};
+
 
 //ƒ‚ƒfƒ‹ƒNƒ‰ƒX
 class Model

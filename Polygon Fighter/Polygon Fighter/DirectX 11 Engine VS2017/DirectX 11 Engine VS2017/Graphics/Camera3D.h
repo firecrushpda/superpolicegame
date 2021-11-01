@@ -12,12 +12,15 @@ class Camera3D : public GameObject3D
 {
 public:
 	Camera3D();
+
 	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 	void ChangeFocusMode(unsigned int index, GameObject3D* go);
 	void ResetFollowCamera();
 
 	const XMMATRIX & GetViewMatrix() const;
 	const XMMATRIX & GetProjectionMatrix() const;
+
+	CollisionCamera* GetCameraCollision();
 
 	float focusLength = 50;
 	unsigned int cameratype = 0;//0 follow  1 free
@@ -27,7 +30,12 @@ public:
 private:
 	void UpdateMatrix() override;
 	
+	//collision
+	CollisionCamera* collision = nullptr;
+
+	bool ProcessCollsion(CollsionType cotype, DirectX::XMMATRIX oritrans);
 	
 	XMMATRIX viewMatrix;//ビューマトリクス
 	XMMATRIX projectionMatrix;//プロジェクトマトリクス
+
 };

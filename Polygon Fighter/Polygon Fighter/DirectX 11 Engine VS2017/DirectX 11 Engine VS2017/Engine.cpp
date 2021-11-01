@@ -13,8 +13,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 {
 	timer.Start();
 
-	//input.InitInput(hInstance, render_window.GetHWND());
-
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
 		return false;
 
@@ -195,7 +193,8 @@ void Engine::Update()
 	auto vel = gfx.car.GetCarVelocity();
 	auto maxspeed = gfx.car.GetMaxSpeed();
 	gfx.car.carsui.Update(1.0f - std::abs(vel) / maxspeed, vel);
-	//gfx.sprite1.UpdateFillAmount(1.0f - std::abs(vel)/ maxspeed);
+
+	mIsInput = false;
 
 	//collision
 	//è’ìÀîªíË
@@ -224,7 +223,8 @@ void Engine::Update()
 	//	}
 	//}
 	//precoreslut = coresult;
-	mIsInput = false;
+
+	
 }
 
 //=============================================================================

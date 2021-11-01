@@ -25,6 +25,18 @@ void Camera3D::SetProjectionValues(float fovDegrees, float aspectRatio, float ne
 {
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
+
+	if (collision == nullptr)
+		ProcessCollsion(CollsionType::Camera,DirectX::XMMatrixIdentity());
+
+	auto worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
+		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	auto collisonWorldMatrix = collision->oritransform * worldMatrix * viewMatrix * projectionMatrix;
+
+	collision->aabb = BoundingFrustum(collisonWorldMatrix);
+	//collision->aabb.Transform(collision->aabb, collisonWorldMatrix);
+
 }
 
 //=============================================================================
@@ -83,4 +95,18 @@ void Camera3D::ResetFollowCamera() {
 	temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
 	SetPosition(temp);
 	SetLookAtPos(focusgo->GetPositionFloat3());
+}
+
+bool Camera3D::ProcessCollsion(CollsionType cotype, DirectX::XMMATRIX oritrans) 
+{
+	collision = new CollisionCamera();
+	collision->ct = cotype;
+	collision->collisionuse = true;
+	collision->aabb = BoundingFrustum(this->projectionMatrix);
+	collision->oritransform = oritrans;
+	return  true;
+}
+
+CollisionCamera* Camera3D::GetCameraCollision() {
+	return this->collision;
 }
