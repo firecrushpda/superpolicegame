@@ -15,6 +15,8 @@ Camera3D::Camera3D()
 	this->posVector = XMLoadFloat3(&this->pos);
 	this->rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	this->rotVector = XMLoadFloat3(&this->rot);
+	if (collision == nullptr)
+		ProcessCollsion(CollsionType::Camera);
 	this->UpdateMatrix();
 }
 
@@ -26,16 +28,7 @@ void Camera3D::SetProjectionValues(float fovDegrees, float aspectRatio, float ne
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 
-	if (collision == nullptr)
-		ProcessCollsion(CollsionType::Camera,DirectX::XMMatrixIdentity());
-
-	auto worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
-		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
-		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
-	auto collisonWorldMatrix = collision->oritransform * worldMatrix * viewMatrix * projectionMatrix;
-
-	collision->aabb = BoundingFrustum(collisonWorldMatrix);
-	//collision->aabb.Transform(collision->aabb, collisonWorldMatrix);
+	collision->frustum = BoundingFrustum(this->projectionMatrix);
 
 }
 
@@ -71,6 +64,12 @@ void Camera3D::UpdateMatrix() //Updates view matrix and also updates the movemen
 	//Rebuild view matrix
 	this->viewMatrix = XMMatrixLookAtLH(this->posVector, camTarget, upDir);
 
+	//collision
+	this->collision->frustum.Origin.x = XMVectorGetX(posVector);
+	this->collision->frustum.Origin.y = XMVectorGetY(posVector);
+	this->collision->frustum.Origin.z = XMVectorGetZ(posVector);
+	XMStoreFloat4(&(this->collision->frustum.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+
 	this->UpdateDirectionVectors();
 }
 
@@ -97,14 +96,13 @@ void Camera3D::ResetFollowCamera() {
 	SetLookAtPos(focusgo->GetPositionFloat3());
 }
 
-bool Camera3D::ProcessCollsion(CollsionType cotype, DirectX::XMMATRIX oritrans) 
+bool Camera3D::ProcessCollsion(CollsionType cotype) 
 {
 	collision = new CollisionCamera();
 	collision->ct = cotype;
 	collision->collisionuse = true;
-	collision->aabb = BoundingFrustum(this->projectionMatrix);
-	collision->oritransform = oritrans;
-	return  true;
+	collision->frustum = BoundingFrustum(this->projectionMatrix);
+	return true;
 }
 
 CollisionCamera* Camera3D::GetCameraCollision() {

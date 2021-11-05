@@ -16,6 +16,7 @@ public:
 	bool ProcessMessages();
 	void Update();
 	void RenderFrame();
+	void ChangeStats(GameState state);
 
 private:
 	Timer timer;//タイマー

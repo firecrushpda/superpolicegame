@@ -17,7 +17,6 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	//);
 	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity());
 
-	//test
 	mMaxSpeed = 8.0f;
 	mCarMaxSpeed = XMFLOAT3(0.015f, 0.0f, 8.0f); // Steering, Up, Fowards
 	mCarSpeed = 0.0f;

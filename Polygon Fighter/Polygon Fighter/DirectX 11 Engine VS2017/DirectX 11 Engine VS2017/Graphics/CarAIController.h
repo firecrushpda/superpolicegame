@@ -31,6 +31,7 @@ public:
 	void Avoid(XMFLOAT3 pos, float delta);
 
 private:
+
 	vector<XMFLOAT3> mTrackPoints;
 	XMFLOAT3* mPlayerCar;
 	Car* mAICar;

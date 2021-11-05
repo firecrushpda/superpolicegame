@@ -14,6 +14,7 @@ CarAIController::CarAIController()
 	roadcontentfile = "SceneLayout.txt";
 
 	LoadContent();
+
 }
 
 

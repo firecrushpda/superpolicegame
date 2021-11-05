@@ -133,12 +133,42 @@ void Graphics::RenderFrame()
 		this->deviceContext->PSSetShaderResources(4, 1, &brdfLUTSRV);
 		this->deviceContext->PSSetShaderResources(5, 1, &skyIBLSRV);
 		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
+		
+		if (gs == GameState::game)
+		{
+			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
-		car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-		//chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//ステージ描画
+			stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				/*build.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build1.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build2.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build3.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build4.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build5.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build6.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build7.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build8.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build9.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build10.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build11.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build12.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build13.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build14.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build15.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build16.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build17.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build18.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build19.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build20.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build21.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build22.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build23.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build24.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				build25.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());*/
+		}
 
-		//ステージ描画
-		//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
 		//ライト描画
@@ -154,8 +184,32 @@ void Graphics::RenderFrame()
 	deviceContext->IASetInputLayout(vertexshader_2d.GetInputLayout());
 	deviceContext->PSSetShader(pixelshader_2d.GetShader(), NULL, 0);
 	deviceContext->VSSetShader(vertexshader_2d.GetShader(), NULL, 0);
-	car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-	title.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+	if (gs == GameState::title)
+	{
+		title.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+	}
+
+	if (gs == GameState::game)
+	{
+		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		if (car.warninguiflag)
+		{
+			car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		}
+		
+	}
+
+	if (gs == GameState::tutorial)
+	{
+		tutorial.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+	}
+
+	if (gs == GameState::score)
+	{
+		score.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+	}
+	
+	fade.DrawFade(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
 	//Draw Text
 	//タイマー表示
@@ -182,26 +236,30 @@ void Graphics::RenderFrame()
 	auto cochasecar = chasecar.carrender.GetCollisionObject();
 	auto cocamera = Camera3D.GetCameraCollision();
 
-	DirectX::ContainmentType coresult = cochasecar->aabb.Contains(cocar->aabb);
+	DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
 	bool testbool = false;
 	coresult == 0 ? testbool = true : testbool = false;
 	std::string testbooltext = std::to_string(coresult);
 	std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
-	spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f,0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->End();
+	if (gs == GameState::game)
+	{
+		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
+		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteBatch->End();
+	}
+	
 
 	//サポートUI描画
-	if (showImgui)
+	// Start the Dear ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	if (showImgui && gs == GameState::game)
 	{
-		// Start the Dear ImGui frame
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
 		//Create ImGui Test Window
 		ImGui::Begin("Light Controls");
 		//ImGui::NewLine();
@@ -217,14 +275,35 @@ void Graphics::RenderFrame()
 		auto pointlightpos = pointLights.at(0)->GetPositionFloat3();
 		ImGui::DragFloat3("Dynamic Light Strength", &pointlightpos.x, 1.0f, -100.0f, 100.0f);
 		pointLights.at(0)->SetPosition(pointlightpos);
-		
 
 		ImGui::End();
-		//Assemble Together Draw Data
-		ImGui::Render();
-		//Render Draw Data
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
+
+	if (gs == GameState::editor)
+	{
+		//Create ImGui Test Window
+		ImGui::Begin("Current Object");
+		//ImGui::NewLine();
+		//ImGui::DragFloat3("Ambient Light Color", &this->cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Roughness", &this->cb_ps_iblstatus.data.roughness, 0.01f, 0.0f, 1.0f);
+		//ImGui::DragFloat("Ambient Light shininess", &this->cb_ps_light.data.objectMaterial.shininess, 0.01f, 0.0f, 10.0f);
+		//ImGui::DragFloat("Ambient Light specularity", &this->cb_ps_light.data.objectMaterial.specularity, 0.01f, 0.0f, 10.0f);
+		ImGui::DragFloat3("Ambient Light Color", &this->light.lightColor.x, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Ambient Light Strength", &this->light.lightStrength, 0.01f, 0.0f, 10.0f);
+		ImGui::NewLine();
+		ImGui::DragFloat3("Dynamic Light Color", &this->pointLights.at(0)->lightColor.x, 0.01f, 0.0f, 1.0f);
+		auto pointlightpos = pointLights.at(0)->GetPositionFloat3();
+		ImGui::DragFloat3("Dynamic Light Strength", &pointlightpos.x, 1.0f, -100.0f, 100.0f);
+		pointLights.at(0)->SetPosition(pointlightpos);
+
+		ImGui::End();
+	}
+
+	//Assemble Together Draw Data
+	ImGui::Render();
+	//Render Draw Data
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	this->swapchain->Present(0, NULL);
 }
@@ -406,6 +485,7 @@ bool Graphics::InitializeShaders()
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		//{ "COLOR",   0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT,0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	UINT numElements2D = ARRAYSIZE(layout2D);
@@ -480,11 +560,21 @@ bool Graphics::InitializeScene()
 	{
 		//title
 		title.Init(this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader_2d, windowWidth, windowHeight);
+		fade.InitFade(this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader_2d, windowWidth, windowHeight);
 
+		//game state
+		gs = GameState::title;
+		tempgs = GameState::title;
 
-		if(!car.CarInitialize("Data\\Objects\\test\\jk_bread.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj
-		car.carrender.SetScale(0.01f, 0.01f, 0.01f);
+		//tutorial
+		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\tutoial.png" ,this->cb_vs_vertexshader_2d);
+
+		//score
+		score.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\result.jpg", this->cb_vs_vertexshader_2d);
+
+		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj jk_bread.fbx
+		car.carrender.SetScale(3, 3, 3);
 		car.carrender.SetCollisionBoxView(true);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -504,6 +594,36 @@ bool Graphics::InitializeScene()
 		auto stageco = stage.GetCollisionObject();
 		stageco->collisionuse = false;
 		stage.SetCollisionBoxView(false);
+
+		/*build.Initialize("Data\\Objects\\test\\bigsite.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build1.Initialize("Data\\Objects\\test\\bill.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build2.Initialize("Data\\Objects\\test\\bill2.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build3.Initialize("Data\\Objects\\test\\bill3.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build4.Initialize("Data\\Objects\\test\\bridge.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build5.Initialize("Data\\Objects\\test\\cocoon_x.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build6.Initialize("Data\\Objects\\test\\conveni.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build7.Initialize("Data\\Objects\\test\\corn2.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build8.Initialize("Data\\Objects\\test\\guardrail02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build9.Initialize("Data\\Objects\\test\\guardrail03.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build10.Initialize("Data\\Objects\\test\\house.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build11.Initialize("Data\\Objects\\test\\house2.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build12.Initialize("Data\\Objects\\test\\jk_bread.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build13.Initialize("Data\\Objects\\test\\kokudou.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build14.Initialize("Data\\Objects\\test\\kokudou_b.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build15.Initialize("Data\\Objects\\test\\kokudou_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build16.Initialize("Data\\Objects\\test\\kokudou_R2.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build17.Initialize("Data\\Objects\\test\\kokudou_T.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build18.Initialize("Data\\Objects\\test\\kokudou_X.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build19.Initialize("Data\\Objects\\test\\p_steering.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build20.Initialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build21.Initialize("Data\\Objects\\test\\sidou.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build22.Initialize("Data\\Objects\\test\\sidou_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build23.Initialize("Data\\Objects\\test\\sidou_T.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build24.Initialize("Data\\Objects\\test\\sidou_X.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+		build25.Initialize("Data\\Objects\\test\\t_steering.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader);
+*/
+
+
 
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//
@@ -533,6 +653,8 @@ bool Graphics::InitializeScene()
 
 		//スプライト初期化
 		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d);
+		car.warningui.Initialize(this->device.Get(), this->deviceContext.Get(),96,37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
+		car.warningui.SetPosition(XMFLOAT3(windowWidth / 2 - 48, windowHeight / 2 - 19, 0));
 
 		//カメラ設置
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
@@ -551,7 +673,7 @@ bool Graphics::InitializeScene()
 
 bool Graphics::InitalizeBuffers() {
 	//Initialize Constant Buffer(s)
-		//定数バッファ初期化
+	//定数バッファ初期化
 	HRESULT hr = this->cb_vs_vertexshader_2d.Initialize(this->device.Get(), this->deviceContext.Get());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize 2d constant buffer.");
 
@@ -895,6 +1017,12 @@ bool Graphics::InitializeIBLStatus()
 	std::cout << "\n" << diff.count();
 
 	return true;
+}
+
+void Graphics::Fade(GameState gs)
+{
+	fade.fadestate = FadeState::Fade_Out;
+	tempgs = gs;
 }
 
 void Graphics::SetDepthEnable(bool Enable)

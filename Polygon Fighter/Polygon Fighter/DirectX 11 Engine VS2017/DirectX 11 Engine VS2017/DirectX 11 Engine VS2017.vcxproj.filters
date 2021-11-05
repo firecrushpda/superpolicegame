@@ -153,8 +153,14 @@
     <ClCompile Include="Graphics\CarSpeedUI.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Fade.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\Title.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Editor.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,6 +306,12 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Title.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Fade.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Editor.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

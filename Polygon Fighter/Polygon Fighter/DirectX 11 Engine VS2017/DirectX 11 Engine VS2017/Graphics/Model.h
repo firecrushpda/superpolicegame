@@ -147,7 +147,7 @@ public:
 	int boneindex = -1;
 	DirectX::XMMATRIX oritransform;
 	std::vector<Mesh> debugmesh;
-	BoundingBox aabb;
+	BoundingOrientedBox obb;
 	CollsionType ct;
 };
 
@@ -156,7 +156,7 @@ class CollisionCamera
 public:
 	bool collisionuse;
 	DirectX::XMMATRIX oritransform;
-	BoundingFrustum aabb;
+	BoundingFrustum frustum;
 	CollsionType ct;
 private:
 

@@ -33,7 +33,7 @@ private:
 	//collision
 	CollisionCamera* collision = nullptr;
 
-	bool ProcessCollsion(CollsionType cotype, DirectX::XMMATRIX oritrans);
+	bool ProcessCollsion(CollsionType cotype);
 	
 	XMMATRIX viewMatrix;//ビューマトリクス
 	XMMATRIX projectionMatrix;//プロジェクトマトリクス

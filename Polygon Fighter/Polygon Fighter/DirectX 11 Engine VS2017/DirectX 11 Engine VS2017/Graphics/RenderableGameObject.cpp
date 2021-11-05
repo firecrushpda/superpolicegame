@@ -179,7 +179,7 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 	auto cnode = Scene->mRootNode->mChildren[0];
 	aiMesh* mesh = Scene->mMeshes[cnode->mMeshes[0]];
 	collision->debugmesh.push_back(this->ProcessDebugMesh(mesh, Scene, DirectX::XMMatrixIdentity()));
-	collision->aabb = BoundingBox();
+	collision->obb = BoundingOrientedBox();
 	collision->oritransform = oritrans;
 
 	return true;
@@ -403,13 +403,15 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 //=============================================================================
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	for (size_t i = 0; i < collision->debugmesh.size(); i++)
-	{
-		collision->aabb.Center = XMFLOAT3(0, 0, 0);
-		collision->aabb.Extents = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		auto collisonWorldMatrix = collision->oritransform * worldMatrix * viewProjectionMatrix;
-		collision->aabb.Transform(collision->aabb, collisonWorldMatrix);
-	}
+	
+	collision->obb.Center.x = this->pos.x;
+	collision->obb.Center.y = this->pos.y;
+	collision->obb.Center.z = this->pos.z;
+	collision->obb.Extents.x = scale.x;
+	collision->obb.Extents.y = scale.y;
+	collision->obb.Extents.z = scale.z;
+	XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+
 }
 
 //=============================================================================

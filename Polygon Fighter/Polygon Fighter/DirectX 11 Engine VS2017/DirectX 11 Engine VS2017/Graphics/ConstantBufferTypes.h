@@ -24,6 +24,7 @@ struct CB_Bone_Info
 struct CB_VS_vertexshader_2d
 {
 	DirectX::XMMATRIX wvpMatrix;
+	DirectX::XMFLOAT4 color = DirectX::XMFLOAT4(1,1,1,1);
 };
 
 

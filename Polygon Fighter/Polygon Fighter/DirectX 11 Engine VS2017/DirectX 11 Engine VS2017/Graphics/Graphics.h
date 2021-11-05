@@ -26,6 +26,7 @@
 #include "Car.h"
 #include "CarAIController.h"
 #include "Title.h"
+#include "Fade.h"
 
 enum GameState
 {
@@ -53,12 +54,48 @@ public:
 
 	//2d用
 	Title title;
+	Fade fade;
+	Sprite tutorial;
+	Sprite score;
 
 	//ステージ
 	RenderableGameObject stage;
 
+	RenderableGameObject build;
+	RenderableGameObject build1;
+	RenderableGameObject build2;
+	RenderableGameObject build3;
+	RenderableGameObject build4;
+	RenderableGameObject build5;
+	RenderableGameObject build6;
+	RenderableGameObject build7;
+	RenderableGameObject build8;
+	RenderableGameObject build9;
+	RenderableGameObject build10;
+	RenderableGameObject build11;
+	RenderableGameObject build12;
+	RenderableGameObject build13;
+	RenderableGameObject build14;
+	RenderableGameObject build15;
+	RenderableGameObject build16;
+	RenderableGameObject build17;
+	RenderableGameObject build18;
+	RenderableGameObject build19;
+	RenderableGameObject build20;
+	RenderableGameObject build21;
+	RenderableGameObject build22;
+	RenderableGameObject build23;
+	RenderableGameObject build24;
+	RenderableGameObject build25;
+	RenderableGameObject build26;
+	RenderableGameObject build27;
+	RenderableGameObject build28;
+
 	//ステージ
 	RenderableGameObject test;
+
+
+
 
 	//
 	Car car;
@@ -79,8 +116,14 @@ public:
 	//深度ステート有効無効設置
 	void SetDepthEnable(bool Enable);
 
+	//game status
+	GameState gs;
+	GameState tempgs;
+
 	//prerender
 	bool InitializeIBLStatus();
+	void Fade(GameState gs);
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
@@ -127,9 +170,6 @@ private:
 
 	//ブレンドステート
 	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
-	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_alphaBlend;
-	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_add;
-	//Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_substract;
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;

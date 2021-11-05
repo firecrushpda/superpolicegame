@@ -3,7 +3,8 @@
 void Title::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d,float width,float height)
 {
 	Bg.Initialize(device, deviceContext, width, height, "Data/Textures/title_background.png", cb_vs_vertexshader_2d);
-	Bg.SetPosition(XMFLOAT3(0, 0, 0));
+	//Bg.SetPosition(XMFLOAT3(0, 0, 0));
+	//Bg.color = XMFLOAT4(1, 1, 1, 0.9f);
 	startUI.Initialize(device, deviceContext, 300 / 2, 100 / 2, "Data/Textures/title_start.png", cb_vs_vertexshader_2d);
 	startUI.SetPosition(XMFLOAT3(600, 400, 0));
 	editor.Initialize(device, deviceContext, 300 / 2, 100 / 2, "Data/Textures/title_editor.png", cb_vs_vertexshader_2d);
@@ -34,6 +35,8 @@ void Title::Update()
 			alphaflag = true;
 		}
 	}
+
+
 }
 
 void Title::Draw(XMMATRIX orthoMatrix) {

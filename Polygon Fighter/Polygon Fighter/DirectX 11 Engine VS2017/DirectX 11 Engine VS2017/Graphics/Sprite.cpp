@@ -55,6 +55,7 @@ void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
 	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
+	cb_vs_vertexshader_2d->data.color = color;
 	cb_vs_vertexshader_2d->data.wvpMatrix = wvpMatrix;
 	cb_vs_vertexshader_2d->ApplyChanges();
 

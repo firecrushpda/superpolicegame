@@ -21,6 +21,7 @@ public:
 	float GetWidth();
 	float GetHeight();
 
+	XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1);
 	void UpdateFillAmount(float rate);
 	void UpdateUV(std::vector<Vertex2D> vertexData);
 private:
@@ -28,6 +29,7 @@ private:
 
 	ConstantBuffer<CB_VS_vertexshader_2d> * cb_vs_vertexshader_2d = nullptr;//定数バッファ
 	XMMATRIX worldMatrix = XMMatrixIdentity();//位置
+	
 
 	std::unique_ptr<Texture> texture;//テクスチャ
 	ID3D11DeviceContext * deviceContext = nullptr;

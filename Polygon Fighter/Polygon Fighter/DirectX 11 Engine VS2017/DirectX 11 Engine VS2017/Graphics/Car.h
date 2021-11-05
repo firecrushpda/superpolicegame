@@ -42,6 +42,8 @@ public:
 	float GetMaxSpeed();
 
 	CarSpeedUI carsui;
+	bool warninguiflag;
+	Sprite warningui;
 
 private:
 

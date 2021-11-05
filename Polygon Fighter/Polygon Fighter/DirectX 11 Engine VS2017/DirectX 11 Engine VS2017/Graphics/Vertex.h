@@ -11,10 +11,10 @@ struct Vertex2D
 {
 	Vertex2D() {}
 	Vertex2D(float x, float y, float z, float u, float v)
-		: pos(x, y, z), texCoord(u, v) {}
+		: pos(x, y, z), texCoord(u, v){}
 
-	DirectX::XMFLOAT3 pos;//位置
-	DirectX::XMFLOAT2 texCoord;//座標
+	DirectX::XMFLOAT3 pos;      //位置
+	DirectX::XMFLOAT2 texCoord; //座標
 };
 
 struct Vertex3D
