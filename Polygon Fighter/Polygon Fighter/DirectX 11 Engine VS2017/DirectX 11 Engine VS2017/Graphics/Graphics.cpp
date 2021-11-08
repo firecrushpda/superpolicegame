@@ -308,6 +308,20 @@ void Graphics::RenderFrame()
 			if (m_editor.mapgoindex != -1)
 				mapgo.erase(mapgo.begin() + m_editor.mapgoindex);
 		}
+
+		if (ImGui::Button("Save"))
+		{
+			ofstream out("Map.txt");
+			if (out.is_open())
+			{
+				for (size_t i = 0; i < mapgo.size(); i++)
+				{
+					//out << "This is a line.\n";
+					//out << "This is another line.\n";
+				}
+				out.close();
+			}
+		}
 			
 
 		//Create ImGui Test Window
