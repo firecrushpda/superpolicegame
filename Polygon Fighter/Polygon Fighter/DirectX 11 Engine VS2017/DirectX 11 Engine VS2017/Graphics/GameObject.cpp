@@ -126,6 +126,31 @@ void GameObject::SetScale(float xScale, float yScale, float zScale)
 	this->UpdateMatrix();
 }
 
+
+const DirectX::XMVECTOR & GameObject::GetScaleVector() const
+{
+	return scaleVector;
+}
+
+const DirectX::XMFLOAT3 & GameObject::GetScaleFloat3() const
+{
+	return scale;
+}
+
+void GameObject::SetScale(const DirectX::XMVECTOR & scale)
+{
+	this->scaleVector = scale;
+	XMStoreFloat3(&this->scale, scale);
+	this->UpdateMatrix();
+}
+
+void GameObject::SetScale(const DirectX::XMFLOAT3 & scale)
+{
+	this->scale = scale;
+	this->scaleVector = XMLoadFloat3(&this->scale);
+	this->UpdateMatrix();
+}
+
 void GameObject::UpdateMatrix()
 {
 	assert("UpdateMatrix must be overridden." && 0);

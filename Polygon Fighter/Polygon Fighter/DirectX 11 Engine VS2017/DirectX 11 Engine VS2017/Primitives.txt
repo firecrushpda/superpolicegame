@@ -1,0 +1,3 @@
+O Data\Objects\test\bigsite.obj
+O Data\Objects\test\bill.obj
+O Data\Objects\test\bill2.obj

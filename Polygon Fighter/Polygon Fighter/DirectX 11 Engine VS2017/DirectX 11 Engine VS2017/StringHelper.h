@@ -11,6 +11,9 @@
 #include <sstream>
 #include <algorithm>
 
+#include <io.h>
+#include <fstream>
+
 class StringHelper
 {
 public:
@@ -26,4 +29,6 @@ public:
 	//Split
 	static void Split(const std::string& s, std::vector<std::string>& outSplitStrings, const char& delim);
 	static void Split(const std::string& s, std::vector<std::string>& OutStrings, const std::string& delim);
+
+	static void GetFolder(const std::string& foldername, std::vector<std::string>& filesname);
 };

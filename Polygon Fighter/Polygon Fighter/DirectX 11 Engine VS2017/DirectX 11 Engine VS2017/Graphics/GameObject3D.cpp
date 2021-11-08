@@ -69,6 +69,7 @@ const XMVECTOR & GameObject3D::GetLeftVector(bool omitY)
 		return vec_left;
 }
 
+
 void GameObject3D::UpdateMatrix()
 {
 	assert("UpdateMatrix must be overridden." && 0);

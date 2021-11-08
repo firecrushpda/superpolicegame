@@ -13,6 +13,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include "Texture.h"
+#include <vector>
 
 class Mesh
 {
@@ -31,7 +32,7 @@ public:
 
 	void Draw();
 	const DirectX::XMMATRIX & GetTransformMatrix();
-	//DirectX::XMMATRIX BoneTransform(float TimeInSeconds, std::vector<DirectX::XMMATRIX>& Transforms);
+
 	void RefreshVerTexBuffer(ID3D11DeviceContext* devicecontext, std::vector<Vertex3D> varray, UINT vertexCount);
 
 	ID3D11Buffer* GetVertexBuffer();//VertexBuffer<Vertex3D> 

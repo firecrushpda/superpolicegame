@@ -18,15 +18,16 @@ bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device
 	if (!model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader))
 		return false;
 
-	//default
-	if (!ProcessCollsion(CollsionType::Player,true,DirectX::XMMatrixIdentity()))
-		return false;
-
 	this->SetRotation(0.0f, 0.0f, 0.0f);//‰ñ“]
 	this->SetPosition(0.0f, 0.0f, 0.0f);//ˆÊ’u
 	this->SetScale(1.0f, 1.0f, 1.0f);//ˆÊ’u
 
 	this->UpdateMatrix();
+
+	//default
+	if (!ProcessCollsion(CollsionType::Player, true, DirectX::XMMatrixIdentity()))
+		return false;
+
 	return true;
 }
 
@@ -35,8 +36,11 @@ bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device
 //=============================================================================
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	model.Draw(this->worldMatrix, viewProjectionMatrix);
+	if (b_use)
+	{
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		model.Draw(this->worldMatrix, viewProjectionMatrix);
+	}
 
 	//collision debug block
 	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
@@ -46,11 +50,12 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 		{
 			for (size_t i = 0; i < collision->debugmesh.size(); i++)
 			{
-				this->cb_vs_vertexshader->data.wvpMatrix = collision->oritransform * GetWorldMatirx() * viewProjectionMatrix;
-				this->cb_vs_vertexshader->data.worldMatrix = collision->oritransform * GetWorldMatirx();
-				this->cb_vs_vertexshader->ApplyChanges();
+				//auto offsetmat = XMMatrixTranslation(collision->collisionoffsetpos.x, collision->collisionoffsetpos.y, collision->collisionoffsetpos.z);
+				//this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform * collision->oritransform * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
+				//this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform * collision->oritransform * GetWorldMatirx();//offsetmat
+				//this->cb_vs_vertexshader->ApplyChanges();
 
-				collision->debugmesh.at(i).Draw();
+				//collision->debugmesh.at(i).Draw();
 			}
 		}
 	}
@@ -175,12 +180,27 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 	collision = new CollsionObject();
 	collision->ct = cotype;
 	collision->collisionuse = true;
-	collision->debugmeshflag = false;
+	collision->debugmeshflag = true;
 	auto cnode = Scene->mRootNode->mChildren[0];
 	aiMesh* mesh = Scene->mMeshes[cnode->mMeshes[0]];
 	collision->debugmesh.push_back(this->ProcessDebugMesh(mesh, Scene, DirectX::XMMatrixIdentity()));
-	collision->obb = BoundingOrientedBox();
-	collision->oritransform = oritrans;
+	
+	std::vector<XMFLOAT3> poss;
+	auto meshes = model.GetMesh();
+	for (size_t j = 0; j < meshes.size(); j++)
+	{
+		for (size_t i = 0; i < meshes.at(j).vertices.size(); i++)
+		{
+			poss.push_back(meshes.at(j).vertices.at(i).pos);
+		}
+	}
+	BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+
+	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
+	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
+	collision->oritransform = XMMatrixScaling(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z)
+							* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+							* XMMatrixTranslation(collision->obb.Center.x, collision->obb.Center.y, collision->obb.Center.z);
 
 	return true;
 }
@@ -386,7 +406,7 @@ TextureStorageType RenderableGameObject::DetermineTextureStorageType(const aiSce
 		return TextureStorageType::Disk;
 	}
 
-	return TextureStorageType::None; // No texture exists
+	return TextureStorageType::None; // No texture existsZ
 }
 
 //=============================================================================
@@ -404,12 +424,12 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
 	
-	collision->obb.Center.x = this->pos.x;
-	collision->obb.Center.y = this->pos.y;
-	collision->obb.Center.z = this->pos.z;
-	collision->obb.Extents.x = scale.x;
-	collision->obb.Extents.y = scale.y;
-	collision->obb.Extents.z = scale.z;
+	collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
+	collision->obb.Center.y = this->pos.y + collision->collisionoffsetpos.y;
+	collision->obb.Center.z = this->pos.z + collision->collisionoffsetpos.x;
+	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
+	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
+	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;
 	XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
 
 }

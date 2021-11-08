@@ -70,6 +70,7 @@ cbuffer constantBuffer : register(b0)
 
 cbuffer constantBuffer : register(b1)
 {
+	float4 cbcolor;
 	float cbroughness;
 	float cbmetallic;
 	float2 padding;
@@ -223,5 +224,5 @@ float4 main(PS_INPUT input) : SV_TARGET
 	//color = color / (color + float3(1.0f, 1.0f, 1.0f));
 	//color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 
-	return float4(color, 1.0f);
+	return float4(color * cbcolor.rgb, cbcolor.a);
 }

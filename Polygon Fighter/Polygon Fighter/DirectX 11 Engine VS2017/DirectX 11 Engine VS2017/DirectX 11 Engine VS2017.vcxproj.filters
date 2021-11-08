@@ -162,6 +162,9 @@
     <ClCompile Include="Graphics\Editor.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
@@ -293,9 +296,6 @@
     <ClInclude Include="Graphics\SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Collision.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Car.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -312,6 +312,9 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Editor.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Collision.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -51,7 +51,9 @@ void Engine::Update()
 			{
 				if (keycode == '\r')
 				{
-					gfx.Fade(GameState::game);
+					gfx.Fade(GameState::editor);
+					//temp
+					gfx.m_editor.InitializeEditor(gfx.GetDevice(),gfx.GetDeviceContent(), gfx.cb_vs_vertexshader);
 				}
 			}
 		}
@@ -127,7 +129,7 @@ void Engine::Update()
 				}
 				if (keycode == 'P')
 				{
-					gfx.car.carrender.SetSkeletonDebugFlag();
+					
 				}
 
 				//camera
@@ -158,10 +160,10 @@ void Engine::Update()
 		{
 			MouseEvent me = mouse.ReadEvent();
 
-			if (me.GetType() == MouseEvent::EventType::WheelDown)
-			{
-			
-			}
+			//if (me.GetType() == MouseEvent::EventType::WheelDown)
+			//{
+			//
+			//}
 
 
 			if (mouse.IsRightDown())
@@ -293,6 +295,136 @@ void Engine::Update()
 		}
 	}
 
+	if (gfx.gs == GameState::editor) 
+	{
+		// キーボードの読み込む
+		while (!keyboard.CharBufferIsEmpty())
+		{
+			unsigned char ch = keyboard.ReadChar();
+		}
+
+		while (!keyboard.KeyBufferIsEmpty())
+		{
+			KeyboardEvent kbe = keyboard.ReadKey();
+			unsigned char keycode = kbe.GetKeyCode();
+			if (kbe.IsPress())
+			{
+				if (keycode == 'O')
+				{
+					gfx.showImgui = !gfx.showImgui;
+				}
+
+				if (keycode == 'I')
+				{
+					for (size_t i = 0; i < gfx.mapgo.size(); i++)
+					{
+						gfx.mapgo.at(i)->SetCollisionBoxView(true);
+					}
+				}
+
+				if (keycode == 'P')
+				{
+					for (size_t i = 0; i < gfx.mapgo.size(); i++)
+					{
+						gfx.mapgo.at(i)->b_use = !gfx.mapgo.at(i)->b_use;
+					}
+				}
+
+				if (keycode == '\r')
+				{
+					//gfx.Fade(GameState::title);
+				}
+			}
+
+			if (kbe.IsRelease())
+			{
+
+			}
+
+		}
+
+		//マウスの読み込む
+		while (!mouse.EventBufferIsEmpty())
+		{
+			MouseEvent me = mouse.ReadEvent();
+
+			if (me.GetType() == MouseEvent::EventType::MPress)
+			{
+				//raycast
+				//gfx.EditorRayCast(mousepos);
+
+				unsigned int minindx = -1;
+				XMVECTOR mindis = XMVectorSet(999,999,999,999);
+				std::vector<RenderableGameObject*> hitobject;
+				std::vector<unsigned int> indexes;
+
+				Ray ray = Ray::ScreenToRay(gfx.Camera3D, (float)me.GetPos().x, (float)me.GetPos().y);
+
+				for (size_t i = 0; i < gfx.mapgo.size(); i++)
+				{
+					if (ray.Hit(gfx.mapgo.at(i)->GetCollisionObject()->obb))
+					{
+						hitobject.push_back(gfx.mapgo.at(i));
+						indexes.push_back(i);
+					}
+				}
+				
+				for (size_t i = 0; i < hitobject.size(); i++)
+				{
+					auto dis = hitobject.at(i)->GetPositionVector() - gfx.Camera3D.GetPositionVector();
+					dis = XMVector3Length(dis);
+					if (XMVectorGetX(dis) <= XMVectorGetX(mindis))
+					{
+						mindis = dis;
+						minindx = hitobject.size() - 1;
+					}
+				}
+				if (minindx != -1)
+				{
+					gfx.m_editor.selectedGo = hitobject.at(minindx);
+					gfx.m_editor.mapgoindex = indexes.at(minindx);
+				}
+					
+			}
+
+			if (mouse.IsRightDown())
+			{
+
+				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+				{
+					this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
+				}
+			}
+		}
+
+		float Camera3DSpeed = 0.06f;
+
+		if (keyboard.KeyIsPressed('W'))
+		{
+			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+		}
+		if (keyboard.KeyIsPressed('S'))
+		{
+			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+		}
+		if (keyboard.KeyIsPressed('A'))
+		{
+			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+		}
+		if (keyboard.KeyIsPressed('D'))
+		{
+			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+		}
+		if (keyboard.KeyIsPressed(VK_SPACE))
+		{
+			this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
+		}
+
+		for (size_t i = 0; i < gfx.mapgo.size(); i++)
+		{
+			gfx.mapgo.at(i)->Update(1.0f,gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+		}
+	}
 	//fade
 	auto fadestate = gfx.fade.fadestate;
 	auto rate = gfx.fade.rate;

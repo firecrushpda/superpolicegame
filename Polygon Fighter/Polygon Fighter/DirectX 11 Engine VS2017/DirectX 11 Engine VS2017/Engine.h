@@ -7,6 +7,7 @@
 #pragma once
 #include "WindowContainer.h"
 #include "Timer.h"
+#include "../DirectX 11 Engine VS2017/Graphics/Collision.h"
 
 
 class Engine : WindowContainer
@@ -19,6 +20,7 @@ public:
 	void ChangeStats(GameState state);
 
 private:
+
 	Timer timer;//タイマー
 
 	//DirectX::ContainmentType precoreslut;

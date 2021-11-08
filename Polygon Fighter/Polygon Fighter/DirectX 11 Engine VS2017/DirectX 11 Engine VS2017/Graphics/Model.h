@@ -149,6 +149,8 @@ public:
 	std::vector<Mesh> debugmesh;
 	BoundingOrientedBox obb;
 	CollsionType ct;
+	XMFLOAT3 collisionoffsetpos;
+	XMFLOAT3 collisionoriginextents;
 };
 
 class CollisionCamera

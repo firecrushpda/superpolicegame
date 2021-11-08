@@ -15,6 +15,8 @@ public:
 	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
 	const DirectX::XMVECTOR & GetRotationVector() const;
 	const DirectX::XMFLOAT3 & GetRotationFloat3() const;
+	const DirectX::XMVECTOR & GetScaleVector() const;
+	const DirectX::XMFLOAT3 & GetScaleFloat3() const;
 
 	//位置セット
 	void SetPosition(const DirectX::XMVECTOR & pos);
@@ -30,6 +32,8 @@ public:
 	void AdjustRotation(const DirectX::XMFLOAT3 & rot);
 	void AdjustRotation(float x, float y, float z);
 	void SetScale(float xScale, float yScale, float zScale = 1.0f);
+	void SetScale(const DirectX::XMVECTOR & rot);
+	void SetScale(const DirectX::XMFLOAT3 & rot);
 
 protected:
 	virtual void UpdateMatrix();

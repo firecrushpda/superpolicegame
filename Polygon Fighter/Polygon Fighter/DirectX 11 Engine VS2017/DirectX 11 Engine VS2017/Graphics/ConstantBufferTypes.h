@@ -108,6 +108,7 @@ struct CB_PS_light
 
 struct CB_PS_IBLSTATUS
 {
+	DirectX::XMFLOAT4 color;
 	float roughness;
 	float metallic;
 	float padding;

@@ -27,6 +27,7 @@
 #include "CarAIController.h"
 #include "Title.h"
 #include "Fade.h"
+#include "Editor.h"
 
 enum GameState
 {
@@ -61,41 +62,10 @@ public:
 	//ステージ
 	RenderableGameObject stage;
 
-	RenderableGameObject build;
-	RenderableGameObject build1;
-	RenderableGameObject build2;
-	RenderableGameObject build3;
-	RenderableGameObject build4;
-	RenderableGameObject build5;
-	RenderableGameObject build6;
-	RenderableGameObject build7;
-	RenderableGameObject build8;
-	RenderableGameObject build9;
-	RenderableGameObject build10;
-	RenderableGameObject build11;
-	RenderableGameObject build12;
-	RenderableGameObject build13;
-	RenderableGameObject build14;
-	RenderableGameObject build15;
-	RenderableGameObject build16;
-	RenderableGameObject build17;
-	RenderableGameObject build18;
-	RenderableGameObject build19;
-	RenderableGameObject build20;
-	RenderableGameObject build21;
-	RenderableGameObject build22;
-	RenderableGameObject build23;
-	RenderableGameObject build24;
-	RenderableGameObject build25;
-	RenderableGameObject build26;
-	RenderableGameObject build27;
-	RenderableGameObject build28;
-
 	//ステージ
 	RenderableGameObject test;
 
-
-
+	std::vector<RenderableGameObject*> mapgo;
 
 	//
 	Car car;
@@ -124,21 +94,33 @@ public:
 	bool InitializeIBLStatus();
 	void Fade(GameState gs);
 
+	//editor
+	Editor m_editor;
+
+	void EditorRayCast(XMFLOAT2 mousepos);
+
+	ID3D11Device* GetDevice();
+	ID3D11DeviceContext* GetDeviceContent();
+	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
 	bool InitalizeBuffers();
-	bool InitializeTitle();
+
 	
 	bool InitializeEffekseer();
 	void EffekseerUpdate();
 	void EffekseerDraw();
 
+	void LoadMap();
+
 	Microsoft::WRL::ComPtr<ID3D11Device> device;//ダイレクトエクスデバイス
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;//ダイレクトエクスデバイスコンテスト
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;//ダイレクトエクススワップ チェーン
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;//ダイレクトエクスレンダターゲットヴュー
+
 
 	VertexShader vertexshader_2d;//2dバーテックスシェーダー
 	VertexShader vertexshader;//バーテックスシェーダー
@@ -153,11 +135,11 @@ private:
 
 	//対応する定数バッファ
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
-	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
+	
 	ConstantBuffer<CB_Bone_Info> cb_bone_info;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_IBLSTATUS> cb_ps_iblstatus;
-	
+
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;//深度ステンシルビュー
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;// 深度ステンシルバッファ

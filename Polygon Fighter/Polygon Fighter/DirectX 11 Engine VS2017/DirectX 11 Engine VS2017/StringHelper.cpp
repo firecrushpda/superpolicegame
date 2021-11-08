@@ -110,3 +110,31 @@ void StringHelper::Split(const std::string& s, std::vector<std::string>& OutStri
 	if (pos1 != len)
 		OutStrings.emplace_back(s.substr(pos1));
 }
+
+//not use
+void StringHelper::GetFolder(const std::string& foldername, std::vector<std::string>& filesname)
+{
+
+	long  hFile = 0;
+
+	struct _finddata_t fileinfo;
+	std::string p;
+	if ((hFile = _findfirst(p.assign(foldername).append("\\*").c_str(), &fileinfo)) != -1)
+	{
+		do 
+		{
+			if ((fileinfo.attrib &  _A_SUBDIR))
+			{
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+					StringHelper::GetFolder(p.assign(foldername).append("\\").append(fileinfo.name), filesname);
+			}
+			else
+			{
+				filesname.push_back(fileinfo.name);
+			}
+		}while (_findnext(hFile, &fileinfo) == 0);
+
+		_findclose(hFile);
+	}
+
+}

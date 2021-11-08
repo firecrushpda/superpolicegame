@@ -161,6 +161,7 @@
     <ClCompile Include="Graphics\Camera2D.cpp" />
     <ClCompile Include="Graphics\CarAIController.cpp" />
     <ClCompile Include="Graphics\CarSpeedUI.cpp" />
+    <ClCompile Include="Graphics\Collision.cpp" />
     <ClCompile Include="Graphics\Editor.cpp" />
     <ClCompile Include="Graphics\Fade.cpp" />
     <ClCompile Include="Graphics\GameObject2D.cpp" />
@@ -201,10 +202,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics\Car.h" />
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="Graphics\Camera2D.h" />
     <ClInclude Include="Graphics\CarAIController.h" />
     <ClInclude Include="Graphics\CarSpeedUI.h" />
+    <ClInclude Include="Graphics\Collision.h" />
     <ClInclude Include="Graphics\Editor.h" />
     <ClInclude Include="Graphics\Fade.h" />
     <ClInclude Include="Graphics\GameObject2D.h" />
