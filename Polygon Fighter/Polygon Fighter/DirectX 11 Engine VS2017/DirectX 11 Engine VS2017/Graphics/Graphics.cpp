@@ -256,7 +256,6 @@ void Graphics::RenderFrame()
 		spriteBatch->End();
 	}
 	
-
 	//サポートUI描画
 	// Start the Dear ImGui frame
 	ImGui_ImplDX11_NewFrame();
@@ -304,11 +303,28 @@ void Graphics::RenderFrame()
 			
 		if (ImGui::Button("Delete from Scene"))
 		{
+			delete m_editor.selectedGo;
 			m_editor.selectedGo = nullptr;
 			if (m_editor.mapgoindex != -1)
 				mapgo.erase(mapgo.begin() + m_editor.mapgoindex);
 		}
-			
+		
+		if (ImGui::Button("Save"))
+		{
+			ofstream out("Map.txt");
+			out.clear();
+			for (size_t i = 0; i < mapgo.size(); i++)
+			{
+				auto pos = mapgo.at(i)->GetPositionFloat3();
+				auto rot = mapgo.at(i)->GetRotationFloat3();
+				auto scl = mapgo.at(i)->GetScaleFloat3();
+				out << "O" << " " << mapgo.at(i)->path + "\n";
+				out << pos.x << " " << pos.y << " " << pos.z << "\n";
+				out << rot.x << " " << rot.y << " " << rot.z << "\n";
+				out << scl.x << " " << scl.y << " " << scl.z << "\n";
+			}
+			out.close();
+		}
 
 		//Create ImGui Test Window
 		if (m_editor.selectedGo != nullptr)
@@ -1085,11 +1101,12 @@ void Graphics::LoadMap() {
 				inFile >> sz;
 
 				RenderableGameObject* go = new RenderableGameObject();
-				go->Initialize("Data\\Objects\\" + filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+				go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
 				go->SetPosition(XMFLOAT3(px,py,pz));
 				go->SetRotation(XMFLOAT3(rx, ry, rz));
 				go->SetScale(sx, sy, sz);
 				go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
+				go->path = filename;
 				mapgo.push_back(go);
 			}
 		}
