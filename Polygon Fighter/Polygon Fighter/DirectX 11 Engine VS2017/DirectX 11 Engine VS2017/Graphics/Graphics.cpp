@@ -303,10 +303,13 @@ void Graphics::RenderFrame()
 			
 		if (ImGui::Button("Delete from Scene"))
 		{
-			delete m_editor.selectedGo;
-			m_editor.selectedGo = nullptr;
-			if (m_editor.mapgoindex != -1)
-				mapgo.erase(mapgo.begin() + m_editor.mapgoindex);
+			//delete m_editor.selectedGo;
+			if (m_editor.selectedGo != nullptr)
+			{
+				m_editor.selectedGo = nullptr;
+				if (m_editor.mapgoindex != -1)
+					mapgo.erase(mapgo.begin() + m_editor.mapgoindex);
+			}
 		}
 		
 		if (ImGui::Button("Save"))
