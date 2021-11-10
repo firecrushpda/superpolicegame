@@ -52,7 +52,9 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 		{
 			for (size_t i = 0; i < collision->debugmesh.size(); i++)
 			{
-				//auto offsetmat = XMMatrixTranslation(collision->collisionoffsetpos.x, collision->collisionoffsetpos.y, collision->collisionoffsetpos.z);
+				/*auto matrixmesh = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
+					* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
+					* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);*/
 				this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
 				this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx();//offsetmat
 				this->cb_vs_vertexshader->ApplyChanges();
@@ -166,17 +168,6 @@ void RenderableGameObject::SetGlobalMatirx(DirectX::XMMATRIX worldmat)
 //“–‚½‚è”»’èƒuƒƒbƒN
 //=============================================================================
 bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,DirectX::XMMATRIX oritrans) {
-	Assimp::Importer importer;
-
-	const aiScene* Scene = importer.ReadFile("Data\\Objects\\debugBlock.obj",
-		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_JoinIdenticalVertices
-	);
-
-	if (!Scene)
-		return false;
 
 	//body collision
 	collision = new CollsionObject();
@@ -195,6 +186,7 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 	}
 	BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
+	collision->collisionoriginrot = collision->obb.Orientation;
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
 
@@ -453,7 +445,13 @@ void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, cons
 	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
 	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
 	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;
+
+	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
+	auto testmat = XMMatrixRotationQuaternion(test);*/
 	XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+	/*auto res = XMVector4Transform(XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z), testmat);
+	XMStoreFloat4(&(collision->obb.Orientation), res);
+	collision->obb.Orientation = collision->collisionoriginrot;*/
 
 }
 
@@ -471,4 +469,36 @@ void RenderableGameObject::SetCollisionBoxView(bool view)
 CollsionObject* RenderableGameObject::GetCollisionObject() 
 {
 	return this->collision;
+}
+
+//=============================================================================
+//copy function
+//=============================================================================
+void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
+{
+
+	this->device = go.device;
+	this->deviceContext = go.deviceContext;
+	this->cb_vs_vertexshader = go.cb_vs_vertexshader;
+
+	//copy collision
+	collision = new CollsionObject();
+	collision->boneindex = go.collision->boneindex;
+	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
+	collision->collisionoriginextents = go.collision->collisionoriginextents;
+	collision->collisionoriginrot = go.collision->collisionoriginrot;
+	collision->collisionuse = go.collision->collisionuse;
+	collision->ct = go.collision->ct;
+	collision->debugmesh = go.collision->debugmesh;
+	collision->debugmeshflag = go.collision->debugmeshflag;
+	collision->obb = go.collision->obb;
+	collision->oritransform = go.collision->oritransform;
+
+	model = go.model;
+
+	this->SetPosition(go.pos);
+	this->SetRotation(go.pos);
+	this->SetScale(go.scale);
+
+	this->worldMatrix = go.worldMatrix;
 }

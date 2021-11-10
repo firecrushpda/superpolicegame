@@ -295,7 +295,8 @@ void Graphics::RenderFrame()
 
 		if (ImGui::Button("Add to Scene")) {
 			RenderableGameObject* rgo = new RenderableGameObject();
-			rgo = m_editor.primitives.at(m_editor.item_current);
+			//rgo = m_editor.primitives.at(m_editor.item_current);
+			rgo->DeepCopy(*m_editor.primitives.at(m_editor.item_current));
 			m_editor.selectedGo = rgo;
 			mapgo.push_back(rgo);
 		}

@@ -46,6 +46,8 @@ public:
 
 	void SetCollisionBoxView(bool view);
 
+	void DeepCopy(const RenderableGameObject& go);
+
 private:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
@@ -58,9 +60,6 @@ private:
 	void UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
 	Mesh ProcessDebugMesh(const XMFLOAT3* corners);
 	
-	//debug
-	std::vector<Mesh> debugBlocks;//衝突デバッグ箱
-
 	//texuture
 	std::string directory = "";
 	std::vector<Texture> LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);

@@ -151,6 +151,7 @@ public:
 	CollsionType ct;
 	XMFLOAT3 collisionoffsetpos;
 	XMFLOAT3 collisionoriginextents;
+	XMFLOAT4 collisionoriginrot;
 };
 
 class CollisionCamera

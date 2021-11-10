@@ -398,6 +398,8 @@ void Engine::Update()
 		}
 
 		float Camera3DSpeed = 0.06f;
+		if (keyboard.KeyIsPressed(VK_SHIFT))
+			Camera3DSpeed = 0.2f;
 
 		if (keyboard.KeyIsPressed('W'))
 		{
