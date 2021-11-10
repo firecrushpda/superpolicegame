@@ -141,8 +141,6 @@ void Graphics::RenderFrame()
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
-			//ステージ描画
-			//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 		}
 
 		if (gs == GameState::editor)
@@ -318,10 +316,16 @@ void Graphics::RenderFrame()
 			ofstream out("Map.txt");
 			if (out.is_open())
 			{
+				out.clear();
 				for (size_t i = 0; i < mapgo.size(); i++)
 				{
-					//out << "This is a line.\n";
-					//out << "This is another line.\n";
+					auto pos = mapgo.at(i)->GetPositionFloat3();
+					auto rot = mapgo.at(i)->GetRotationFloat3();
+					auto scl = mapgo.at(i)->GetScaleFloat3();
+					out << "O" << " "<< mapgo.at(i)->path << "\n";
+					out << pos.x <<" "<< pos.y << " "<< pos.z<< "\n";
+					out << rot.x << " " << rot.y << " " << rot.z<< "\n";
+					out << scl.x << " " << scl.y << " " << scl.z<< "\n";
 				}
 				out.close();
 			}
@@ -1103,7 +1107,8 @@ void Graphics::LoadMap() {
 				inFile >> sz;
 
 				RenderableGameObject* go = new RenderableGameObject();
-				go->Initialize("Data\\Objects\\" + filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+				go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+				go->path = filename;
 				go->SetPosition(XMFLOAT3(px,py,pz));
 				go->SetRotation(XMFLOAT3(rx, ry, rz));
 				go->SetScale(sx, sy, sz);

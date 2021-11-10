@@ -1,3 +1,9 @@
 O Data\Objects\test\bigsite.obj
 O Data\Objects\test\bill.obj
 O Data\Objects\test\bill2.obj
+O Data\Objects\test\guardrail02.obj
+O Data\Objects\test\corn2.obj
+O Data\Objects\test\house2.obj
+O Data\Objects\test\bigsite.obj
+O Data\Objects\test\kokudou.obj
+O Data\Objects\test\kokudou_b.obj

@@ -14,6 +14,7 @@ void Editor::InitializeEditor(ID3D11Device * device, ID3D11DeviceContext * devic
 	for (size_t i = 0; i < filename.size(); i++)
 	{
 		RenderableGameObject* go = new RenderableGameObject();
+		go->path = filename.at(i);
 		go->Initialize(filename.at(i), device, deviceContext, cb_vs_vertexshader);
 		go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
 		primitives.push_back(go);

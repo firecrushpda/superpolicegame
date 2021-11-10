@@ -1,5 +1,8 @@
-O test\bill.obj
-0.0 0.0 0.0 
-0.0 0.0 0.0 
-1.0 1.0 1.0
-
+O Data\Objects\test\bill.obj
+0 0 0
+0 0 0
+1 1 1
+O Data\Objects\test\guardrail02.obj
+11 0 1
+0 1.5708 0
+1 1 1
