@@ -184,9 +184,10 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 			poss.push_back(meshes.at(j).vertices.at(i).pos);
 		}
 	}
-	BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+	//BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+	BoundingBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
-	collision->collisionoriginrot = collision->obb.Orientation;
+	//collision->collisionoriginrot = collision->obb.Orientation;
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
 
@@ -448,7 +449,7 @@ void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, cons
 
 	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
 	auto testmat = XMMatrixRotationQuaternion(test);*/
-	XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+	//XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
 	/*auto res = XMVector4Transform(XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z), testmat);
 	XMStoreFloat4(&(collision->obb.Orientation), res);
 	collision->obb.Orientation = collision->collisionoriginrot;*/
@@ -480,9 +481,11 @@ void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
 	this->device = go.device;
 	this->deviceContext = go.deviceContext;
 	this->cb_vs_vertexshader = go.cb_vs_vertexshader;
+	this->path = go.path;
 
 	//copy collision
 	collision = new CollsionObject();
+	
 	collision->boneindex = go.collision->boneindex;
 	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
 	collision->collisionoriginextents = go.collision->collisionoriginextents;

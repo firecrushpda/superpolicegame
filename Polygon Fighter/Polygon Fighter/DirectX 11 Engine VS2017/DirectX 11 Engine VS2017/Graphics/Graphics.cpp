@@ -1118,7 +1118,8 @@ void Graphics::LoadMap() {
 			}
 		}
 	}
-	mapgo.erase(mapgo.end() - 1);
+	if (mapgo.size()>=1)
+		mapgo.erase(mapgo.end() - 1);
 }
 
 ID3D11Device* Graphics::GetDevice() 
