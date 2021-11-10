@@ -1,26 +1,3 @@
 O Data\Objects\test\bigsite.obj
 O Data\Objects\test\bill.obj
 O Data\Objects\test\bill2.obj
-O Data\Objects\test\jk_bread3.obj
-O Data\Objects\test\jk_bread.fbx
-O Data\Objects\test\house2.obj
-O Data\Objects\test\guardrail03.obj
-O Data\Objects\test\guardrail02.obj
-O Data\Objects\test\corn2.obj
-O Data\Objects\test\conveni.obj
-O Data\Objects\test\cocoon_x.obj
-O Data\Objects\test\cocoon.obj
-O Data\Objects\test\bridge.obj
-O Data\Objects\test\bill3.obj
-O Data\Objects\test\kokudou.obj
-O Data\Objects\test\kokudou_b.obj
-O Data\Objects\test\kokudou_R.obj
-O Data\Objects\test\kokudou_R2.obj
-O Data\Objects\test\kokudou_T.obj
-O Data\Objects\test\kokudou_X.obj
-O Data\Objects\test\p_steering.obj
-O Data\Objects\test\sidou.obj
-
-
-
-

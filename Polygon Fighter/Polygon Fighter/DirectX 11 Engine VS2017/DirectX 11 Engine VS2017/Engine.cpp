@@ -376,7 +376,7 @@ void Engine::Update()
 					if (XMVectorGetX(dis) <= XMVectorGetX(mindis))
 					{
 						mindis = dis;
-						minindx = i;
+						minindx = hitobject.size() - 1;
 					}
 				}
 				if (minindx != -1)
