@@ -28,6 +28,8 @@ public:
 	XMFLOAT3 roundviewrot;
 	D3D11_VIEWPORT viewport;
 
+	float cf_fheight = 0.0f;
+	float cf_front = 3.0f;
 	float cf_back = 13.0f;
 	float cf_height = 5.0f;
 private:

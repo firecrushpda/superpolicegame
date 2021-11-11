@@ -146,6 +146,11 @@ void Engine::Update()
 				{
 					gfx.Camera3D.cameratype = 1;
 				}
+				if (keycode == '2')//front
+				{
+					gfx.Camera3D.cameratype = 2;
+				}
+
 
 				if (keycode == '\r')
 				{
@@ -185,7 +190,7 @@ void Engine::Update()
 
 		float Camera3DSpeed = 0.06f;
 		//press
-		if (cameratype == 0)
+		if (cameratype == 0 || cameratype == 2)
 		{
 			
 			if (keyboard.KeyIsPressed('W'))
@@ -212,7 +217,7 @@ void Engine::Update()
 				this->gfx.car.Turn(dt, 0.0f);
 			}
 		}
-		else if (cameratype == 1)
+		else if (cameratype == 1 )
 		{
 			if (keyboard.KeyIsPressed('W'))
 			{
@@ -269,6 +274,32 @@ void Engine::Update()
 			gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 		}
 
+		if (cameratype == 2)
+		{
+			auto viewrot = gfx.Camera3D.roundviewrot;
+			auto carrot = gfx.car.carrender.GetRotationFloat3();
+			if (viewrot.y != carrot.y)
+			{
+				auto viewrotV = XMLoadFloat3(&viewrot);
+				auto carrotV = XMLoadFloat3(&carrot);
+				auto lerpvalue = XMVectorLerp(viewrotV, carrotV, 0.035f);
+				XMStoreFloat3(&gfx.Camera3D.roundviewrot, lerpvalue);
+			}
+
+			auto dfront = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
+			auto vec_front = XMVector3TransformCoord(dfront, vecRotationMatrix);
+
+			auto testpos = gfx.car.carrender.GetPositionVector() + vec_front * gfx.Camera3D.cf_front;
+			DirectX::XMFLOAT3 temp;
+			DirectX::XMStoreFloat3(&temp, testpos);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_fheight, temp.z);
+			gfx.Camera3D.SetPosition(temp);
+			testpos = gfx.car.carrender.GetPositionVector() + vec_front * gfx.Camera3D.cf_front * 10;
+			XMStoreFloat3(&temp, testpos);
+			gfx.Camera3D.SetLookAtPos(temp);
+		}
+
 		this->gfx.car.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 		this->gfx.chasecar.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 		gfx.cac->Update(1.0f/60.0f);
@@ -285,18 +316,26 @@ void Engine::Update()
 		auto cochasecar = gfx.chasecar.carrender.GetCollisionObject();
 		auto cocamera = gfx.Camera3D.GetCameraCollision();
 
-		DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
-		if (coresult == 2 || coresult == 1) {
-			gfx.car.warninguiflag = true;
-		}
-		else
+		/*for (size_t i = 0; i < gfx.mapgo.size(); i++)
 		{
+			auto obb = gfx.mapgo.at(i)->GetCollisionObject()->obb;
+			DirectX::ContainmentType coresult = cocamera->frustum.Contains(obb);
+			if (coresult == 2 || coresult == 1)
+				gfx.mapgo.at(i)->b_modelview = true;
+			else
+				gfx.mapgo.at(i)->b_modelview = false;	
+		}*/
+
+		DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
+		if (coresult == 2 || coresult == 1) 
+			gfx.car.warninguiflag = true;
+		else
 			gfx.car.warninguiflag = false;
-		}
 
 		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
 		if (coresult1 == 2 || coresult1 == 1) {
 			//catch car
+			gfx.Fade(GameState::score);
 		}
 	}
 

@@ -273,6 +273,8 @@ void Graphics::RenderFrame()
 		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Roughness", &this->cb_ps_iblstatus.data.roughness, 0.01f, 0.0f, 1.0f);
 		ImGui::NewLine();
+		ImGui::DragFloat("FollowCameraFrontHeight", &Camera3D.cf_fheight, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("FollowCameraFront", &Camera3D.cf_front, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("FollowCameraHeight", &Camera3D.cf_height, 0.1f, 5.0f, 30.0f);
 		ImGui::DragFloat("FollowCameraBack", &Camera3D.cf_back, 0.1f, 5.0f, 30.0f);
 		ImGui::NewLine();
@@ -620,6 +622,7 @@ bool Graphics::InitializeScene()
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj jk_bread.fbx
 		car.carrender.SetScale(1, 1, 1);
+		car.carrender.SetPosition(100, 100, 0);
 		car.carrender.SetCollisionBoxView(true);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
