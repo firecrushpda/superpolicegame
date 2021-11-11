@@ -142,7 +142,6 @@ void Graphics::RenderFrame()
 			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 			//ステージ描画
-			//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			for (size_t i = 0; i < mapgo.size(); i++)
 				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
@@ -239,16 +238,18 @@ void Graphics::RenderFrame()
 		auto cocamera = Camera3D.GetCameraCollision();
 
 		//DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
-		//bool testbool = false;
-		//coresult == 0 ? testbool = true : testbool = false;
-		//std::string testbooltext = std::to_string(coresult);
-		//std::wstring testboolutf8 = cv.from_bytes(testbooltext);
+		
+		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
+		bool testbool = false;
+		coresult1 == 0 ? testbool = true : testbool = false;
+		std::string testbooltext = std::to_string(coresult1);
+		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
 	}
 	if (gs == GameState::editor)

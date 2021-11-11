@@ -8,7 +8,7 @@
 
 CarAIController::CarAIController()
 {
-	mSpeed = 30.0f;
+	mSpeed = 5.0f;
 	mAvoidSpeed = 300.0f;
 	mWayPointNum = 0;
 	roadcontentfile = "SceneLayout.txt";

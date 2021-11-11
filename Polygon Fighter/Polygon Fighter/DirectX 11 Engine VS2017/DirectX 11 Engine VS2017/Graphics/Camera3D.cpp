@@ -70,6 +70,12 @@ void Camera3D::UpdateMatrix() //Updates view matrix and also updates the movemen
 	this->collision->frustum.Origin.z = XMVectorGetZ(posVector);
 	XMStoreFloat4(&(this->collision->frustum.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
 
+	//auto worldMatrix = //XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
+	//	 XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+	//	* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	//collision->frustum = collision->orifrustum;
+	//collision->frustum.Transform(collision->frustum, worldMatrix);
+
 	this->UpdateDirectionVectors();
 }
 
@@ -101,6 +107,10 @@ bool Camera3D::ProcessCollsion(CollsionType cotype)
 	collision = new CollisionCamera();
 	collision->ct = cotype;
 	collision->collisionuse = true;
+	
+	collision->orifrustum = BoundingFrustum(this->projectionMatrix);
+	//auto matworld = XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	//collision->orifrustum.Transform(collision->orifrustum, matworld);
 	collision->frustum = BoundingFrustum(this->projectionMatrix);
 	return true;
 }

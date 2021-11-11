@@ -246,7 +246,7 @@ void Engine::Update()
 		}
 		if (mIsInput == false)
 		{
-			this->gfx.car.MoveFowards(dt, 0.0f);
+			this->gfx.car.MoveFowards( dt, 0.0f);
 		}
 
 		//fix camera
@@ -316,7 +316,7 @@ void Engine::Update()
 		auto cochasecar = gfx.chasecar.carrender.GetCollisionObject();
 		auto cocamera = gfx.Camera3D.GetCameraCollision();
 
-		/*for (size_t i = 0; i < gfx.mapgo.size(); i++)
+		for (size_t i = 0; i < gfx.mapgo.size(); i++)
 		{
 			auto obb = gfx.mapgo.at(i)->GetCollisionObject()->obb;
 			DirectX::ContainmentType coresult = cocamera->frustum.Contains(obb);
@@ -324,7 +324,7 @@ void Engine::Update()
 				gfx.mapgo.at(i)->b_modelview = true;
 			else
 				gfx.mapgo.at(i)->b_modelview = false;	
-		}*/
+		}
 
 		DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
 		if (coresult == 2 || coresult == 1) 
@@ -335,7 +335,7 @@ void Engine::Update()
 		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
 		if (coresult1 == 2 || coresult1 == 1) {
 			//catch car
-			gfx.Fade(GameState::score);
+			//gfx.Fade(GameState::score);
 		}
 	}
 

@@ -187,9 +187,12 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag, D
 	//BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 	BoundingBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
-	//collision->collisionoriginrot = collision->obb.Orientation;
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
+	collision->oritransform = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
+							//* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
+							* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);
+	collision->originobb = collision->obb;
 
 	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
 	collision->obb.GetCorners(corners);
@@ -440,12 +443,15 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
 
-	collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
+	/*collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
 	collision->obb.Center.y = this->pos.y + collision->collisionoffsetpos.y;
 	collision->obb.Center.z = this->pos.z + collision->collisionoffsetpos.x;
 	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
 	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
-	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;
+	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;*/
+
+	collision->obb = collision->originobb;
+	collision->obb.Transform(collision->obb,this->worldMatrix);
 
 	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
 	auto testmat = XMMatrixRotationQuaternion(test);*/
