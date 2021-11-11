@@ -51,9 +51,10 @@ void Engine::Update()
 			{
 				if (keycode == '\r')
 				{
-					gfx.Fade(GameState::editor);
-					//temp
-					gfx.m_editor.InitializeEditor(gfx.GetDevice(),gfx.GetDeviceContent(), gfx.cb_vs_vertexshader);
+					gfx.Fade(GameState::game);
+					//gfx.Fade(GameState::editor);
+					////temp
+					//gfx.m_editor.InitializeEditor(gfx.GetDevice(),gfx.GetDeviceContent(), gfx.cb_vs_vertexshader);
 				}
 			}
 		}
@@ -129,7 +130,11 @@ void Engine::Update()
 				}
 				if (keycode == 'P')
 				{
-					
+					gfx.car.carrender.SetCollisionBoxView(true);
+					for (size_t i = 0; i < gfx.mapgo.size(); i++)
+					{
+						gfx.mapgo.at(i)->SetCollisionBoxView(true);
+					}
 				}
 
 				//camera
@@ -256,10 +261,10 @@ void Engine::Update()
 			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
 			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
 
-			auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * 10;
+			auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back;
 			DirectX::XMFLOAT3 temp;
 			DirectX::XMStoreFloat3(&temp, testpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_height, temp.z);
 			gfx.Camera3D.SetPosition(temp);
 			gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 		}

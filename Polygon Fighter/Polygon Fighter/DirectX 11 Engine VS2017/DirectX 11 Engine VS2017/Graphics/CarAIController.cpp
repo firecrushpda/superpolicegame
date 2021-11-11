@@ -8,7 +8,7 @@
 
 CarAIController::CarAIController()
 {
-	mSpeed = 100.0f;
+	mSpeed = 30.0f;
 	mAvoidSpeed = 300.0f;
 	mWayPointNum = 0;
 	roadcontentfile = "SceneLayout.txt";
@@ -25,7 +25,7 @@ CarAIController::~CarAIController()
 
 void CarAIController::MoveTowards(XMFLOAT3* pos, float delta)
 {
-	float epsilon = 10.0f;
+	float epsilon = 0.2f;
 	XMFLOAT3 dir;
 
 	auto carpos = mAICar->carrender.GetPositionFloat3();

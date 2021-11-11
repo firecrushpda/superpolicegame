@@ -27,6 +27,9 @@ public:
 	GameObject3D* focusgo;
 	XMFLOAT3 roundviewrot;
 	D3D11_VIEWPORT viewport;
+
+	float cf_back = 13.0f;
+	float cf_height = 5.0f;
 private:
 	void UpdateMatrix() override;
 	

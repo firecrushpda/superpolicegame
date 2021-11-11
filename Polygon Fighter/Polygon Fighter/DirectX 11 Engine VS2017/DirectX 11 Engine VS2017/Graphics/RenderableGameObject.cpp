@@ -36,7 +36,9 @@ bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device
 //=============================================================================
 void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
-	if (b_use)
+	if (!b_use) return;
+
+	if (b_modelview)
 	{
 		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		model.Draw(this->worldMatrix, viewProjectionMatrix);
@@ -50,12 +52,14 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 		{
 			for (size_t i = 0; i < collision->debugmesh.size(); i++)
 			{
-				//auto offsetmat = XMMatrixTranslation(collision->collisionoffsetpos.x, collision->collisionoffsetpos.y, collision->collisionoffsetpos.z);
-				//this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform * collision->oritransform * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
-				//this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform * collision->oritransform * GetWorldMatirx();//offsetmat
-				//this->cb_vs_vertexshader->ApplyChanges();
+				/*auto matrixmesh = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
+					* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
+					* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);*/
+				this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
+				this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx();//offsetmat
+				this->cb_vs_vertexshader->ApplyChanges();
 
-				//collision->debugmesh.at(i).Draw();
+				collision->debugmesh.at(i).Draw();
 			}
 		}
 	}
@@ -67,8 +71,8 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 void RenderableGameObject::UpdateMatrix()
 {
 	this->worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
-						* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
-						* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
 	this->UpdateDirectionVectors();
 }
 
@@ -86,7 +90,7 @@ void RenderableGameObject::Update(float dt, const XMMATRIX & viewProjectionMatri
 //=============================================================================
 // 骨のフラッグ
 //=============================================================================
-void RenderableGameObject::SetSkeletonDebugFlag() 
+void RenderableGameObject::SetSkeletonDebugFlag()
 {
 	model.m_showskeleton = !model.m_showskeleton;
 }
@@ -94,7 +98,7 @@ void RenderableGameObject::SetSkeletonDebugFlag()
 //=============================================================================
 // アニメーション再生
 //=============================================================================
-void RenderableGameObject::PlayAnimation(unsigned int num,AnimationPlayStyle aps) 
+void RenderableGameObject::PlayAnimation(unsigned int num, AnimationPlayStyle aps)
 {
 	model.PlayAnimaition(num, aps);
 }
@@ -163,28 +167,14 @@ void RenderableGameObject::SetGlobalMatirx(DirectX::XMMATRIX worldmat)
 //=============================================================================
 //当たり判定ブロック
 //=============================================================================
-bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,DirectX::XMMATRIX oritrans) {
-	Assimp::Importer importer;
-
-	const aiScene* Scene = importer.ReadFile("Data\\Objects\\debugBlock.obj",
-		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_JoinIdenticalVertices
-	);
-
-	if (!Scene)
-		return false;
+bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag, DirectX::XMMATRIX oritrans) {
 
 	//body collision
 	collision = new CollsionObject();
 	collision->ct = cotype;
 	collision->collisionuse = true;
 	collision->debugmeshflag = true;
-	auto cnode = Scene->mRootNode->mChildren[0];
-	aiMesh* mesh = Scene->mMeshes[cnode->mMeshes[0]];
-	collision->debugmesh.push_back(this->ProcessDebugMesh(mesh, Scene, DirectX::XMMatrixIdentity()));
-	
+
 	std::vector<XMFLOAT3> poss;
 	auto meshes = model.GetMesh();
 	for (size_t j = 0; j < meshes.size(); j++)
@@ -194,13 +184,16 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 			poss.push_back(meshes.at(j).vertices.at(i).pos);
 		}
 	}
-	BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+	//BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+	BoundingBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
+	//collision->collisionoriginrot = collision->obb.Orientation;
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
-	collision->oritransform = XMMatrixScaling(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z)
-							* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
-							* XMMatrixTranslation(collision->obb.Center.x, collision->obb.Center.y, collision->obb.Center.z);
+
+	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
+	collision->obb.GetCorners(corners);
+	collision->debugmesh.push_back(this->ProcessDebugMesh(corners));
 
 	return true;
 }
@@ -210,30 +203,16 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 //デイバッグメッシュを読み込む
 //=============================================================================
 //debug block is a simple suqare mesh which represent a bone node position
-Mesh RenderableGameObject::ProcessDebugMesh(aiMesh * mesh, const aiScene * pmScene, const XMMATRIX & transformMatrix)
+Mesh RenderableGameObject::ProcessDebugMesh(const XMFLOAT3* corners)
 {
 	// Data to fill
 	std::vector<Vertex3D> vertices;
 	std::vector<DWORD> indices;
 
 	//Get vertices
-	for (UINT i = 0; i < mesh->mNumVertices; i++)
+	for (UINT i = 0; i < 24; i++)
 	{
 		Vertex3D vertex;
-
-		vertex.pos.x = mesh->mVertices[i].x;
-		vertex.pos.y = mesh->mVertices[i].y;
-		vertex.pos.z = mesh->mVertices[i].z;
-
-		vertex.normal.x = mesh->mNormals[i].x;
-		vertex.normal.y = mesh->mNormals[i].y;
-		vertex.normal.z = mesh->mNormals[i].z;
-
-		if (mesh->mTextureCoords[0])
-		{
-			vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
-			vertex.texCoord.y = (float)mesh->mTextureCoords[0][i].y;
-		}
 
 		vertex.bone_index.w = -1;
 		vertex.bone_index.x = -1;
@@ -249,33 +228,70 @@ Mesh RenderableGameObject::ProcessDebugMesh(aiMesh * mesh, const aiScene * pmSce
 
 	}
 
-	//Get indices
-	for (UINT i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace face = mesh->mFaces[i];
+	vertices.at(0).pos = corners[5];
+	vertices.at(1).pos = corners[6];
+	vertices.at(3).pos = corners[1];
+	vertices.at(2).pos = corners[2];
 
-		for (UINT j = 0; j < face.mNumIndices; j++)
-		{
-			int index = face.mIndices[j];
-			indices.push_back(face.mIndices[j]);
-		}
+	vertices.at(4).pos = corners[0];
+	vertices.at(5).pos = corners[3];
+	vertices.at(7).pos = corners[4];
+	vertices.at(6).pos = corners[7];
+
+	vertices.at(8).pos = corners[7];
+	vertices.at(9).pos = corners[3];
+	vertices.at(11).pos = corners[6];
+	vertices.at(10).pos = corners[2];
+
+	vertices.at(12).pos = corners[5];
+	vertices.at(13).pos = corners[1];
+	vertices.at(15).pos = corners[4];
+	vertices.at(14).pos = corners[0];
+
+	vertices.at(16).pos = corners[1];
+	vertices.at(17).pos = corners[2];
+	vertices.at(19).pos = corners[0];
+	vertices.at(18).pos = corners[3];
+
+	vertices.at(20).pos = corners[4];
+	vertices.at(21).pos = corners[7];
+	vertices.at(23).pos = corners[5];
+	vertices.at(22).pos = corners[6];
+
+	for (UINT i = 0; i < 4; ++i)
+	{
+		vertices.at(i).normal = XMFLOAT3(1, 0, 0);
+		vertices.at(i + 4).normal = XMFLOAT3(-1, 0, 0);
+		vertices.at(i + 8).normal = XMFLOAT3(0, 1, 0);
+		vertices.at(i + 12).normal = XMFLOAT3(0, -1, 0);
+		vertices.at(i + 16).normal = XMFLOAT3(0, 0, 1);
+		vertices.at(i + 20).normal = XMFLOAT3(0, 0, -1);
+	}
+
+	for (UINT i = 0; i < 6; ++i)
+	{
+		vertices.at(i * 4).texCoord = XMFLOAT2(0.0f, 1.0f);
+		vertices.at(i * 4 + 1).texCoord = XMFLOAT2(0.0f, 0.0f);
+		vertices.at(i * 4 + 2).texCoord = XMFLOAT2(1.0f, 0.0f);
+		vertices.at(i * 4 + 3).texCoord = XMFLOAT2(1.0f, 1.0f);
+	}
+
+	//Get indices
+	for (size_t i = 0; i < 6; i++)
+	{
+		indices.push_back(i * 4);
+		indices.push_back(i * 4 + 1);
+		indices.push_back(i * 4 + 2);
+		indices.push_back(i * 4 + 2);
+		indices.push_back(i * 4 + 3);
+		indices.push_back(i * 4);
 	}
 
 	std::vector<Texture> textures;
-	aiMaterial* material = pmScene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, pmScene);
-	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+	Texture diskTexture(this->device, "Date\\Textures\\fade_black.png", aiTextureType::aiTextureType_NONE);
+	textures.push_back(diskTexture);
 
-	std::vector<Texture> specularTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_SPECULAR, pmScene);
-	textures.insert(textures.end(), specularTextures.begin(), specularTextures.end());
-
-	std::vector<Texture> normalTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_HEIGHT, pmScene);
-	textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
-
-	std::vector<Texture> depthTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DISPLACEMENT, pmScene);
-	textures.insert(textures.end(), depthTextures.begin(), depthTextures.end());
-
-	return Mesh( this->device, this->deviceContext, vertices, indices, textures, transformMatrix, mesh->mName.data);
+	return Mesh(this->device, this->deviceContext, vertices, indices, textures, DirectX::XMMatrixIdentity(), "Debugmesh");
 }
 
 //=============================================================================
@@ -423,29 +439,69 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 //=============================================================================
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	
+
 	collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
 	collision->obb.Center.y = this->pos.y + collision->collisionoffsetpos.y;
 	collision->obb.Center.z = this->pos.z + collision->collisionoffsetpos.x;
 	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
 	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
 	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;
-	XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+
+	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
+	auto testmat = XMMatrixRotationQuaternion(test);*/
+	//XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+	/*auto res = XMVector4Transform(XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z), testmat);
+	XMStoreFloat4(&(collision->obb.Orientation), res);
+	collision->obb.Orientation = collision->collisionoriginrot;*/
 
 }
 
 //=============================================================================
 //衝突可視化関数
 //=============================================================================
-void RenderableGameObject::SetCollisionBoxView(bool view) 
+void RenderableGameObject::SetCollisionBoxView(bool view)
 {
-	this->collision->debugmeshflag = view;
+	this->collision->debugmeshflag = !this->collision->debugmeshflag;
 }
 
 //=============================================================================
 //衝突取る関数
 //=============================================================================
-CollsionObject* RenderableGameObject::GetCollisionObject() 
+CollsionObject* RenderableGameObject::GetCollisionObject()
 {
 	return this->collision;
+}
+
+//=============================================================================
+//copy function
+//=============================================================================
+void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
+{
+
+	this->device = go.device;
+	this->deviceContext = go.deviceContext;
+	this->cb_vs_vertexshader = go.cb_vs_vertexshader;
+	this->path = go.path;
+
+	//copy collision
+	collision = new CollsionObject();
+
+	collision->boneindex = go.collision->boneindex;
+	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
+	collision->collisionoriginextents = go.collision->collisionoriginextents;
+	collision->collisionoriginrot = go.collision->collisionoriginrot;
+	collision->collisionuse = go.collision->collisionuse;
+	collision->ct = go.collision->ct;
+	collision->debugmesh = go.collision->debugmesh;
+	collision->debugmeshflag = go.collision->debugmeshflag;
+	collision->obb = go.collision->obb;
+	collision->oritransform = go.collision->oritransform;
+
+	model = go.model;
+
+	this->SetPosition(go.pos);
+	this->SetRotation(go.pos);
+	this->SetScale(go.scale);
+
+	this->worldMatrix = go.worldMatrix;
 }

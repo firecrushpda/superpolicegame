@@ -143,6 +143,9 @@ void Graphics::RenderFrame()
 
 			//ステージ描画
 			//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			for (size_t i = 0; i < mapgo.size(); i++)
+				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
 		}
 
 		if (gs == GameState::editor)
@@ -189,10 +192,9 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+
 		if (car.warninguiflag)
-		{
 			car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-		}
 	}
 
 	if (gs == GameState::tutorial)
@@ -222,7 +224,7 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		//car pos debug text
-		auto carpos = car.carrender.GetPositionFloat3();
+		auto carpos = chasecar.carrender.GetPositionFloat3();
 		std::string pos = std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring wsnum = cv.from_bytes(pos);
@@ -236,17 +238,17 @@ void Graphics::RenderFrame()
 		auto cochasecar = chasecar.carrender.GetCollisionObject();
 		auto cocamera = Camera3D.GetCameraCollision();
 
-		DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
-		bool testbool = false;
-		coresult == 0 ? testbool = true : testbool = false;
-		std::string testbooltext = std::to_string(coresult);
-		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
+		//DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
+		//bool testbool = false;
+		//coresult == 0 ? testbool = true : testbool = false;
+		//std::string testbooltext = std::to_string(coresult);
+		//std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
 	}
 	if (gs == GameState::editor)
@@ -258,7 +260,7 @@ void Graphics::RenderFrame()
 	
 
 	//サポートUI描画
-	// Start the Dear ImGui frame
+	//Start the Dear ImGui frame
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -270,15 +272,12 @@ void Graphics::RenderFrame()
 		//ImGui::DragFloat3("Ambient Light Color", &this->cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Roughness", &this->cb_ps_iblstatus.data.roughness, 0.01f, 0.0f, 1.0f);
-		//ImGui::DragFloat("Ambient Light shininess", &this->cb_ps_light.data.objectMaterial.shininess, 0.01f, 0.0f, 10.0f);
-		//ImGui::DragFloat("Ambient Light specularity", &this->cb_ps_light.data.objectMaterial.specularity, 0.01f, 0.0f, 10.0f);
-		ImGui::DragFloat3("Ambient Light Color", &this->light.lightColor.x, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Ambient Light Strength", &this->light.lightStrength, 0.01f, 0.0f, 10.0f);
 		ImGui::NewLine();
-		ImGui::DragFloat3("Dynamic Light Color", &this->pointLights.at(0)->lightColor.x, 0.01f, 0.0f, 1.0f);
-		auto pointlightpos = pointLights.at(0)->GetPositionFloat3();
-		ImGui::DragFloat3("Dynamic Light Strength", &pointlightpos.x, 1.0f, -100.0f, 100.0f);
-		pointLights.at(0)->SetPosition(pointlightpos);
+		ImGui::DragFloat("FollowCameraHeight", &Camera3D.cf_height, 0.1f, 5.0f, 30.0f);
+		ImGui::DragFloat("FollowCameraBack", &Camera3D.cf_back, 0.1f, 5.0f, 30.0f);
+		ImGui::NewLine();
+		ImGui::DragFloat3("mCarMaxSpeed", &car.mCarMaxSpeed.x, 0.1f, 0.0f, 8.0f);
+		ImGui::DragFloat3("mCarAcceleration", &car.mCarAcceleration.x, 0.1f, 0.0f, 1.0f);
 
 		ImGui::End();
 	}
@@ -620,12 +619,12 @@ bool Graphics::InitializeScene()
 
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj jk_bread.fbx
-		car.carrender.SetScale(3, 3, 3);
+		car.carrender.SetScale(1, 1, 1);
 		car.carrender.SetCollisionBoxView(true);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		chasecar.carrender.SetScale(5.0f, 5.0f, 5.0f);
+		chasecar.carrender.SetScale(1.0f, 1.0f, 1.0f);
 		chasecar.carrender.SetCollisionBoxView(true);
 		
 		cac = new CarAIController();
@@ -670,7 +669,7 @@ bool Graphics::InitializeScene()
 		pointLights.push_back(pointlight);
 
 		//スプライト初期化
-		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d);
+		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d,windowWidth,windowHeight);
 		car.warningui.Initialize(this->device.Get(), this->deviceContext.Get(),96,37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
 		car.warningui.SetPosition(XMFLOAT3(windowWidth / 2 - 48, windowHeight / 2 - 19, 0));
 
@@ -1099,7 +1098,8 @@ void Graphics::LoadMap() {
 				inFile >> sz;
 
 				RenderableGameObject* go = new RenderableGameObject();
-				go->Initialize("Data\\Objects\\" + filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+				go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+				go->path = filename;
 				go->SetPosition(XMFLOAT3(px,py,pz));
 				go->SetRotation(XMFLOAT3(rx, ry, rz));
 				go->SetScale(sx, sy, sz);

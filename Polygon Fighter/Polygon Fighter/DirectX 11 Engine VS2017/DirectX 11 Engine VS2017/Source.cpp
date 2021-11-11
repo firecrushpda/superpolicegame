@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	Timer fpstimer;
 	fpstimer.Start();
 	// ウィンドウの作成
-	if (engine.Initialize(hInstance, "Title", "MyWindowClass", 800, 600))
+	if (engine.Initialize(hInstance, "Title", "MyWindowClass", 1024, 768))
 	{
 		
 		// メッセージループ

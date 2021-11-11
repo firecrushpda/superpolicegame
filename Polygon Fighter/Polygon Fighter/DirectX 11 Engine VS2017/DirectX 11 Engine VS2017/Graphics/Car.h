@@ -45,6 +45,9 @@ public:
 	bool warninguiflag;
 	Sprite warningui;
 
+	XMFLOAT3 mCarAcceleration;
+	XMFLOAT3 mCarMaxSpeed;
+
 private:
 
 	float mWheelRadius;
@@ -66,8 +69,6 @@ private:
 	XMFLOAT3 mDragforce; // add to net force
 	XMFLOAT3 mGravity;
 
-	XMFLOAT3 mCarAcceleration;
-	XMFLOAT3 mCarMaxSpeed;
 
 	float mTheTa;
 	float mFrCoef;

@@ -6,12 +6,13 @@
 //=============================================================================
 #include "CarSpeedUI.h"
 
-void CarSpeedUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d) {
+void CarSpeedUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d,float windowwidth,float windowheight) {
 
+	spdigpos = XMFLOAT2(100, windowheight - 50);
 	speedbar.Initialize(device, deviceContext, 207, 100, "Data/Textures/speedbar2.png", cb_vs_vertexshader_2d);
-	speedbar.SetPosition(XMFLOAT3(0, 500, 0));
+	speedbar.SetPosition(XMFLOAT3(0, windowheight - 100, 0));
 	speedbarback.Initialize(device, deviceContext, 207, 100, "Data/Textures/speedbar1.png", cb_vs_vertexshader_2d);
-	speedbarback.SetPosition(XMFLOAT3(0, 500, 0));
+	speedbarback.SetPosition(XMFLOAT3(0, windowheight - 100, 0));
 
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -30,7 +31,7 @@ void CarSpeedUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceC
 	}
 
 	warningUI.Initialize(device, deviceContext, 96, 54, "Data/Textures/ui_sample.jpg", cb_vs_vertexshader_2d);
-	warningUI.SetPosition(XMFLOAT3(400 - 96/2, 300 - 54/2, 0));
+	warningUI.SetPosition(XMFLOAT3(windowwidth - 96/2, windowheight - 54/2, 0));
 }
 
 void CarSpeedUI::Update(float fillamount, float speed) {

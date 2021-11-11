@@ -12,6 +12,10 @@ class RenderableGameObject : public GameObject3D
 public:
 	bool b_use = true;
 
+	bool b_modelview = true;
+
+	std::string path = "";
+
 	bool Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 
 	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
@@ -42,20 +46,19 @@ public:
 
 	void SetCollisionBoxView(bool view);
 
+	void DeepCopy(const RenderableGameObject& go);
+
 private:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader;
-	
+
 	//collision
 	CollsionObject* collision = nullptr;
 
 	bool ProcessCollsion(CollsionType cotype, bool showflag, DirectX::XMMATRIX oritrans);
 	void UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
-	Mesh ProcessDebugMesh(aiMesh * mesh, const aiScene * pmScene, const XMMATRIX & transformMatrix);
-	
-	//debug
-	std::vector<Mesh> debugBlocks;//衝突デバッグ箱
+	Mesh ProcessDebugMesh(const XMFLOAT3* corners);
 
 	//texuture
 	std::string directory = "";
