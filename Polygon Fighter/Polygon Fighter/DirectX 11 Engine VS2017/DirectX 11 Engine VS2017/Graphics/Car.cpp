@@ -9,13 +9,10 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 
 	carrender.Initialize(filePath, device, deviceContext, cb_vs_vertexshader);
-	//auto Global= DirectX::XMMatrixSet(
-	//	0, 0, -1, 0,
-	//	0, 1, 0, 0,
-	//	1, 0, 0, 0,
-	//	0, 0, 0, 1
-	//);
 	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity());
+
+	carbar.Initialize("Data\\Objects\\test\\p_steering.obj", device, deviceContext, cb_vs_vertexshader);
+	carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI /2, 0));
 
 	mMaxSpeed = 8.0f;
 	mCarMaxSpeed = XMFLOAT3(0.1f, 0.0f, 4.0f); // Steering, Up, Fowards//XMFLOAT3(0.015f, 0.0f, 8.0f)
@@ -72,6 +69,7 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 
 void Car::Draw( const XMMATRIX & viewProjectionMatrix)
 {
+	carbar.Draw(viewProjectionMatrix);
 	carrender.Draw(viewProjectionMatrix);
 }
 

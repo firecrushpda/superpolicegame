@@ -17,6 +17,8 @@ public:
 	//renderobject
 	RenderableGameObject carrender;
 
+	RenderableGameObject carbar;
+
 	//rotatespeed
 	float rotatespeed = 0.001f;
 

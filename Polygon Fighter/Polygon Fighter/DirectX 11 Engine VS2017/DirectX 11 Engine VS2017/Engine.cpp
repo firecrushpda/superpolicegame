@@ -276,6 +276,7 @@ void Engine::Update()
 
 		if (cameratype == 2)
 		{
+
 			auto viewrot = gfx.Camera3D.roundviewrot;
 			auto carrot = gfx.car.carrender.GetRotationFloat3();
 			if (viewrot.y != carrot.y)
@@ -295,6 +296,13 @@ void Engine::Update()
 			DirectX::XMStoreFloat3(&temp, testpos);
 			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_fheight, temp.z);
 			gfx.Camera3D.SetPosition(temp);
+
+			//car bar pos
+			auto barpos = gfx.car.carrender.GetPositionVector() + vec_front * (gfx.Camera3D.cf_front + 0.3);
+			DirectX::XMStoreFloat3(&temp, barpos);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y-0.13, temp.z);
+			gfx.car.carbar.SetPosition(temp);
+
 			testpos = gfx.car.carrender.GetPositionVector() + vec_front * gfx.Camera3D.cf_front * 10;
 			XMStoreFloat3(&temp, testpos);
 			gfx.Camera3D.SetLookAtPos(temp);

@@ -625,6 +625,9 @@ bool Graphics::InitializeScene()
 		car.carrender.SetScale(1, 1, 1);
 		car.carrender.SetPosition(100, 100, 0);
 		car.carrender.SetCollisionBoxView(true);
+		//car.carbar.SetPosition();
+		car.carbar.SetScale(0.1, 0.1, 0.1);
+		car.carbar.SetCollisionBoxView(false);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
