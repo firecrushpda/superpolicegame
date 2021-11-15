@@ -309,6 +309,20 @@ void Engine::Update()
 			unsigned char keycode = kbe.GetKeyCode();
 			if (kbe.IsPress())
 			{
+				if (keycode == '0')
+				{ 
+					gfx.m_editor.cameratype = 0;
+					gfx.Camera3D.SetPosition(0, 10, -10);
+					gfx.Camera3D.SetLookAtPos(XMFLOAT3(0, 0, 0));
+				}
+
+				if (keycode == '1')
+				{
+					gfx.m_editor.cameratype = 1;
+					gfx.Camera3D.SetPosition(0, 50, 0);
+					gfx.Camera3D.SetLookAtPos(XMFLOAT3(0, 0, 0));
+				}
+
 				if (keycode == 'O')
 				{
 					gfx.showImgui = !gfx.showImgui;
@@ -387,7 +401,7 @@ void Engine::Update()
 					
 			}
 
-			if (mouse.IsRightDown())
+			if (mouse.IsRightDown() && gfx.m_editor.cameratype == 0)
 			{
 
 				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
@@ -401,26 +415,45 @@ void Engine::Update()
 		if (keyboard.KeyIsPressed(VK_SHIFT))
 			Camera3DSpeed = 0.2f;
 
-		if (keyboard.KeyIsPressed('W'))
+
+		if (gfx.m_editor.cameratype == 0)
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			if (keyboard.KeyIsPressed('W'))
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			if (keyboard.KeyIsPressed('S'))
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
 		}
-		if (keyboard.KeyIsPressed('S'))
+
+		if (gfx.m_editor.cameratype == 1)
 		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+			if (keyboard.KeyIsPressed('Q'))
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			if (keyboard.KeyIsPressed('E'))
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+			if (keyboard.KeyIsPressed('W'))
+			{
+				auto rot = gfx.Camera3D.GetRotationFloat3();
+				auto up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(rot.x, rot.y, 0.0f);
+				XMVECTOR vec_up = XMVector3TransformCoord(up, vecRotationMatrix);
+				this->gfx.Camera3D.AdjustPosition(vec_up * Camera3DSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('S'))
+			{
+				auto rot = gfx.Camera3D.GetRotationFloat3();
+				auto down = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(rot.x, rot.y, 0.0f);
+				XMVECTOR vec_down = XMVector3TransformCoord(down, vecRotationMatrix);
+				this->gfx.Camera3D.AdjustPosition(vec_down * Camera3DSpeed * dt);
+			}
 		}
+		
 		if (keyboard.KeyIsPressed('A'))
-		{
 			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
-		}
 		if (keyboard.KeyIsPressed('D'))
-		{
 			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
-		}
 		if (keyboard.KeyIsPressed(VK_SPACE))
-		{
 			this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
-		}
 
 		for (size_t i = 0; i < gfx.mapgo.size(); i++)
 		{

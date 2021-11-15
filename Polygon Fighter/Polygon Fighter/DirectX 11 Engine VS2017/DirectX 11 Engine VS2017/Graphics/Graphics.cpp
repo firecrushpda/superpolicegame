@@ -188,9 +188,13 @@ void Graphics::RenderFrame()
 	{
 		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 		if (car.warninguiflag)
-		{
 			car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-		}
+	}
+
+	if (gs == GameState::editor)
+	{
+		if (m_editor.mapspriteflag)
+			m_editor.mapsprite.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 	}
 
 	if (gs == GameState::tutorial)
@@ -293,6 +297,8 @@ void Graphics::RenderFrame()
 		}
 		ImGui::Combo("combo", &m_editor.item_current, &clist[0], m_editor.filename.size());
 
+		ImGui::Checkbox("setactive mapsprite", &m_editor.mapspriteflag);
+		
 		if (ImGui::Button("Add to Scene")) {
 			RenderableGameObject* rgo = new RenderableGameObject();
 			//rgo = m_editor.primitives.at(m_editor.item_current);
@@ -621,6 +627,10 @@ bool Graphics::InitializeScene()
 		gs = GameState::title;
 		tempgs = GameState::title;
 
+		//editor
+		m_editor.mapsprite.Initialize(this->device.Get(), this->deviceContext.Get(), m_editor.mapwidth, m_editor.maphight, "Data\\Textures\\20211111_170255.jpg", cb_vs_vertexshader_2d);
+		m_editor.mapsprite.SetPosition(XMFLOAT3(windowWidth / 2 - m_editor.mapwidth / 2, windowHeight / 2 - m_editor.maphight / 2, 0));
+		
 		//tutorial
 		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\tutoial.png" ,this->cb_vs_vertexshader_2d);
 

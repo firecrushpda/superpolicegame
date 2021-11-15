@@ -23,15 +23,6 @@ void Editor::InitializeEditor(ID3D11Device * device, ID3D11DeviceContext * devic
 	if (primitives.at(primitives.size()-1)->path == "")
 		primitives.erase(primitives.end() - 1);
 
-	//if (primitives.size() >= 1)
-	//{
-	//	selectedGo = new RenderableGameObject();
-	//	selectedGo = primitives.at(0);
-	//}
-	//else
-	//{
-	//	selectedGo = nullptr;
-	//}
 }
 
 void Editor::LoadPrimitives() 

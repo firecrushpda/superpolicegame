@@ -2,6 +2,7 @@
 #include <vector>
 #include "RenderableGameObject.h"
 #include "..//StringHelper.h"
+#include "Sprite.h"
 //#include <string>
 
 class Editor
@@ -11,6 +12,13 @@ public:
 	int item_current = 0;
 
 	int mapgoindex = -1;
+
+	int cameratype = 0;
+
+	bool mapspriteflag = true;
+	Sprite mapsprite;
+	float mapwidth = 600;
+	float maphight = 400;
 
 	RenderableGameObject* selectedGo;
 
