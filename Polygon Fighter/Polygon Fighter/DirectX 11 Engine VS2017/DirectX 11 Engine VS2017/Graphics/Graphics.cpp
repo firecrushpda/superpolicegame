@@ -223,7 +223,7 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		//car pos debug text
-		auto carpos = chasecar.carrender.GetPositionFloat3();
+		auto carpos = car.carbar.GetRotationFloat3();
 		std::string pos = std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring wsnum = cv.from_bytes(pos);
@@ -625,7 +625,6 @@ bool Graphics::InitializeScene()
 		car.carrender.SetScale(1, 1, 1);
 		car.carrender.SetPosition(100, 100, 0);
 		car.carrender.SetCollisionBoxView(true);
-		//car.carbar.SetPosition();
 		car.carbar.SetScale(0.1, 0.1, 0.1);
 		car.carbar.SetCollisionBoxView(false);
 
@@ -634,18 +633,11 @@ bool Graphics::InitializeScene()
 		chasecar.carrender.SetScale(1.0f, 1.0f, 1.0f);
 		chasecar.carrender.SetCollisionBoxView(true);
 		
+		//AI car
 		cac = new CarAIController();
 		cac->SetAICar(&chasecar);
 		auto carpos = car.carrender.GetPositionFloat3();
 		cac->SetPLayerCarPos(&carpos);
-
-		//ゲームステージ初期化
-		//if (!stage.Initialize("Data\\Objects\\Stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-		//	return false;
-		//
-		//auto stageco = stage.GetCollisionObject();
-		//stageco->collisionuse = false;
-		//stage.SetCollisionBoxView(false);
 
 		LoadMap();
 

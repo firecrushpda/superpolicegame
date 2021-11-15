@@ -297,11 +297,15 @@ void Engine::Update()
 			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_fheight, temp.z);
 			gfx.Camera3D.SetPosition(temp);
 
-			//car bar pos
+			//car bar pos and rot
 			auto barpos = gfx.car.carrender.GetPositionVector() + vec_front * (gfx.Camera3D.cf_front + 0.3);
 			DirectX::XMStoreFloat3(&temp, barpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y-0.13, temp.z);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y-0.2, temp.z);
 			gfx.car.carbar.SetPosition(temp);
+			gfx.car.carbar.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+			auto lacarbarrot = gfx.car.carbar.GetRotationFloat3();
+			
+			gfx.car.carbar.SetRotation(XMFLOAT3(lacarbarrot.x, lacarbarrot.y + XM_PI, -gfx.Camera3D.roundviewrot.y));
 
 			testpos = gfx.car.carrender.GetPositionVector() + vec_front * gfx.Camera3D.cf_front * 10;
 			XMStoreFloat3(&temp, testpos);
