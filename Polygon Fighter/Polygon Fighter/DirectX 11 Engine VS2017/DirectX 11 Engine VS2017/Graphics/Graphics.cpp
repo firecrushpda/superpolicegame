@@ -223,12 +223,12 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		//car pos debug text
-		auto carpos = car.carbar.GetRotationFloat3();
-		std::string pos = std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);
+		auto frustum = this->Camera3D.GetCameraCollision()->frustum;
+		std::string pos = std::to_string(frustum.Orientation.x) + "_" + std::to_string(frustum.Orientation.y) + "_" + std::to_string(frustum.Orientation.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring wsnum = cv.from_bytes(pos);
 
-		auto vel = car.GetCarVelocity();
+		auto vel = frustum.Orientation.y;
 		std::string veltext = std::to_string(vel);
 		std::wstring velutf8 = cv.from_bytes(veltext);
 
@@ -246,6 +246,7 @@ void Graphics::RenderFrame()
 		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
+		
 		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));

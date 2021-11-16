@@ -28,8 +28,8 @@ void Camera3D::SetProjectionValues(float fovDegrees, float aspectRatio, float ne
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 
-	collision->frustum = BoundingFrustum(this->projectionMatrix);
-
+	collision->orifrustum = BoundingFrustum(this->projectionMatrix);
+	collision->frustum = collision->orifrustum;
 }
 
 //=============================================================================
@@ -65,16 +65,18 @@ void Camera3D::UpdateMatrix() //Updates view matrix and also updates the movemen
 	this->viewMatrix = XMMatrixLookAtLH(this->posVector, camTarget, upDir);
 
 	//collision
-	this->collision->frustum.Origin.x = XMVectorGetX(posVector);
-	this->collision->frustum.Origin.y = XMVectorGetY(posVector);
-	this->collision->frustum.Origin.z = XMVectorGetZ(posVector);
-	XMStoreFloat4(&(this->collision->frustum.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
+	//this->collision->frustum.Origin.x = XMVectorGetX(posVector);
+	//this->collision->frustum.Origin.y = XMVectorGetY(posVector);
+	//this->collision->frustum.Origin.z = XMVectorGetZ(posVector);
+	//XMStoreFloat4(&(this->collision->frustum.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
 
-	//auto worldMatrix = //XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
-	//	 XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
-	//	* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
-	//collision->frustum = collision->orifrustum;
-	//collision->frustum.Transform(collision->frustum, worldMatrix);
+
+	auto worldMatrix = 
+		XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)*
+			XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+	collision->frustum = collision->orifrustum;
+	collision->frustum.Transform(collision->frustum, worldMatrix);
 
 	this->UpdateDirectionVectors();
 }
@@ -111,7 +113,7 @@ bool Camera3D::ProcessCollsion(CollsionType cotype)
 	collision->orifrustum = BoundingFrustum(this->projectionMatrix);
 	//auto matworld = XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
 	//collision->orifrustum.Transform(collision->orifrustum, matworld);
-	collision->frustum = BoundingFrustum(this->projectionMatrix);
+	collision->frustum = collision->orifrustum;//BoundingFrustum(this->projectionMatrix);
 	return true;
 }
 
