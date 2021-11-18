@@ -191,9 +191,13 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		
 
 		if (car.warninguiflag)
+		{
 			car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		}
 	}
 
 	if (gs == GameState::tutorial)
@@ -222,15 +226,21 @@ void Graphics::RenderFrame()
 
 	if (gs == GameState::game)
 	{
-		//car pos debug text
-		auto frustum = this->Camera3D.GetCameraCollision()->frustum;
-		std::string pos = std::to_string(frustum.Orientation.x) + "_" + std::to_string(frustum.Orientation.y) + "_" + std::to_string(frustum.Orientation.z);
+		//debug text
+		auto mapgo1 = chasecar.carrender.GetPositionVector();
+		auto camviewport = Camera3D.viewport;
+		auto vec = XMVector3Project(mapgo1, camviewport.TopLeftX, camviewport.TopLeftY,
+			camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
+			Camera3D.GetProjectionMatrix(), Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+		XMFLOAT3 co;
+		XMStoreFloat3(&co,vec);
+		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);
+		std::string pos = std::to_string(co.x) + "_" + std::to_string(co.y) + "_" + std::to_string(co.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring wsnum = cv.from_bytes(pos);
 
-		auto vel = frustum.Orientation.y;
-		std::string veltext = std::to_string(vel);
-		std::wstring velutf8 = cv.from_bytes(veltext);
+		//auto vel = std::to_string(co.Extents.x) + "_" + std::to_string(co.Extents.y) + "_" + std::to_string(co.Extents.z);
+		//std::wstring velutf8 = cv.from_bytes(vel);
 
 		//collision text debug
 		auto cocar = car.carrender.GetCollisionObject();
@@ -249,7 +259,7 @@ void Graphics::RenderFrame()
 		
 		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
 	}
@@ -670,6 +680,7 @@ bool Graphics::InitializeScene()
 
 		//スプライト初期化
 		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d,windowWidth,windowHeight);
+		cac->possign.Initialize(this->device.Get(), this->deviceContext.Get(), 96, 37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
 		car.warningui.Initialize(this->device.Get(), this->deviceContext.Get(),96,37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
 		car.warningui.SetPosition(XMFLOAT3(windowWidth / 2 - 48, windowHeight / 2 - 19, 0));
 

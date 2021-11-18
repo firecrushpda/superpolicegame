@@ -64,7 +64,7 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	carrender.SetPosition(temp);
 
 	UpdateForce();
-	carrender.Update(delta_time, viewProjectionMatrix); //
+	carrender.Update(delta_time, viewProjectionMatrix);
 }
 
 void Car::Draw( const XMMATRIX & viewProjectionMatrix)

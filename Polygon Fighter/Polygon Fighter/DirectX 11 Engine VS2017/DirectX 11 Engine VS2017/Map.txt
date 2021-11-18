@@ -1,5 +1,5 @@
 O Data\Objects\test\bigsite.obj
--23 0 -25
+-20 0 -20
 0 0 0
 2 2 2
 O Data\Objects\test\kokudou_X.obj

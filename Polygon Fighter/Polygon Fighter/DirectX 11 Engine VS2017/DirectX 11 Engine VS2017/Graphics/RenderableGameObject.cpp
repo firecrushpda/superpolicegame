@@ -442,23 +442,11 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 //=============================================================================
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-
-	/*collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
-	collision->obb.Center.y = this->pos.y + collision->collisionoffsetpos.y;
-	collision->obb.Center.z = this->pos.z + collision->collisionoffsetpos.x;
-	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
-	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
-	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;*/
-
 	collision->obb = collision->originobb;
-	collision->obb.Transform(collision->obb,this->worldMatrix);
-
-	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
-	auto testmat = XMMatrixRotationQuaternion(test);*/
-	//XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
-	/*auto res = XMVector4Transform(XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z), testmat);
-	XMStoreFloat4(&(collision->obb.Orientation), res);
-	collision->obb.Orientation = collision->collisionoriginrot;*/
+	auto coworldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
+		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	collision->obb.Transform(collision->obb, coworldMatrix);
 
 }
 

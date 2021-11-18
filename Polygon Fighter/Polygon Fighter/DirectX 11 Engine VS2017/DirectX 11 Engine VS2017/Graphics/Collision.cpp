@@ -20,7 +20,6 @@ Ray::Ray(const DirectX::XMFLOAT3 & origin, const DirectX::XMFLOAT3 & direction)
 
 Ray Ray::ScreenToRay(const Camera3D & camera, float screenX, float screenY)
 {
-	
 	static const XMVECTORF32 D = { { { -1.0f, 1.0f, 0.0f, 0.0f } } };
 	XMVECTOR V = XMVectorSet(screenX, screenY, 0.0f, 1.0f);
 

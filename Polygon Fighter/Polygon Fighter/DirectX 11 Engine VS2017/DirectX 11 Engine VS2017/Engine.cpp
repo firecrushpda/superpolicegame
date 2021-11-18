@@ -322,6 +322,22 @@ void Engine::Update()
 
 		mIsInput = false;
 
+		for (size_t i = 0; i < gfx.mapgo.size(); i++)
+		{
+			gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+		}
+
+
+		auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
+		auto camviewport = gfx.Camera3D.viewport;
+		auto vec = XMVector3Project(chasecarvecpos, camviewport.TopLeftX, camviewport.TopLeftY,
+			camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
+			gfx.Camera3D.GetProjectionMatrix(), gfx.Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+		XMFLOAT3 co;
+		XMStoreFloat3(&co, vec);
+		co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f)-30, clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 30, 0);
+		gfx.cac->possign.SetPosition(co);
+
 		//collision
 		//è’ìÀîªíË
 		auto cocar = gfx.car.carrender.GetCollisionObject();

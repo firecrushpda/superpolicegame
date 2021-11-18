@@ -97,6 +97,10 @@ public:
 	//editor
 	Editor m_editor;
 
+	//windows screen
+	int windowWidth = 0;
+	int windowHeight = 0;
+
 	void EditorRayCast(XMFLOAT2 mousepos);
 
 	ID3D11Device* GetDevice();
@@ -164,8 +168,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brdfLUT;
 
 	//タイマー
-	int windowWidth = 0;
-	int windowHeight = 0;
 	Timer fpsTimer;
 
 	//ライト

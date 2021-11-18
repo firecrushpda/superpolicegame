@@ -12,6 +12,7 @@ struct Ray
 	Ray(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction);
 
 	static Ray ScreenToRay(const Camera3D& camera, float screenX, float screenY);
+	//static Ray ScreenToRay(const Camera3D& camera, float screenX, float screenY);
 
 	bool Hit(const DirectX::BoundingBox& box, float* pOutDist = nullptr, float maxDist = FLT_MAX);
 	bool Hit(const DirectX::BoundingOrientedBox& box, float* pOutDist = nullptr, float maxDist = FLT_MAX);

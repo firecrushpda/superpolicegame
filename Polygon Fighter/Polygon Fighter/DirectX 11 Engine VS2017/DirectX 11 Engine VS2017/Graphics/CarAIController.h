@@ -22,6 +22,8 @@ public:
 	CarAIController();
 	~CarAIController();
 
+	Sprite possign;
+
 	void Update(float delta);
 
 	void SetAICar(Car* aicar) { mAICar = aicar; }
@@ -39,6 +41,8 @@ private:
 	XMFLOAT3* mCurrentWaypoint;
 	int mWayPointNum;
 	float mAvoidSpeed;
+
+	
 
 	std::string roadcontentfile;
 	void LoadContent();
