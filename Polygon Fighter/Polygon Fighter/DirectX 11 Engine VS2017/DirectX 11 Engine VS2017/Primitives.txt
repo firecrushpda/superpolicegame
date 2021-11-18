@@ -1,3 +1,4 @@
 O Data\Objects\test\bigsite.obj
 O Data\Objects\test\bill.obj
 O Data\Objects\test\bill2.obj
+O Data\Objects\test\douro_01.obj

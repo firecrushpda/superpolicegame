@@ -18,7 +18,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	if (!gfx.Initialize(this->render_window.GetHWND(), width, height))
 		return false;
-	
+
+	gfx.ResetTitle();
 	return true;
 }
 
@@ -39,8 +40,6 @@ void Engine::Update()
 	float dt = 1.0;//timer.GetMilisecondsElapsed();
 	timer.Restart();
 
-	gfx.fade.UpdateFade();
-
 	if (gfx.gs == GameState::title)
 	{
 		while (!keyboard.KeyBufferIsEmpty())
@@ -56,6 +55,10 @@ void Engine::Update()
 					////temp
 					//gfx.m_editor.InitializeEditor(gfx.GetDevice(),gfx.GetDeviceContent(), gfx.cb_vs_vertexshader);
 				}
+				if (keycode == 'T')
+				{
+					gfx.Fade(GameState::tutorial);
+				}
 			}
 		}
 	}
@@ -70,29 +73,15 @@ void Engine::Update()
 			{
 				if (keycode == '\r')
 				{
-					gfx.Fade(GameState::title);
+					gfx.tutorialtexno++;
+					if (gfx.tutorialtexno >= 2)
+						gfx.Fade(GameState::title);
 				}
 			}
 		}
 	}
 
 	if (gfx.gs == GameState::score)
-	{
-		while (!keyboard.KeyBufferIsEmpty())
-		{
-			KeyboardEvent kbe = keyboard.ReadKey();
-			unsigned char keycode = kbe.GetKeyCode();
-			if (kbe.IsPress())
-			{
-				if (keycode == '\r')
-				{
-					gfx.Fade(GameState::title);
-				}
-			}
-		}
-	}
-
-	if (gfx.gs == GameState::tutorial)
 	{
 		while (!keyboard.KeyBufferIsEmpty())
 		{
@@ -323,10 +312,7 @@ void Engine::Update()
 		mIsInput = false;
 
 		for (size_t i = 0; i < gfx.mapgo.size(); i++)
-		{
 			gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
-		}
-
 
 		auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
 		auto camviewport = gfx.Camera3D.viewport;
@@ -363,7 +349,7 @@ void Engine::Update()
 		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
 		if (coresult1 == 2 || coresult1 == 1) {
 			//catch car
-			//gfx.Fade(GameState::score);
+			gfx.Fade(GameState::score);
 		}
 	}
 
@@ -498,9 +484,9 @@ void Engine::Update()
 		}
 	}
 	//fade
+	//gfx.fade.UpdateFade();
 	auto fadestate = gfx.fade.fadestate;
 	auto rate = gfx.fade.rate;
-	//auto fadesprite = gfx.fade.fadesprite;
 	if (fadestate == FadeState::Fade_In)
 	{
 		auto alpha = gfx.fade.fadesprite.color.w - rate;
@@ -521,6 +507,7 @@ void Engine::Update()
 
 			//change game state
 			gfx.gs = gfx.tempgs;
+			ChangeStats(gfx.gs);
 		}
 	}
 }
@@ -538,5 +525,25 @@ void Engine::RenderFrame()
 //=============================================================================
 void Engine::ChangeStats(GameState state) 
 {
-	
+	switch (state)
+	{
+	case GameState::title:
+		//reset title
+		gfx.ResetTitle();
+		break;
+	case GameState::game:
+		gfx.ResetGame();
+
+		break;
+	case GameState::score:
+		gfx.stage.b_use = false;
+
+		break;
+	case GameState::tutorial:
+		//reset tutorial
+		gfx.tutorialtexno = 0;
+		gfx.stage.b_use = false;
+
+		break;
+	}
 }

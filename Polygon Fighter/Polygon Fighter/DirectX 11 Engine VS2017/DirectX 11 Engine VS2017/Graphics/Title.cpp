@@ -40,7 +40,7 @@ void Title::Update()
 }
 
 void Title::Draw(XMMATRIX orthoMatrix) {
-	Bg.Draw(orthoMatrix);
+	//Bg.Draw(orthoMatrix);
 	startUI.Draw(orthoMatrix);
 	tutorial.Draw(orthoMatrix);
 	editor.Draw(orthoMatrix);

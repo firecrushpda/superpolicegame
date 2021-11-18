@@ -130,16 +130,46 @@ void Graphics::RenderFrame()
 	deviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
 	deviceContext->IASetInputLayout(vertexshader.GetInputLayout());
 	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
-	{ 
+	{
 		//シェーダーリソース
 		this->deviceContext->PSSetShaderResources(4, 1, &brdfLUTSRV);
 		this->deviceContext->PSSetShaderResources(5, 1, &skyIBLSRV);
 		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
-		
+
+		if (gs == GameState::title)
+		{
+			stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			auto viewrot = Camera3D.roundviewrot;
+			Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + title.cam_rotfrequance, viewrot.z);
+			if (title.cam_updowmflag)
+				Camera3D.cf_height += 0.05;
+			else
+				Camera3D.cf_height -= 0.05;
+
+			if (Camera3D.cf_height <= 5 || Camera3D.cf_height >= 10)
+				title.cam_updowmflag = !title.cam_updowmflag;
+
+			auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+			
+			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(Camera3D.roundviewrot.x, Camera3D.roundviewrot.y, 0.0f);
+			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+
+			auto testpos = car.carrender.GetPositionVector() + vec_backward * Camera3D.cf_back;
+			DirectX::XMFLOAT3 temp;
+			DirectX::XMStoreFloat3(&temp, testpos);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + Camera3D.cf_height, temp.z);
+			Camera3D.SetPosition(temp);
+			Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
+		}
+
 		if (gs == GameState::game)
 		{
+			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			girl.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
 
 			//ステージ描画
 			for (size_t i = 0; i < mapgo.size(); i++)
@@ -195,14 +225,24 @@ void Graphics::RenderFrame()
 
 		if (car.warninguiflag)
 		{
-			car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-			cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			//car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			//cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 		}
 	}
 
 	if (gs == GameState::tutorial)
 	{
-		tutorial.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		tutorial_background.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		
+		switch (tutorialtexno)
+		{
+		case 0:
+			tutorial.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			break;
+		case 1:
+			tutorial2.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			break;
+		}
 	}
 
 	if (gs == GameState::score)
@@ -247,8 +287,6 @@ void Graphics::RenderFrame()
 		auto cochasecar = chasecar.carrender.GetCollisionObject();
 		auto cocamera = Camera3D.GetCameraCollision();
 
-		//DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
-		
 		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
 		bool testbool = false;
 		coresult1 == 0 ? testbool = true : testbool = false;
@@ -257,10 +295,10 @@ void Graphics::RenderFrame()
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 		
-		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
 	}
 	if (gs == GameState::editor)
@@ -626,18 +664,42 @@ bool Graphics::InitializeScene()
 		tempgs = GameState::title;
 
 		//tutorial
-		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\tutoial.png" ,this->cb_vs_vertexshader_2d);
+		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\script.png" ,this->cb_vs_vertexshader_2d);
+		tutorial2.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\piano.PNG", this->cb_vs_vertexshader_2d);
+		tutorial_background.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\fade_black.png", this->cb_vs_vertexshader_2d);
+
+		
 
 		//score
 		score.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\result.jpg", this->cb_vs_vertexshader_2d);
 
+		//stage
+		if (!stage.Initialize("Data\\Objects\\stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;//Stage.FBX
+		stage.SetCollisionBoxView(false);
+
+		//game stage
+		if (!gameroad.Initialize("Data\\Objects\\test\\douro_01.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+
+		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
+		gameroad.SetCollisionBoxView(true);
+		//gameroad.
+
+		//game stage
+		if (!girl.Initialize("Data\\Objects\\test\\jk_bread3 (1).obj" ,this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		girl.SetPosition(100, 0, 100);
+		//girl.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
+		girl.SetCollisionBoxView(true);
+
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;// bill.obj p.obj taxi\\testtaxi.obj p.obj jk_bread.fbx
+			return false;
 		car.carrender.SetScale(1, 1, 1);
 		car.carrender.SetPosition(100, 100, 0);
-		car.carrender.SetCollisionBoxView(true);
+		//car.carrender.SetCollisionBoxView(true);
 		car.carbar.SetScale(0.1, 0.1, 0.1);
-		car.carbar.SetCollisionBoxView(false);
+		car.carbar.SetCollisionBoxView(true);
 
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
@@ -1130,6 +1192,36 @@ ID3D11Device* Graphics::GetDevice()
 ID3D11DeviceContext* Graphics::GetDeviceContent()
 {
 	return this->deviceContext.Get();
+}
+
+void Graphics::ResetTitle()
+{
+	//reset title
+	stage.b_use = true;
+	car.carrender.SetScale(2, 2, 2);
+	car.carrender.SetPosition(XMFLOAT3(0, 3, 0));
+	Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
+
+	auto viewrot = Camera3D.roundviewrot;
+	auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(Camera3D.roundviewrot.x, Camera3D.roundviewrot.y, 0.0f);
+	auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+
+	auto testpos = car.carrender.GetPositionVector() + vec_backward * 10;
+	DirectX::XMFLOAT3 temp;
+	DirectX::XMStoreFloat3(&temp, testpos);
+	temp = DirectX::XMFLOAT3(temp.x, temp.y + Camera3D.cf_height, temp.z);
+	Camera3D.SetPosition(temp);
+	Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
+
+}
+
+void Graphics::ResetGame()
+{
+	//reset game
+	stage.b_use = false;
+	car.carrender.SetScale(1, 1, 1);
+	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
 }
 
 void Graphics::EditorRayCast(XMFLOAT2 mousepos)

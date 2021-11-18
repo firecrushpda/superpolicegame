@@ -56,11 +56,23 @@ public:
 	//2d用
 	Title title;
 	Fade fade;
+	
+	unsigned int tutorialtexno = 0;
 	Sprite tutorial;
+	Sprite tutorial2;
+	Sprite tutorial_background;
+
 	Sprite score;
 
 	//ステージ
 	RenderableGameObject stage;
+
+	//ステージ
+	RenderableGameObject gameroad;
+
+	//ステージ
+	RenderableGameObject girl;
+
 
 	//ステージ
 	RenderableGameObject test;
@@ -100,6 +112,9 @@ public:
 	//windows screen
 	int windowWidth = 0;
 	int windowHeight = 0;
+
+	void ResetTitle();
+	void ResetGame();
 
 	void EditorRayCast(XMFLOAT2 mousepos);
 
