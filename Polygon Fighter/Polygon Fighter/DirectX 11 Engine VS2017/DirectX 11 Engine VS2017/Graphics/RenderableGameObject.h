@@ -52,14 +52,14 @@ private:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader;
-	
+
 	//collision
 	CollsionObject* collision = nullptr;
 
 	bool ProcessCollsion(CollsionType cotype, bool showflag, DirectX::XMMATRIX oritrans);
 	void UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
 	Mesh ProcessDebugMesh(const XMFLOAT3* corners);
-	
+
 	//texuture
 	std::string directory = "";
 	std::vector<Texture> LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);

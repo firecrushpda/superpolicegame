@@ -71,8 +71,8 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 void RenderableGameObject::UpdateMatrix()
 {
 	this->worldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
-						* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
-						* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
 	this->UpdateDirectionVectors();
 }
 
@@ -90,7 +90,7 @@ void RenderableGameObject::Update(float dt, const XMMATRIX & viewProjectionMatri
 //=============================================================================
 // 骨のフラッグ
 //=============================================================================
-void RenderableGameObject::SetSkeletonDebugFlag() 
+void RenderableGameObject::SetSkeletonDebugFlag()
 {
 	model.m_showskeleton = !model.m_showskeleton;
 }
@@ -98,7 +98,7 @@ void RenderableGameObject::SetSkeletonDebugFlag()
 //=============================================================================
 // アニメーション再生
 //=============================================================================
-void RenderableGameObject::PlayAnimation(unsigned int num,AnimationPlayStyle aps) 
+void RenderableGameObject::PlayAnimation(unsigned int num, AnimationPlayStyle aps)
 {
 	model.PlayAnimaition(num, aps);
 }
@@ -167,14 +167,14 @@ void RenderableGameObject::SetGlobalMatirx(DirectX::XMMATRIX worldmat)
 //=============================================================================
 //当たり判定ブロック
 //=============================================================================
-bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,DirectX::XMMATRIX oritrans) {
+bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag, DirectX::XMMATRIX oritrans) {
 
 	//body collision
 	collision = new CollsionObject();
 	collision->ct = cotype;
 	collision->collisionuse = true;
 	collision->debugmeshflag = true;
-	
+
 	std::vector<XMFLOAT3> poss;
 	auto meshes = model.GetMesh();
 	for (size_t j = 0; j < meshes.size(); j++)
@@ -187,9 +187,12 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag,Di
 	//BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 	BoundingBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
-	//collision->collisionoriginrot = collision->obb.Orientation;
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
+	collision->oritransform = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
+		//* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
+		* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);
+	collision->originobb = collision->obb;
 
 	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
 	collision->obb.GetCorners(corners);
@@ -261,7 +264,7 @@ Mesh RenderableGameObject::ProcessDebugMesh(const XMFLOAT3* corners)
 	for (UINT i = 0; i < 4; ++i)
 	{
 		vertices.at(i).normal = XMFLOAT3(1, 0, 0);
-		vertices.at(i +4).normal = XMFLOAT3(-1, 0, 0);
+		vertices.at(i + 4).normal = XMFLOAT3(-1, 0, 0);
 		vertices.at(i + 8).normal = XMFLOAT3(0, 1, 0);
 		vertices.at(i + 12).normal = XMFLOAT3(0, -1, 0);
 		vertices.at(i + 16).normal = XMFLOAT3(0, 0, 1);
@@ -270,7 +273,7 @@ Mesh RenderableGameObject::ProcessDebugMesh(const XMFLOAT3* corners)
 
 	for (UINT i = 0; i < 6; ++i)
 	{
-		vertices.at(i*4).texCoord = XMFLOAT2(0.0f, 1.0f);
+		vertices.at(i * 4).texCoord = XMFLOAT2(0.0f, 1.0f);
 		vertices.at(i * 4 + 1).texCoord = XMFLOAT2(0.0f, 0.0f);
 		vertices.at(i * 4 + 2).texCoord = XMFLOAT2(1.0f, 0.0f);
 		vertices.at(i * 4 + 3).texCoord = XMFLOAT2(1.0f, 1.0f);
@@ -291,7 +294,7 @@ Mesh RenderableGameObject::ProcessDebugMesh(const XMFLOAT3* corners)
 	Texture diskTexture(this->device, "Date\\Textures\\fade_black.png", aiTextureType::aiTextureType_NONE);
 	textures.push_back(diskTexture);
 
-	return Mesh( this->device, this->deviceContext, vertices, indices, textures, DirectX::XMMatrixIdentity(),"Debugmesh");
+	return Mesh(this->device, this->deviceContext, vertices, indices, textures, DirectX::XMMatrixIdentity(), "Debugmesh");
 }
 
 //=============================================================================
@@ -439,27 +442,18 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 //=============================================================================
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	
-	collision->obb.Center.x = this->pos.x + collision->collisionoffsetpos.x;
-	collision->obb.Center.y = this->pos.y + collision->collisionoffsetpos.y;
-	collision->obb.Center.z = this->pos.z + collision->collisionoffsetpos.x;
-	collision->obb.Extents.x = scale.x * collision->collisionoriginextents.x;
-	collision->obb.Extents.y = scale.y * collision->collisionoriginextents.y;
-	collision->obb.Extents.z = scale.z * collision->collisionoriginextents.z;
-
-	/*auto test = XMLoadFloat4(&collision->collisionoriginrot);
-	auto testmat = XMMatrixRotationQuaternion(test);*/
-	//XMStoreFloat4(&(collision->obb.Orientation), XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z));
-	/*auto res = XMVector4Transform(XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z), testmat);
-	XMStoreFloat4(&(collision->obb.Orientation), res);
-	collision->obb.Orientation = collision->collisionoriginrot;*/
+	collision->obb = collision->originobb;
+	auto coworldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
+		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
+		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
+	collision->obb.Transform(collision->obb, coworldMatrix);
 
 }
 
 //=============================================================================
 //衝突可視化関数
 //=============================================================================
-void RenderableGameObject::SetCollisionBoxView(bool view) 
+void RenderableGameObject::SetCollisionBoxView(bool view)
 {
 	this->collision->debugmeshflag = !this->collision->debugmeshflag;
 }
@@ -467,7 +461,7 @@ void RenderableGameObject::SetCollisionBoxView(bool view)
 //=============================================================================
 //衝突取る関数
 //=============================================================================
-CollsionObject* RenderableGameObject::GetCollisionObject() 
+CollsionObject* RenderableGameObject::GetCollisionObject()
 {
 	return this->collision;
 }
@@ -485,7 +479,7 @@ void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
 
 	//copy collision
 	collision = new CollsionObject();
-	
+
 	collision->boneindex = go.collision->boneindex;
 	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
 	collision->collisionoriginextents = go.collision->collisionoriginextents;

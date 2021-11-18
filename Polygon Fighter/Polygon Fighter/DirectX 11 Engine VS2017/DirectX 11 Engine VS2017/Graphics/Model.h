@@ -148,6 +148,7 @@ public:
 	DirectX::XMMATRIX oritransform;
 	std::vector<Mesh> debugmesh;
 	BoundingBox obb;
+	BoundingBox originobb;
 	CollsionType ct;
 	XMFLOAT3 collisionoffsetpos;
 	XMFLOAT3 collisionoriginextents;
