@@ -133,11 +133,11 @@ void Engine::Update()
 				}
 
 				//camera
-				if (keycode == '0')//follow
+				if (keycode == 'L')//follow
 				{
 					gfx.Camera3D.cameratype = 0;
 				}
-				if (keycode == '1')//free
+				if (keycode == 'K')//free
 				{
 					gfx.Camera3D.cameratype = 1;
 				}
@@ -309,14 +309,14 @@ void Engine::Update()
 			unsigned char keycode = kbe.GetKeyCode();
 			if (kbe.IsPress())
 			{
-				if (keycode == '0')
+				if (keycode == 'L')
 				{ 
 					gfx.m_editor.cameratype = 0;
 					gfx.Camera3D.SetPosition(0, 10, -10);
 					gfx.Camera3D.SetLookAtPos(XMFLOAT3(0, 0, 0));
 				}
 
-				if (keycode == '1')
+				if (keycode == 'K')
 				{
 					gfx.m_editor.cameratype = 1;
 					gfx.Camera3D.SetPosition(0, 50, 0);

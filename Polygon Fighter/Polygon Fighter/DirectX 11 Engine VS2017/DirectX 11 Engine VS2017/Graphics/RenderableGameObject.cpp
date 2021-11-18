@@ -479,17 +479,19 @@ void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
 
 	//copy collision
 	collision = new CollsionObject();
-
-	collision->boneindex = go.collision->boneindex;
-	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
-	collision->collisionoriginextents = go.collision->collisionoriginextents;
-	collision->collisionoriginrot = go.collision->collisionoriginrot;
-	collision->collisionuse = go.collision->collisionuse;
-	collision->ct = go.collision->ct;
-	collision->debugmesh = go.collision->debugmesh;
-	collision->debugmeshflag = go.collision->debugmeshflag;
-	collision->obb = go.collision->obb;
-	collision->oritransform = go.collision->oritransform;
+	if (go.collision != nullptr)
+	{
+		collision->boneindex = go.collision->boneindex;
+		collision->collisionoffsetpos = go.collision->collisionoffsetpos;
+		collision->collisionoriginextents = go.collision->collisionoriginextents;
+		collision->collisionoriginrot = go.collision->collisionoriginrot;
+		collision->collisionuse = go.collision->collisionuse;
+		collision->ct = go.collision->ct;
+		collision->debugmesh = go.collision->debugmesh;
+		collision->debugmeshflag = go.collision->debugmeshflag;
+		collision->obb = go.collision->obb;
+		collision->oritransform = go.collision->oritransform;
+	}
 
 	model = go.model;
 
