@@ -185,14 +185,14 @@ bool RenderableGameObject::ProcessCollsion(CollsionType cotype, bool showflag, D
 		}
 	}
 	//BoundingOrientedBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
-	BoundingBox::CreateFromPoints(collision->obb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
+	BoundingBox::CreateFromPoints(collision->originobb, poss.size(), &poss.at(0), sizeof(XMFLOAT3));
 
 	collision->collisionoriginextents = XMFLOAT3(collision->obb.Extents.x, collision->obb.Extents.y, collision->obb.Extents.z);
 	collision->collisionoffsetpos = XMFLOAT3(collision->obb.Center.x - pos.x, collision->obb.Center.y - pos.y, collision->obb.Center.z - pos.z);
 	collision->oritransform = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
 		//* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
 		* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);
-	collision->originobb = collision->obb;
+	collision->obb = collision->originobb;
 
 	XMFLOAT3 corners[BoundingOrientedBox::CORNER_COUNT];
 	collision->obb.GetCorners(corners);
@@ -479,19 +479,18 @@ void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
 
 	//copy collision
 	collision = new CollsionObject();
-	if (go.collision != nullptr)
-	{
-		collision->boneindex = go.collision->boneindex;
-		collision->collisionoffsetpos = go.collision->collisionoffsetpos;
-		collision->collisionoriginextents = go.collision->collisionoriginextents;
-		collision->collisionoriginrot = go.collision->collisionoriginrot;
-		collision->collisionuse = go.collision->collisionuse;
-		collision->ct = go.collision->ct;
-		collision->debugmesh = go.collision->debugmesh;
-		collision->debugmeshflag = go.collision->debugmeshflag;
-		collision->obb = go.collision->obb;
-		collision->oritransform = go.collision->oritransform;
-	}
+
+	collision->originobb = go.collision->originobb;
+	collision->boneindex = go.collision->boneindex;
+	collision->collisionoffsetpos = go.collision->collisionoffsetpos;
+	collision->collisionoriginextents = go.collision->collisionoriginextents;
+	collision->collisionoriginrot = go.collision->collisionoriginrot;
+	collision->collisionuse = go.collision->collisionuse;
+	collision->ct = go.collision->ct;
+	collision->debugmesh = go.collision->debugmesh;
+	collision->debugmeshflag = go.collision->debugmeshflag;
+	collision->obb = go.collision->obb;
+	collision->oritransform = go.collision->oritransform;
 
 	model = go.model;
 
