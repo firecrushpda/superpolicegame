@@ -1,2 +1,3 @@
-O Data\Objects\test\bill2.obj
-O Data\Objects\test\douro_01.obj
+O Data\Objects\test\guardrail02.obj
+O Data\Objects\test\guardrail03.obj
+O Data\Objects\test\house.obj
