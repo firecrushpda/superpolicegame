@@ -34,8 +34,8 @@ bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hIns
 
 	// ウィンドウの作成
 	this->handle = CreateWindowEx(0, //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
-		this->window_class_wide.c_str(), //Window class name
-		this->window_title_wide.c_str(), //Window Title
+		this->window_class_wide.c_str(), //Window class name  
+		this->window_title_wide.c_str(), //Window Title  
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //Windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
 		wr.left, //Window X Position
 		wr.top, //Window Y Position
@@ -55,9 +55,9 @@ bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hIns
 	// Bring the window up on the screen and set it as main focus.
 	// ウインドウの表示(初期化処理の後に呼ばないと駄目)
 	ShowWindow(this->handle, SW_SHOW);
-	SetForegroundWindow(this->handle);
-	SetFocus(this->handle);
-	UpdateWindow(this->handle);
+	//SetForegroundWindow(this->handle);
+	//SetFocus(this->handle);
+	//UpdateWindow(this->handle);
 
 	return true;
 }
@@ -88,7 +88,7 @@ bool RenderWindow::ProcessMessages()
 		if (!IsWindow(this->handle))
 		{
 			this->handle = NULL; //Message processing loop takes care of destroying this window
-			UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
+			UnregisterClass(this->window_class_wide.c_str(), this->hInstance);//
 			return false;
 		}
 	}
@@ -111,7 +111,7 @@ RenderWindow::~RenderWindow()
 {
 	if (this->handle != NULL)
 	{
-		UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
+		UnregisterClass(this->window_class_wide.c_str(), this->hInstance);//
 		DestroyWindow(handle);
 	}
 }
@@ -132,43 +132,53 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	{
 		// retrieve ptr to window class
 		WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+		if (pWindow == nullptr) //Sanity check
+		{
+			ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
+			exit(-1);
+		}
 		// forward message to window class handler
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
+	break;
 	}
 }
 
 //=============================================================================
 // メッセージループ
 //=============================================================================
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+//extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
 		return true;
-	
+
 	switch (uMsg)
 	{
-		case WM_NCCREATE:
+		case WM_NCCREATE://WM_CREATE WM_NCCREATE
 		{
-		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
-		WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
-		if (pWindow == nullptr) //Sanity check
-		{
-			ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
-			exit(-1);
-		}
+			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
+			WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);//static_cast reinterpret_cast
 
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
-		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
+			if (pWindow == nullptr) //Sanity check
+			{
+				ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
+				exit(-1);
+			}
 
-		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
+			SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
+		
+			return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 		}
-		default:
 
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
+	
+
 
 	return 0;
 }
@@ -189,7 +199,7 @@ void RenderWindow::RegisterWindowClass()
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW); //Default Cursor - If we leave this null, we have to explicitly set the cursor's shape each time it enters the window.
 	wc.hbrBackground = NULL; //Handle to the class background brush for the window's background color - we will leave this blank for now and later set this to black. For stock brushes, see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd144925(v=vs.85).aspx
 	wc.lpszMenuName = NULL; //Pointer to a null terminated character string for the menu. We are not using a menu yet, so this will be NULL.
-	wc.lpszClassName = this->window_class_wide.c_str(); //Pointer to null terminated string of our class name for this window.
+	wc.lpszClassName = this->window_class_wide.c_str(); //; //Pointer to null terminated string of our class name for this window.
 	wc.cbSize = sizeof(WNDCLASSEX); //Need to fill in the size of our struct for cbSize
 	RegisterClassEx(&wc); // Register the class so that it is usable.
 }

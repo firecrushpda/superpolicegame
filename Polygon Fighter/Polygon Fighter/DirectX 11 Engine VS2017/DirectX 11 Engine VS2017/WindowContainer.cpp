@@ -13,8 +13,8 @@ WindowContainer::WindowContainer()
 	{
 		RAWINPUTDEVICE rid;
 
-		rid.usUsagePage = 0x01; //Mouse
-		rid.usUsage = 0x02;
+		rid.usUsagePage = 1; //Mouse 0x01
+		rid.usUsage = 2;//0x02
 		rid.dwFlags = 0;
 		rid.hwndTarget = NULL;
 
@@ -29,7 +29,7 @@ WindowContainer::WindowContainer()
 }
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
 		return true;
@@ -166,6 +166,6 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	}
 
 
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	//return DefWindowProc(hwnd, uMsg, wParam, lParam);
 
 }

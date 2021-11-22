@@ -46,10 +46,14 @@ public:
 	CarSpeedUI carsui;
 	bool warninguiflag;
 	Sprite warningui;
+	bool carbar_drawflag = false;
+	bool haspassenger = false;
 
 	XMFLOAT3 mCarAcceleration;
 	XMFLOAT3 mCarMaxSpeed;
 
+	float cardistance = 0;
+	
 private:
 
 	float mWheelRadius;

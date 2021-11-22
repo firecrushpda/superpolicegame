@@ -28,6 +28,9 @@
 #include "Title.h"
 #include "Fade.h"
 #include "Editor.h"
+#include "Npc.h"
+#include "MoneyUI.h"
+
 
 enum GameState
 {
@@ -64,6 +67,8 @@ public:
 
 	Sprite score;
 
+	MoneyUI moneyui;
+
 	//ステージ
 	RenderableGameObject stage;
 
@@ -71,12 +76,14 @@ public:
 	RenderableGameObject gameroad;
 
 	//ステージ
-	RenderableGameObject girl;
-
+	std::vector<Npc*> npc;
+	unsigned int currentnpcindex;
+	//Npc npc;
 
 	//ステージ
 	RenderableGameObject test;
 
+	//map game object
 	std::vector<RenderableGameObject*> mapgo;
 
 	//
@@ -113,6 +120,9 @@ public:
 	int windowWidth = 0;
 	int windowHeight = 0;
 
+	//game score
+	float gamescore = 0;
+
 	void ResetTitle();
 	void ResetGame();
 
@@ -134,6 +144,7 @@ private:
 	void EffekseerDraw();
 
 	void LoadMap();
+	void LoadNpc();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;//ダイレクトエクスデバイス
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;//ダイレクトエクスデバイスコンテスト

@@ -155,21 +155,33 @@ void Graphics::RenderFrame()
 			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(Camera3D.roundviewrot.x, Camera3D.roundviewrot.y, 0.0f);
 			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
 
-			auto testpos = car.carrender.GetPositionVector() + vec_backward * Camera3D.cf_back;
+			auto testpos = car.carrender.GetPositionVector() + vec_backward * 13; //title cf_back
 			DirectX::XMFLOAT3 temp;
 			DirectX::XMStoreFloat3(&temp, testpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y + Camera3D.cf_height, temp.z);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + 5.0f, temp.z);//title cf_height
 			Camera3D.SetPosition(temp);
 			Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
 		}
 
 		if (gs == GameState::game)
 		{
+			//draw car
 			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			girl.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
+			//draw chase car
+			cb_ps_iblstatus.data.color = XMFLOAT4(0, 0.8, 0.8, 0.8);
+			//cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
+			cb_ps_iblstatus.ApplyChanges();
+			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
+			cb_ps_iblstatus.ApplyChanges();
+
+			//draw npc
+			//girl.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			for (size_t i = 0; i < npc.size(); i++) 
+				npc.at(i)->Draw3D(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			
 
 			//ステージ描画
 			for (size_t i = 0; i < mapgo.size(); i++)
@@ -221,13 +233,14 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-		
+		moneyui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
 		if (car.warninguiflag)
-		{
-			//car.warningui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-			//cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
-		}
+			cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+
+		for (size_t i = 0; i < npc.size(); i++)
+			npc.at(i)->Draw2D(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		
 	}
 
 	if (gs == GameState::tutorial)
@@ -267,14 +280,15 @@ void Graphics::RenderFrame()
 	if (gs == GameState::game)
 	{
 		//debug text
-		auto mapgo1 = chasecar.carrender.GetPositionVector();
+		/*auto mapgo1 = chasecar.carrender.GetPositionVector();
 		auto camviewport = Camera3D.viewport;
 		auto vec = XMVector3Project(mapgo1, camviewport.TopLeftX, camviewport.TopLeftY,
 			camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
 			Camera3D.GetProjectionMatrix(), Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
 		XMFLOAT3 co;
 		XMStoreFloat3(&co,vec);
-		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);
+		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);*/
+		XMFLOAT3 co = car.carrender.GetPositionFloat3();
 		std::string pos = std::to_string(co.x) + "_" + std::to_string(co.y) + "_" + std::to_string(co.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring wsnum = cv.from_bytes(pos);
@@ -286,17 +300,18 @@ void Graphics::RenderFrame()
 		auto cocar = car.carrender.GetCollisionObject();
 		auto cochasecar = chasecar.carrender.GetCollisionObject();
 		auto cocamera = Camera3D.GetCameraCollision();
+		auto triggernpc = npc.at(0)->starttrigger;
 
-		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
+		DirectX::ContainmentType coresult1 = cocar->obb.Contains(npc.at(0)->starttrigger.obb);
 		bool testbool = false;
 		coresult1 == 0 ? testbool = true : testbool = false;
-		std::string testbooltext = std::to_string(coresult1);
+
+		std::string testbooltext = std::to_string(car.cardistance);
 		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-		
 		//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		//spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
@@ -325,8 +340,8 @@ void Graphics::RenderFrame()
 		ImGui::NewLine();
 		ImGui::DragFloat("FollowCameraFrontHeight", &Camera3D.cf_fheight, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("FollowCameraFront", &Camera3D.cf_front, 0.1f, 0.0f, 10.0f);
-		ImGui::DragFloat("FollowCameraHeight", &Camera3D.cf_height, 0.1f, 5.0f, 30.0f);
-		ImGui::DragFloat("FollowCameraBack", &Camera3D.cf_back, 0.1f, 5.0f, 30.0f);
+		ImGui::DragFloat("FollowCameraHeight", &Camera3D.cf_height, 0.1f, 0.0f, 30.0f);
+		ImGui::DragFloat("FollowCameraBack", &Camera3D.cf_back, 0.1f, 0.0f, 30.0f);
 		ImGui::NewLine();
 		ImGui::DragFloat3("mCarMaxSpeed", &car.mCarMaxSpeed.x, 0.1f, 0.0f, 8.0f);
 		ImGui::DragFloat3("mCarAcceleration", &car.mCarAcceleration.x, 0.1f, 0.0f, 1.0f);
@@ -655,6 +670,7 @@ bool Graphics::InitializeScene()
 {
 	try
 	{
+
 		//title
 		title.Init(this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader_2d, windowWidth, windowHeight);
 		fade.InitFade(this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader_2d, windowWidth, windowHeight);
@@ -668,8 +684,6 @@ bool Graphics::InitializeScene()
 		tutorial2.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\piano.PNG", this->cb_vs_vertexshader_2d);
 		tutorial_background.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\fade_black.png", this->cb_vs_vertexshader_2d);
 
-		
-
 		//score
 		score.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\result.jpg", this->cb_vs_vertexshader_2d);
 
@@ -681,39 +695,34 @@ bool Graphics::InitializeScene()
 		//game stage
 		if (!gameroad.Initialize("Data\\Objects\\test\\douro_01.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-
 		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
-		gameroad.SetCollisionBoxView(true);
-		//gameroad.
+		gameroad.SetCollisionBoxView(false);
 
-		//game stage
-		if (!girl.Initialize("Data\\Objects\\test\\jk_bread3 (1).obj" ,this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;
-		girl.SetPosition(100, 0, 100);
-		//girl.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
-		girl.SetCollisionBoxView(true);
-
+		//game character car
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		car.carrender.SetScale(1, 1, 1);
-		car.carrender.SetPosition(100, 100, 0);
-		//car.carrender.SetCollisionBoxView(true);
+		car.carrender.SetScale(0.3, 0.3, 0.3);
+		car.carrender.SetPosition(100, 0, 100);
+		car.carbar.Initialize("Data\\Objects\\test\\p_steering.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+		car.carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI / 2, 0));
 		car.carbar.SetScale(0.1, 0.1, 0.1);
-		car.carbar.SetCollisionBoxView(true);
+		car.carrender.SetCollisionBoxView(false);
+		car.carbar.SetCollisionBoxView(false);
 
-		if (!chasecar.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		//game chase car
+		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		chasecar.carrender.SetScale(1.0f, 1.0f, 1.0f);
-		chasecar.carrender.SetCollisionBoxView(true);
+		chasecar.carrender.SetScale(0.3, 0.3, 0.3);
+		chasecar.carrender.SetCollisionBoxView(false);
+		chasecar.carbar.b_use = false;
 		
-		//AI car
+		//car AI 
 		cac = new CarAIController();
 		cac->SetAICar(&chasecar);
-		auto carpos = car.carrender.GetPositionFloat3();
-		cac->SetPLayerCarPos(&carpos);
+		cac->ResetCarPosition();
+		//auto carpos = car.carrender.GetPositionFloat3();
 
-		LoadMap();
-
+		//load prerender quad
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//
 		auto quadco = quad.GetCollisionObject();
@@ -742,9 +751,21 @@ bool Graphics::InitializeScene()
 
 		//スプライト初期化
 		car.carsui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d,windowWidth,windowHeight);
-		cac->possign.Initialize(this->device.Get(), this->deviceContext.Get(), 96, 37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
+		cac->possign.Initialize(this->device.Get(), this->deviceContext.Get(), 10, 10, "Data\\Textures\\redpoint.png", cb_vs_vertexshader_2d);
 		car.warningui.Initialize(this->device.Get(), this->deviceContext.Get(),96,37, "Data\\Textures\\warningtag.png", cb_vs_vertexshader_2d);
 		car.warningui.SetPosition(XMFLOAT3(windowWidth / 2 - 48, windowHeight / 2 - 19, 0));
+		moneyui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d, windowWidth, windowHeight,&car);
+
+		//load map game object
+		LoadMap();
+
+		//load npc object
+		LoadNpc();
+
+		//npc instance
+		/*npc.Init("Data\\Objects\\test\\gile_wavehand.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_vertexshader_2d, &Camera3D);
+		npc.girl.SetPosition(XMFLOAT3(-55, 1, 291));
+		npc.moneyui = &moneyui;*/
 
 		//カメラ設置
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
@@ -1184,6 +1205,57 @@ void Graphics::LoadMap() {
 	mapgo.erase(mapgo.end() - 1);
 }
 
+void Graphics::LoadNpc()
+{
+	npc.clear();
+
+	std::ifstream inFile;
+	inFile.open("Npc.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Map file\n";
+		return;
+	}
+	else {
+		std::cerr << "Npc File found\n";
+
+		std::string filename = "Data\\Objects\\test\\gile_wavehand.fbx";
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+
+				float px, py, pz;
+
+				inFile >> px;
+				inFile >> py;
+				inFile >> pz;
+
+				float pex, pey, pez;
+
+				inFile >> pex;
+				inFile >> pey;
+				inFile >> pez;
+
+				Npc* npcgo = new Npc();
+				npcgo->Init(filename, this->device.Get(), this->deviceContext.Get(), 
+						cb_vs_vertexshader, cb_vs_vertexshader_2d, &Camera3D);
+				npcgo->girl.path = filename;
+				npcgo->girl.SetPosition(XMFLOAT3(px, py, pz));
+				npcgo->tgpos = XMFLOAT3(pex, pey, pez);
+				npcgo->moneyui = &moneyui;
+				npc.push_back(npcgo);
+				npcgo->npcindex = npc.size() - 1;
+				
+			}
+		}
+	}
+	npc.erase(npc.end() - 1);
+}
+
 ID3D11Device* Graphics::GetDevice() 
 {
 	return this->device.Get();
@@ -1220,7 +1292,7 @@ void Graphics::ResetGame()
 {
 	//reset game
 	stage.b_use = false;
-	car.carrender.SetScale(1, 1, 1);
+	car.carrender.SetScale(0.3, 0.3, 0.3);
 	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
 }
 

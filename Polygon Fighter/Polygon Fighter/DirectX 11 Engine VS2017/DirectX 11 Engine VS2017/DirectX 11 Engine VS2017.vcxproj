@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -180,6 +180,8 @@
     <ClCompile Include="Graphics\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Graphics\MoneyUI.cpp" />
+    <ClCompile Include="Graphics\Npc.cpp" />
     <ClCompile Include="Graphics\PointLight.cpp" />
     <ClCompile Include="Graphics\SkyBox.cpp" />
     <ClCompile Include="Graphics\SpotLight.cpp" />
@@ -231,6 +233,8 @@
     <ClInclude Include="Graphics\ImGui\imstb_textedit.h" />
     <ClInclude Include="Graphics\ImGui\imstb_truetype.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
+    <ClInclude Include="Graphics\MoneyUI.h" />
+    <ClInclude Include="Graphics\Npc.h" />
     <ClInclude Include="Graphics\PointLight.h" />
     <ClInclude Include="Graphics\SkyBox.h" />
     <ClInclude Include="Graphics\SpotLight.h" />

@@ -96,7 +96,7 @@ void Engine::Update()
 			}
 		}
 	}
-
+#pragma region GameState::game
 	if (gfx.gs == GameState::game)
 	{
 		auto cameratype = gfx.Camera3D.cameratype;
@@ -107,6 +107,7 @@ void Engine::Update()
 			unsigned char ch = keyboard.ReadChar();
 		}
 
+		//key press
 		while (!keyboard.KeyBufferIsEmpty())
 		{
 			KeyboardEvent kbe = keyboard.ReadKey();
@@ -130,14 +131,17 @@ void Engine::Update()
 				if (keycode == '0')//follow
 				{
 					gfx.Camera3D.cameratype = 0;
+					gfx.car.carbar_drawflag = false;
 				}
 				if (keycode == '1')//free
 				{
 					gfx.Camera3D.cameratype = 1;
+					gfx.car.carbar_drawflag = false;
 				}
 				if (keycode == '2')//front
 				{
 					gfx.Camera3D.cameratype = 2;
+					gfx.car.carbar_drawflag = true;
 				}
 
 
@@ -151,10 +155,10 @@ void Engine::Update()
 			{
 
 			}
-		
+
 		}
 
-		 //マウスの読み込む
+		//マウスの読み込む
 		while (!mouse.EventBufferIsEmpty())
 		{
 			MouseEvent me = mouse.ReadEvent();
@@ -164,6 +168,22 @@ void Engine::Update()
 			//
 			//}
 
+			/*if (me.GetType() == MouseEvent::EventType::LPress)
+			{
+				speedupflag = true;
+			}
+			if (me.GetType() == MouseEvent::EventType::LRelease)
+			{
+				speedupflag = false;
+			}
+			if (me.GetType() == MouseEvent::EventType::RPress)
+			{
+				speeddownflag = true;
+			}
+			if (me.GetType() == MouseEvent::EventType::RRelease)
+			{
+				speeddownflag = false;
+			}*/
 
 			if (mouse.IsRightDown())
 			{
@@ -178,35 +198,9 @@ void Engine::Update()
 		}
 
 		float Camera3DSpeed = 0.06f;
-		//press
-		if (cameratype == 0 || cameratype == 2)
-		{
-			
-			if (keyboard.KeyIsPressed('W'))
-			{
-				this->gfx.car.MoveFowards(dt, 1.0f);
-				mIsInput = true;
-			}
-			else if (keyboard.KeyIsPressed('S'))
-			{
-				this->gfx.car.MoveFowards(dt, -1.0f);
-				mIsInput = true;
-			}
 
-			if (keyboard.KeyIsPressed('A'))
-			{
-				this->gfx.car.Turn(dt, -1.0f);
-			}
-			else if (keyboard.KeyIsPressed('D'))
-			{
-				this->gfx.car.Turn(dt, 1.0f);
-			}
-			else
-			{
-				this->gfx.car.Turn(dt, 0.0f);
-			}
-		}
-		else if (cameratype == 1 )
+		//press
+		if (cameratype == 1)
 		{
 			if (keyboard.KeyIsPressed('W'))
 			{
@@ -233,38 +227,73 @@ void Engine::Update()
 				this->gfx.Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
 			}
 		}
-		if (mIsInput == false)
-		{
-			this->gfx.car.MoveFowards( dt, 0.0f);
-		}
 
 		//fix camera
 		if (cameratype == 0)
 		{
-			auto viewrot = gfx.Camera3D.roundviewrot;
-			auto carrot = gfx.car.carrender.GetRotationFloat3();
-			if (viewrot.y != carrot.y)
+			/*if (speedupflag)
 			{
-				auto viewrotV = XMLoadFloat3(&viewrot);
-				auto carrotV = XMLoadFloat3(&carrot);
-				auto lerpvalue = XMVectorLerp(viewrotV, carrotV, 0.035f);
-				XMStoreFloat3(&gfx.Camera3D.roundviewrot, lerpvalue);
+				this->gfx.car.MoveFowards(dt, 1.0f);
+				mIsInput = true;
 			}
 
-			auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
-			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
-			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+			if (speeddownflag)
+			{
+				this->gfx.car.MoveFowards(dt, -1.0f);
+				mIsInput = true;
+			}*/
 
-			auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back;
-			DirectX::XMFLOAT3 temp;
-			DirectX::XMStoreFloat3(&temp, testpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_height, temp.z);
-			gfx.Camera3D.SetPosition(temp);
-			gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+			if (keyboard.KeyIsPressed('W'))
+			{
+				this->gfx.car.MoveFowards(dt, 1.0f);
+				mIsInput = true;
+			}
+			else if (keyboard.KeyIsPressed('S'))
+			{
+				this->gfx.car.MoveFowards(dt, -1.0f);
+				mIsInput = true;
+			}
+
+			if (keyboard.KeyIsPressed('A'))
+			{
+				this->gfx.car.Turn(dt, -1.0f);
+			}
+			else if (keyboard.KeyIsPressed('D'))
+			{
+				this->gfx.car.Turn(dt, 1.0f);
+			}
+			else
+			{
+				this->gfx.car.Turn(dt, 0.0f);
+			}
 		}
 
 		if (cameratype == 2)
 		{
+
+			if (keyboard.KeyIsPressed('W'))
+			{
+				this->gfx.car.MoveFowards(dt, 1.0f);
+				mIsInput = true;
+			}
+			else if (keyboard.KeyIsPressed('S'))
+			{
+				this->gfx.car.MoveFowards(dt, -1.0f);
+				mIsInput = true;
+			}
+
+			if (keyboard.KeyIsPressed('A'))
+			{
+				this->gfx.car.Turn(dt, -1.0f);
+			}
+			else if (keyboard.KeyIsPressed('D'))
+			{
+				this->gfx.car.Turn(dt, 1.0f);
+			}
+			else
+			{
+				this->gfx.car.Turn(dt, 0.0f);
+			}
 
 			auto viewrot = gfx.Camera3D.roundviewrot;
 			auto carrot = gfx.car.carrender.GetRotationFloat3();
@@ -286,34 +315,45 @@ void Engine::Update()
 			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_fheight, temp.z);
 			gfx.Camera3D.SetPosition(temp);
 
-			//car bar pos and rot
+			//car bar pos
 			auto barpos = gfx.car.carrender.GetPositionVector() + vec_front * (gfx.Camera3D.cf_front + 0.3);
 			DirectX::XMStoreFloat3(&temp, barpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y-0.2, temp.z);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y - 0.2, temp.z);
+
+			//rot
+			auto lacarbarrotZ = gfx.car.carbar.GetRotationFloat3().z;
+			lacarbarrotZ = lacarbarrotZ * (1 - 0.05);
 			gfx.car.carbar.SetPosition(temp);
 			gfx.car.carbar.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 			auto lacarbarrot = gfx.car.carbar.GetRotationFloat3();
-			
-			gfx.car.carbar.SetRotation(XMFLOAT3(lacarbarrot.x, lacarbarrot.y + XM_PI, -gfx.Camera3D.roundviewrot.y));
+
+			gfx.car.carbar.SetRotation(XMFLOAT3(lacarbarrot.x, lacarbarrot.y + XM_PI, lacarbarrotZ));//-gfx.Camera3D.roundviewrot.y
 
 			testpos = gfx.car.carrender.GetPositionVector() + vec_front * gfx.Camera3D.cf_front * 10;
 			XMStoreFloat3(&temp, testpos);
 			gfx.Camera3D.SetLookAtPos(temp);
 		}
 
+		if (mIsInput == false)
+		{
+			this->gfx.car.MoveFowards(dt, 0.0f);
+		}
+		//update car
 		this->gfx.car.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
-		this->gfx.chasecar.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
-		gfx.cac->Update(1.0f/60.0f);
 
+		//update car speed ui
 		auto vel = gfx.car.GetCarVelocity();
 		auto maxspeed = gfx.car.GetMaxSpeed();
 		gfx.car.carsui.Update(1.0f - std::abs(vel) / maxspeed, vel);
 
-		mIsInput = false;
+		//update money ui
+		gfx.moneyui.Update();
 
-		for (size_t i = 0; i < gfx.mapgo.size(); i++)
-			gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+		//update chase car
+		this->gfx.chasecar.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+		gfx.cac->Update(1.0f / 60.0f);
 
+		//update chase car position sign
 		auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
 		auto camviewport = gfx.Camera3D.viewport;
 		auto vec = XMVector3Project(chasecarvecpos, camviewport.TopLeftX, camviewport.TopLeftY,
@@ -321,8 +361,64 @@ void Engine::Update()
 			gfx.Camera3D.GetProjectionMatrix(), gfx.Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
 		XMFLOAT3 co;
 		XMStoreFloat3(&co, vec);
-		co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f)-30, clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 30, 0);
+		co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f), clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 25, 0);
 		gfx.cac->possign.SetPosition(co);
+
+		if (cameratype == 0)
+		{
+			//camrot
+			auto viewrot = gfx.Camera3D.roundviewrot;
+			auto carrot = gfx.car.carrender.GetRotationFloat3();
+			if (viewrot.y != carrot.y)
+			{
+				auto viewrotV = XMLoadFloat3(&viewrot);
+				auto carrotV = XMLoadFloat3(&carrot);
+				auto lerpvalue = XMVectorLerp(viewrotV, carrotV, 0.035f);
+				XMStoreFloat3(&gfx.Camera3D.roundviewrot, lerpvalue);
+			}
+
+			//campos
+			auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
+			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+			auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back;
+			DirectX::XMFLOAT3 temp;
+			DirectX::XMStoreFloat3(&temp, testpos);
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_height, temp.z);
+			gfx.Camera3D.SetPosition(temp);
+			gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+		}
+
+		
+		if (cameratype == 3)
+		{
+			auto npc = gfx.npc.at(gfx.currentnpcindex);
+			auto dback = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(npc->girl.GetRotationFloat3().x, npc->girl.GetRotationFloat3().y, 0.0f);
+			auto vec_forward = XMVector3TransformCoord(dback, vecRotationMatrix);
+			auto testpos = npc->girl.GetPositionVector() + vec_forward * 10 + DirectX::XMVectorSet(0.0f, 5.0f, 0.0f, 0.0f);//
+			gfx.Camera3D.SetPosition(testpos);
+			//gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+
+			//camrot
+			auto viewrot = gfx.Camera3D.roundviewrot;
+			auto lookAtPos = npc->girl.GetPositionFloat3();
+			auto pos = gfx.Camera3D.GetPositionFloat3();
+
+			gfx.Camera3D.SetLookAtPos(lookAtPos);
+			
+		}
+
+		//input sign
+		mIsInput = false;
+
+		//update map game object
+		for (size_t i = 0; i < gfx.mapgo.size(); i++)
+			gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+
+		//update npc
+		for (size_t i = 0; i < gfx.npc.size(); i++)
+			gfx.npc.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 
 		//collision
 		//衝突判定
@@ -337,154 +433,199 @@ void Engine::Update()
 			if (coresult == 2 || coresult == 1)
 				gfx.mapgo.at(i)->b_modelview = true;
 			else
-				gfx.mapgo.at(i)->b_modelview = false;	
+				gfx.mapgo.at(i)->b_modelview = false;
 		}
 
 		DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
-		if (coresult == 2 || coresult == 1) 
+		if (coresult == 2 || coresult == 1)
 			gfx.car.warninguiflag = true;
 		else
 			gfx.car.warninguiflag = false;
 
-		DirectX::ContainmentType coresult1 = cocar->obb.Contains(cochasecar->obb);
-		if (coresult1 == 2 || coresult1 == 1) {
+		coresult = cocar->obb.Contains(cochasecar->obb);
+		if (coresult == 2 || coresult == 1) {
 			//catch car
-			gfx.Fade(GameState::score);
+			//gfx.Fade(GameState::score);
+		}
+
+		//npc collision
+		for (size_t i = 0; i < gfx.npc.size(); i++)
+		{
+			auto npc = gfx.npc.at(i);
+			if (npc->npcstate <= 1)
+			{
+				coresult = cocar->obb.Contains(npc->starttrigger.obb);
+				if (npc->npcstate == 0 && (coresult == 2 || coresult == 1)
+					&& std::fabs(vel) <= 0.5 && !gfx.car.haspassenger && npc->starttrigger.collisionuse)
+				{
+					//change npcstate
+					npc->starttrigger.collisionuse = false;
+					gfx.Camera3D.cameratype = 3;
+					npc->npcstate = 1;
+					npc->npctimer.Restart();
+					npc->uiflag = true;
+					gfx.car.haspassenger = true;
+					gfx.currentnpcindex = npc->npcindex;
+				}
+			}
+			if (npc->npcstate >= 2)
+			{
+				if (npc->endtrigger.collisionuse)
+				{
+					coresult = cocar->obb.Contains(npc->endtrigger.obb);
+					if ((coresult == 2 || coresult == 1) && std::fabs(vel) <= 0.5 && gfx.car.haspassenger)
+					{
+						//change npcstate
+						npc->npcstate = 3;
+						gfx.moneyui.Hide();
+						gfx.car.haspassenger = false;
+						npc->endtrigger.collisionuse = false;
+
+						//
+						gfx.gamescore += gfx.car.cardistance / 3.0f * 57;
+					}
+				}
+			}
 		}
 	}
+#pragma endregion
 
-	if (gfx.gs == GameState::editor) 
-	{
-		// キーボードの読み込む
-		while (!keyboard.CharBufferIsEmpty())
-		{
-			unsigned char ch = keyboard.ReadChar();
-		}
+	
 
-		while (!keyboard.KeyBufferIsEmpty())
-		{
-			KeyboardEvent kbe = keyboard.ReadKey();
-			unsigned char keycode = kbe.GetKeyCode();
-			if (kbe.IsPress())
-			{
-				if (keycode == 'O')
-				{
-					gfx.showImgui = !gfx.showImgui;
-				}
+#pragma region GameState::editor
+	//if (gfx.gs == GameState::editor) 
+//{
+//	// キーボードの読み込む
+//	while (!keyboard.CharBufferIsEmpty())
+//	{
+//		unsigned char ch = keyboard.ReadChar();
+//	}
 
-				if (keycode == 'I')
-				{
-					for (size_t i = 0; i < gfx.mapgo.size(); i++)
-					{
-						gfx.mapgo.at(i)->SetCollisionBoxView(true);
-					}
-				}
+//	while (!keyboard.KeyBufferIsEmpty())
+//	{
+//		KeyboardEvent kbe = keyboard.ReadKey();
+//		unsigned char keycode = kbe.GetKeyCode();
+//		if (kbe.IsPress())
+//		{
+//			if (keycode == 'O')
+//			{
+//				gfx.showImgui = !gfx.showImgui;
+//			}
 
-				if (keycode == 'P')
-				{
-					for (size_t i = 0; i < gfx.mapgo.size(); i++)
-					{
-						gfx.mapgo.at(i)->b_use = !gfx.mapgo.at(i)->b_use;
-					}
-				}
+//			if (keycode == 'I')
+//			{
+//				for (size_t i = 0; i < gfx.mapgo.size(); i++)
+//				{
+//					gfx.mapgo.at(i)->SetCollisionBoxView(true);
+//				}
+//			}
 
-				if (keycode == '\r')
-				{
-					//gfx.Fade(GameState::title);
-				}
-			}
+//			if (keycode == 'P')
+//			{
+//				for (size_t i = 0; i < gfx.mapgo.size(); i++)
+//				{
+//					gfx.mapgo.at(i)->b_use = !gfx.mapgo.at(i)->b_use;
+//				}
+//			}
 
-			if (kbe.IsRelease())
-			{
+//			if (keycode == '\r')
+//			{
+//				//gfx.Fade(GameState::title);
+//			}
+//		}
 
-			}
+//		if (kbe.IsRelease())
+//		{
 
-		}
+//		}
 
-		//マウスの読み込む
-		while (!mouse.EventBufferIsEmpty())
-		{
-			MouseEvent me = mouse.ReadEvent();
+//	}
 
-			if (me.GetType() == MouseEvent::EventType::MPress)
-			{
-				//raycast
-				//gfx.EditorRayCast(mousepos);
+//	//マウスの読み込む
+//	while (!mouse.EventBufferIsEmpty())
+//	{
+//		MouseEvent me = mouse.ReadEvent();
 
-				unsigned int minindx = -1;
-				XMVECTOR mindis = XMVectorSet(999,999,999,999);
-				std::vector<RenderableGameObject*> hitobject;
-				std::vector<unsigned int> indexes;
+//		if (me.GetType() == MouseEvent::EventType::MPress)
+//		{
+//			//raycast
+//			//gfx.EditorRayCast(mousepos);
 
-				Ray ray = Ray::ScreenToRay(gfx.Camera3D, (float)me.GetPos().x, (float)me.GetPos().y);
+//			unsigned int minindx = -1;
+//			XMVECTOR mindis = XMVectorSet(999,999,999,999);
+//			std::vector<RenderableGameObject*> hitobject;
+//			std::vector<unsigned int> indexes;
 
-				for (size_t i = 0; i < gfx.mapgo.size(); i++)
-				{
-					if (ray.Hit(gfx.mapgo.at(i)->GetCollisionObject()->obb))
-					{
-						hitobject.push_back(gfx.mapgo.at(i));
-						indexes.push_back(i);
-					}
-				}
-				
-				for (size_t i = 0; i < hitobject.size(); i++)
-				{
-					auto dis = hitobject.at(i)->GetPositionVector() - gfx.Camera3D.GetPositionVector();
-					dis = XMVector3Length(dis);
-					if (XMVectorGetX(dis) <= XMVectorGetX(mindis))
-					{
-						mindis = dis;
-						minindx = hitobject.size() - 1;
-					}
-				}
-				if (minindx != -1)
-				{
-					gfx.m_editor.selectedGo = hitobject.at(minindx);
-					gfx.m_editor.mapgoindex = indexes.at(minindx);
-				}
-					
-			}
+//			Ray ray = Ray::ScreenToRay(gfx.Camera3D, (float)me.GetPos().x, (float)me.GetPos().y);
 
-			if (mouse.IsRightDown())
-			{
+//			for (size_t i = 0; i < gfx.mapgo.size(); i++)
+//			{
+//				if (ray.Hit(gfx.mapgo.at(i)->GetCollisionObject()->obb))
+//				{
+//					hitobject.push_back(gfx.mapgo.at(i));
+//					indexes.push_back(i);
+//				}
+//			}
+//			
+//			for (size_t i = 0; i < hitobject.size(); i++)
+//			{
+//				auto dis = hitobject.at(i)->GetPositionVector() - gfx.Camera3D.GetPositionVector();
+//				dis = XMVector3Length(dis);
+//				if (XMVectorGetX(dis) <= XMVectorGetX(mindis))
+//				{
+//					mindis = dis;
+//					minindx = hitobject.size() - 1;
+//				}
+//			}
+//			if (minindx != -1)
+//			{
+//				gfx.m_editor.selectedGo = hitobject.at(minindx);
+//				gfx.m_editor.mapgoindex = indexes.at(minindx);
+//			}
+//				
+//		}
 
-				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
-				{
-					this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
-				}
-			}
-		}
+//		if (mouse.IsRightDown())
+//		{
 
-		float Camera3DSpeed = 0.06f;
+//			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+//			{
+//				this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
+//			}
+//		}
+//	}
 
-		if (keyboard.KeyIsPressed('W'))
-		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
-		}
-		if (keyboard.KeyIsPressed('S'))
-		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
-		}
-		if (keyboard.KeyIsPressed('A'))
-		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
-		}
-		if (keyboard.KeyIsPressed('D'))
-		{
-			this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
-		}
-		if (keyboard.KeyIsPressed(VK_SPACE))
-		{
-			this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
-		}
+//	float Camera3DSpeed = 0.06f;
 
-		for (size_t i = 0; i < gfx.mapgo.size(); i++)
-		{
-			gfx.mapgo.at(i)->Update(1.0f,gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
-		}
-	}
+//	if (keyboard.KeyIsPressed('W'))
+//	{
+//		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+//	}
+//	if (keyboard.KeyIsPressed('S'))
+//	{
+//		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+//	}
+//	if (keyboard.KeyIsPressed('A'))
+//	{
+//		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+//	}
+//	if (keyboard.KeyIsPressed('D'))
+//	{
+//		this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+//	}
+//	if (keyboard.KeyIsPressed(VK_SPACE))
+//	{
+//		this->gfx.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
+//	}
+
+//	for (size_t i = 0; i < gfx.mapgo.size(); i++)
+//	{
+//		gfx.mapgo.at(i)->Update(1.0f,gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+//	}
+//}
+#pragma endregion
+
 	//fade
-	//gfx.fade.UpdateFade();
 	auto fadestate = gfx.fade.fadestate;
 	auto rate = gfx.fade.rate;
 	if (fadestate == FadeState::Fade_In)

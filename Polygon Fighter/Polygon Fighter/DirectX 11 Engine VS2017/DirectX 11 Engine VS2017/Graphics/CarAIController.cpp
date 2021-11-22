@@ -100,6 +100,11 @@ void CarAIController::Avoid(XMFLOAT3 pos, float delta)
 	mAICar->carrender.SetRotation(carrot);
 }
 
+void CarAIController::ResetCarPosition()
+{
+	mAICar->carrender.SetPosition(mTrackPoints.at(0));
+}
+
 void  CarAIController::LoadContent() 
 {
 	std::ifstream inFile;
@@ -128,5 +133,6 @@ void  CarAIController::LoadContent()
 			}
 		}
 	}
+
 }
 

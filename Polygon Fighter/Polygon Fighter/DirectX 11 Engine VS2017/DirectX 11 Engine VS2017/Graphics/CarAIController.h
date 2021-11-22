@@ -32,6 +32,8 @@ public:
 	void AddWaypoint(XMFLOAT3 pos);
 	void Avoid(XMFLOAT3 pos, float delta);
 
+	void ResetCarPosition();
+
 private:
 
 	vector<XMFLOAT3> mTrackPoints;

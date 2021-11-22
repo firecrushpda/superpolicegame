@@ -30,8 +30,8 @@ public:
 
 	float cf_fheight = 0.0f;
 	float cf_front = 3.0f;
-	float cf_back = 13.0f;
-	float cf_height = 5.0f;
+	float cf_back = 0.8;//
+	float cf_height = 0.45;//
 private:
 	void UpdateMatrix() override;
 	

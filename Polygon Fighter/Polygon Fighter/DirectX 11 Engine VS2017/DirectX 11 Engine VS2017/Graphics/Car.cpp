@@ -9,16 +9,13 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 
 	carrender.Initialize(filePath, device, deviceContext, cb_vs_vertexshader);
-	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity());
+	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity()); 
 
-	carbar.Initialize("Data\\Objects\\test\\p_steering.obj", device, deviceContext, cb_vs_vertexshader);
-	carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI /2, 0));
-
-	mMaxSpeed = 8.0f;
-	mCarMaxSpeed = XMFLOAT3(0.1f, 0.0f, 4.0f); // Steering, Up, Fowards//XMFLOAT3(0.015f, 0.0f, 8.0f)
+	mMaxSpeed = 1.5f;
+	mCarMaxSpeed = XMFLOAT3(0.03f, 0.0f, 1.5f); // Steering, Up, Fowards//XMFLOAT3(0.015f, 0.0f, 8.0f)
 	mCarSpeed = 0.0f;
 	mCarVelocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mCarAcceleration = XMFLOAT3(0.01f, 1.0f, 0.03f); // Steering, Up, FowardsXMFLOAT3(0.04f, 1.0f, 0.01f)
+	mCarAcceleration = XMFLOAT3(0.001f, 1.0f, 0.03f); // Steering, Up, FowardsXMFLOAT3(0.04f, 1.0f, 0.01f)
 
 	mVelocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -56,21 +53,25 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	temp.y += mGravity.y * _mass * delta_time;
 	temp.z += mGravity.z * _mass * delta_time;
 
-	if (temp.y < 3.0f)
+	if (temp.y < 1.0f)
 	{
-		temp.y = 3.0f;
+		temp.y = 1.0f;
 	}
 
 	carrender.SetPosition(temp);
 
 	UpdateForce();
 	carrender.Update(delta_time, viewProjectionMatrix);
+
+	//update car distance
+	cardistance += GetCarVelocity() * 1.0f / 60.0f;
 }
 
 void Car::Draw( const XMMATRIX & viewProjectionMatrix)
 {
-	carbar.Draw(viewProjectionMatrix);
 	carrender.Draw(viewProjectionMatrix);
+	if (carbar_drawflag)
+		carbar.Draw(viewProjectionMatrix);
 }
 
 void Car::UpdateForce() 
@@ -110,16 +111,21 @@ float Car::CalcWheelSpeed(float delta)
 void Car::Turn(float delta, float accelfactor)
 {
 	auto rot = carrender.GetRotationFloat3();
+	auto carbarrot = carbar.GetRotationFloat3();
 	mCarVelocity.x += ((accelfactor * mCarMaxSpeed.x) - mCarVelocity.x) * mCarAcceleration.z * delta;
 	if (mCarVelocity.z > 0.1)
 	{
 		rot.y += mCarVelocity.x;
+		carbar.SetRotation(carbarrot.x, carbarrot.y, carbarrot.z - mCarVelocity.x);
 	}
 	else if (mCarVelocity.z < -0.1)
 	{
 		rot.y -= mCarVelocity.x;
+		carbar.SetRotation(carbarrot.x, carbarrot.y, carbarrot.z + mCarVelocity.x);
 	}
 	carrender.SetRotation(rot);
+
+
 }
 
 float Car::GetCarVelocity() 

@@ -168,6 +168,12 @@
     <ClCompile Include="Sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Npc.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\MoneyUI.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
@@ -322,6 +328,12 @@
     </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Npc.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\MoneyUI.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
