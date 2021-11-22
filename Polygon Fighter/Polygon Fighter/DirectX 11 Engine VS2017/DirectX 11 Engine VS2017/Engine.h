@@ -28,7 +28,6 @@ private:
 	bool testbool = false;
 
 	bool mIsInput;
-
-	bool speedupflag;
-	bool speeddownflag;
+	
+	Camera3D tempcam;
 };

@@ -38,7 +38,8 @@ enum GameState
 	game,
 	tutorial,
 	score,
-	editor
+	editor,
+	catchcar,
 };
 
 class Graphics
@@ -64,7 +65,6 @@ public:
 	Sprite tutorial;
 	Sprite tutorial2;
 	Sprite tutorial_background;
-
 	Sprite score;
 
 	MoneyUI moneyui;
@@ -122,6 +122,13 @@ public:
 
 	//game score
 	float gamescore = 0;
+
+	//game pause
+	bool gamepause = false;
+	Timer gamepausetimer;
+	bool catchcar_animationsequenceflag = false;
+	int catchcar_animaitonindex = 0;
+	int catchcar_animaitonmax = 3;
 
 	void ResetTitle();
 	void ResetGame();

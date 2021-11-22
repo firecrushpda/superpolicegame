@@ -48,6 +48,27 @@ const XMMATRIX & Camera3D::GetProjectionMatrix() const
 	return this->projectionMatrix;
 }
 
+void Camera3D::DeepCopyTo(Camera3D* camera3d)
+{
+	camera3d->focusLength = this->focusLength;
+	camera3d->cameratype = this->cameratype;
+	//camera3d->focusgo = ;
+	camera3d->roundviewrot = this->roundviewrot;
+	camera3d->viewport = this->viewport;
+
+	camera3d->cf_fheight = this->cf_fheight;
+	camera3d->cf_front = this->cf_front;
+	camera3d->cf_back = this->cf_back;//
+	camera3d->cf_height = this->cf_height;//
+
+	camera3d->collision = new CollisionCamera();
+	camera3d->collision->collisionuse = this->collision->collisionuse;
+	camera3d->collision->oritransform = this->collision->oritransform;
+	camera3d->collision->frustum = this->collision->frustum;
+	camera3d->collision->orifrustum = this->collision->orifrustum;
+	camera3d->collision->ct = this->collision->ct;
+}
+
 //=============================================================================
 // マトリクス更新関数
 //=============================================================================

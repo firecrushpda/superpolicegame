@@ -20,6 +20,8 @@ public:
 	const XMMATRIX & GetViewMatrix() const;
 	const XMMATRIX & GetProjectionMatrix() const;
 
+	void DeepCopyTo(Camera3D* camera3d);
+
 	CollisionCamera* GetCameraCollision();
 
 	float focusLength = 50;

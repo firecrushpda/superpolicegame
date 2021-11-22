@@ -22,6 +22,7 @@ public:
 	CarAIController();
 	~CarAIController();
 
+	bool possign_flag = true;
 	Sprite possign;
 
 	void Update(float delta);

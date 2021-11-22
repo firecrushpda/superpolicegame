@@ -235,7 +235,7 @@ void Graphics::RenderFrame()
 		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 		moneyui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
-		if (car.warninguiflag)
+		if (car.warninguiflag && cac->possign_flag)
 			cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
 		for (size_t i = 0; i < npc.size(); i++)
@@ -712,7 +712,7 @@ bool Graphics::InitializeScene()
 		//game chase car
 		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		chasecar.carrender.SetScale(0.3, 0.3, 0.3);
+		chasecar.carrender.SetScale(0.2, 0.2, 0.2);
 		chasecar.carrender.SetCollisionBoxView(false);
 		chasecar.carbar.b_use = false;
 		
@@ -762,13 +762,11 @@ bool Graphics::InitializeScene()
 		//load npc object
 		LoadNpc();
 
-		//npc instance
-		/*npc.Init("Data\\Objects\\test\\gile_wavehand.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_vertexshader_2d, &Camera3D);
-		npc.girl.SetPosition(XMFLOAT3(-55, 1, 291));
-		npc.moneyui = &moneyui;*/
-
 		//ƒJƒƒ‰Ý’u
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
+
+		//game pause timer setting
+		gamepausetimer.Start();
 
 		//camera3D
 		Camera3D.ChangeFocusMode(0, &car.carrender);
@@ -1190,19 +1188,22 @@ void Graphics::LoadMap() {
 				inFile >> sx;
 				inFile >> sy;
 				inFile >> sz;
-
-				RenderableGameObject* go = new RenderableGameObject();
-				go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
-				go->path = filename;
-				go->SetPosition(XMFLOAT3(px,py,pz));
-				go->SetRotation(XMFLOAT3(rx, ry, rz));
-				go->SetScale(sx, sy, sz);
-				go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
-				mapgo.push_back(go);
+				if (filename!= "")
+				{
+					RenderableGameObject* go = new RenderableGameObject();
+					go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+					go->path = filename;
+					go->SetPosition(XMFLOAT3(px, py, pz));
+					go->SetRotation(XMFLOAT3(rx, ry, rz));
+					go->SetScale(sx, sy, sz);
+					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
+					go->SetCollisionBoxView(false);
+					mapgo.push_back(go);
+				}
+				
 			}
 		}
 	}
-	mapgo.erase(mapgo.end() - 1);
 }
 
 void Graphics::LoadNpc()
@@ -1220,7 +1221,7 @@ void Graphics::LoadNpc()
 	else {
 		std::cerr << "Npc File found\n";
 
-		std::string filename = "Data\\Objects\\test\\gile_wavehand.fbx";
+		std::string filename = "Data\\Objects\\test\\gile_wavehand.fbx";//jk_bread4 (1).fbx
 		std::string input;
 		while (!inFile.eof()) {
 			inFile >> input;
@@ -1296,6 +1297,7 @@ void Graphics::ResetGame()
 	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
 }
 
+#pragma region not use
 void Graphics::EditorRayCast(XMFLOAT2 mousepos)
 {
 	XMVECTOR RayOrigin = this->Camera3D.GetPositionVector();
@@ -1321,12 +1323,12 @@ void Graphics::EditorRayCast(XMFLOAT2 mousepos)
 		float fDist;
 		auto obb = mapgo.at(i)->GetCollisionObject()->obb;
 		mapgo.at(i)->GetCollisionObject()->obb.Intersects(RayOrigin, RayDestination, fDist);
-		
+
 		fDistance = fDist;
 		if (fDistance > 0)
 		{
 			hitobject.push_back(mapgo.at(i));
-			
+
 			XMVECTOR HitLocation = XMVectorMultiplyAdd(RayDestination, XMVectorReplicate(fDist), RayOrigin);
 			auto dis = XMVector3Length(HitLocation - RayOrigin);
 			if (i == 0)
@@ -1448,3 +1450,5 @@ void Graphics::EditorRayCast(XMFLOAT2 mousepos)
 //
 //	time++;
 //}
+
+#pragma endregion
