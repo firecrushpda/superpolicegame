@@ -24,7 +24,7 @@ public:
 
 	RenderableGameObject girl;
 
-	float npctrigger_distance = 7;
+	float npctrigger_distance = 5;
 
 	MoneyUI* moneyui;
 

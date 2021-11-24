@@ -69,6 +69,10 @@ void CarAIController::MoveTowards(XMFLOAT3* pos, float delta)
 void CarAIController::Update(float delta)
 {
 	MoveTowards(&mTrackPoints[mWayPointNum], delta);
+	if (countdown > 0 && hasbeenfound)
+	{
+		countdown-= 1.0f / 60.0f;
+	}
 }
 
 void CarAIController::AddWaypoint(XMFLOAT3 pos)

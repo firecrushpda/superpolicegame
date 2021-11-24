@@ -232,7 +232,8 @@ void Graphics::RenderFrame()
 
 	if (gs == GameState::game)
 	{
-		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix(), 
+			(car.warninguiflag && cac->possign_flag), !car.mCollsionOn, (cac->countdown > 0 && cac->hasbeenfound && cac->possign_flag));
 		moneyui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
 		if (car.warninguiflag && cac->possign_flag)

@@ -22,8 +22,10 @@ public:
 	CarAIController();
 	~CarAIController();
 
+	bool hasbeenfound = false;
 	bool possign_flag = true;
 	Sprite possign;
+	float countdown = 60;
 
 	void Update(float delta);
 

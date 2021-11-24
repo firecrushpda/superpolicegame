@@ -3,14 +3,13 @@
 void MoneyUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader_2d>& cb_vs_vertexshader_2d, float windowwidth, float windowheight, Car * car)
 {
 	this->car = car;
-	moneypricetag.Initialize(device, deviceContext, 100, 50, "Data/Textures/moneypricetag.png", cb_vs_vertexshader_2d);
-	moneypricetag.SetPosition(XMFLOAT3(windowwidth - 100, 0,0));
+	moneypricetag.Initialize(device, deviceContext, 192, 92, "Data/Textures/fare01.png", cb_vs_vertexshader_2d);
+	moneypricetag.SetPosition(XMFLOAT3(windowwidth - 192, windowheight - 92,0));
 
 	for (size_t i = 0; i < 6; i++)
 	{
-		digf[i].Initialize(device, deviceContext, 25, 37, "Data/Textures/cartoonnum.png", cb_vs_vertexshader_2d);
-		digf[i].SetPosition(windowwidth - 25 * (i+1), 50, 0);
-		digf[i].SetScale(25, 37);
+		digf[i].Initialize(device, deviceContext, 17.6, 26, "Data/Textures/score_s01.png", cb_vs_vertexshader_2d);
+		digf[i].SetPosition(windowwidth - 50 - 17.6 * (i+1), windowheight - 57, 0);
 	}
 }
 
@@ -24,10 +23,10 @@ void MoneyUI::Update()
 		money = (int)money / 10;
 		std::vector<Vertex2D> vertexData =
 		{
-			Vertex2D(-0.5f, -0.5f, 0.0f, dig * 0.1 + 0.0f, 0.0f), //TopLeft
-			Vertex2D(0.5f, -0.5f, 0.0f, dig * 0.1 + 0.1f , 0.0f), //TopRight
-			Vertex2D(-0.5, 0.5, 0.0f, dig * 0.1 + 0.0f, 1.0f), //Bottom Left 
-			Vertex2D(0.5f, 0.5, 0.0f, dig * 0.1 + 0.1f , 1.0f), //Bottom Right
+			Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+			Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+			Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+			Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
 		};
 		digf[i].UpdateUV(vertexData);
 	}

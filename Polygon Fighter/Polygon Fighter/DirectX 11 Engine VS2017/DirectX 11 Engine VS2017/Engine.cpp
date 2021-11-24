@@ -324,7 +324,8 @@ void Engine::Update()
 			//update car speed ui
 			auto vel = gfx.car.GetCarVelocity();
 			auto maxspeed = gfx.car.GetMaxSpeed();
-			gfx.car.carsui.Update(1.0f - std::abs(vel) / maxspeed, vel);
+			gfx.car.carsui.Update(1.0f - std::abs(vel) / maxspeed, std::abs(vel), 
+								gfx.car.catchcount,gfx.cac->countdown);
 
 			//update money ui
 			gfx.moneyui.Update();
@@ -368,7 +369,6 @@ void Engine::Update()
 				gfx.Camera3D.SetPosition(temp);
 				gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 			}
-
 
 			if (cameratype == 3)
 			{
@@ -421,9 +421,14 @@ void Engine::Update()
 			{
 				DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);
 				if (coresult == 2 || coresult == 1)
+				{
 					gfx.car.warninguiflag = true;
+					gfx.cac->hasbeenfound = true;
+				}
 				else
+				{
 					gfx.car.warninguiflag = false;
+				}
 
 				coresult = cocar->obb.Contains(cochasecar->obb);
 				if (coresult == 2 || coresult == 1) {
@@ -431,6 +436,7 @@ void Engine::Update()
 					gfx.gamepause = true;
 
 					//reset catch car animaiton status
+					gfx.car.catchcount++;
 					gfx.catchcar_animationsequenceflag = true;
 					gfx.cac->possign_flag = false;
 					gfx.catchcar_animaitonindex = 0;
@@ -438,7 +444,6 @@ void Engine::Update()
 					gfx.Camera3D.DeepCopyTo(&tempcam);
 				}
 			}
-			
 
 			//npc collision
 			for (size_t i = 0; i < gfx.npc.size(); i++)
@@ -478,6 +483,13 @@ void Engine::Update()
 						}
 					}
 				}
+			}
+
+			//end
+			if (gfx.cac->countdown <= 0)
+			{
+				gfx.cac->countdown = 60;
+				gfx.Fade(GameState::score);
 			}
 		}
 		else
@@ -538,6 +550,7 @@ void Engine::Update()
 				}
 			}
 		}
+		
 	}
 #pragma endregion
 #pragma region GameState::editor

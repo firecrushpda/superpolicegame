@@ -54,6 +54,7 @@ public:
 	XMFLOAT3 mCarMaxSpeed;
 
 	float cardistance = 0;
+	int catchcount = 0;
 	
 private:
 
