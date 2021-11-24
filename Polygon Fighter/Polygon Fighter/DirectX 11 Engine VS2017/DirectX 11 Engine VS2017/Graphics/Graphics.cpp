@@ -445,14 +445,13 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-
 		scd.SampleDesc.Count = 1;//4
 		scd.SampleDesc.Quality = 0;//m_4xMsaaQuality - 1
 
 		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd.BufferCount = 1;
 		scd.OutputWindow = hwnd;
-		scd.Windowed = TRUE;
+		scd.Windowed = TRUE; //TRUE FALSE
 		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 

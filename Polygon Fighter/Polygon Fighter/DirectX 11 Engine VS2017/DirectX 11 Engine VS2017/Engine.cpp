@@ -225,12 +225,12 @@ void Engine::Update()
 
 				if (keyboard.KeyIsPressed('W'))
 				{
-					this->gfx.car.MoveFowards(dt, 1.0f);
+					this->gfx.car.MoveFowards(dt, 1.0f,gfx.mapgo);
 					mIsInput = true;
 				}
 				else if (keyboard.KeyIsPressed('S'))
 				{
-					this->gfx.car.MoveFowards(dt, -1.0f);
+					this->gfx.car.MoveFowards(dt, -1.0f, gfx.mapgo);
 					mIsInput = true;
 				}
 
@@ -253,12 +253,12 @@ void Engine::Update()
 
 				if (keyboard.KeyIsPressed('W'))
 				{
-					this->gfx.car.MoveFowards(dt, 1.0f);
+					this->gfx.car.MoveFowards(dt, 1.0f, gfx.mapgo);
 					mIsInput = true;
 				}
 				else if (keyboard.KeyIsPressed('S'))
 				{
-					this->gfx.car.MoveFowards(dt, -1.0f);
+					this->gfx.car.MoveFowards(dt, -1.0f, gfx.mapgo);
 					mIsInput = true;
 				}
 
@@ -316,7 +316,7 @@ void Engine::Update()
 
 			if (mIsInput == false)
 			{
-				this->gfx.car.MoveFowards(dt, 0.0f);
+				this->gfx.car.MoveFowards(dt, 0.0f, gfx.mapgo);
 			}
 			//update car
 			this->gfx.car.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
@@ -378,7 +378,6 @@ void Engine::Update()
 				auto vec_forward = XMVector3TransformCoord(dback, vecRotationMatrix);
 				auto testpos = npc->girl.GetPositionVector() + vec_forward * 10 + DirectX::XMVectorSet(0.0f, 5.0f, 0.0f, 0.0f);//
 				gfx.Camera3D.SetPosition(testpos);
-				//gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 
 				//camrot
 				auto viewrot = gfx.Camera3D.roundviewrot;
@@ -406,6 +405,7 @@ void Engine::Update()
 			auto cochasecar = gfx.chasecar.carrender.GetCollisionObject();
 			auto cocamera = gfx.Camera3D.GetCameraCollision();
 
+			//frustum culling
 			for (size_t i = 0; i < gfx.mapgo.size(); i++)
 			{
 				auto obb = gfx.mapgo.at(i)->GetCollisionObject()->obb;
@@ -416,8 +416,7 @@ void Engine::Update()
 					gfx.mapgo.at(i)->b_modelview = false;
 			}
 
-			
-
+			//chase car collision check
 			if (cochasecar->collisionuse)
 			{
 				DirectX::ContainmentType coresult = cocamera->frustum.Contains(cochasecar->obb);

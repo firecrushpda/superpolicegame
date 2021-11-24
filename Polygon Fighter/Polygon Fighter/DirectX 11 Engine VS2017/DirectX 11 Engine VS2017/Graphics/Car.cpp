@@ -40,7 +40,7 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	mForce.push_back(&mBrakeForce);
 	mForce.push_back(&mSlideForce);
 	mForce.push_back(&mDragforce);
-	mCollsionOn = true;
+	mCollsionOn = false;
 	_mass = 1.0f;
 
 	return true;
@@ -63,7 +63,7 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	UpdateForce();
 	carrender.Update(delta_time, viewProjectionMatrix);
 
-	//update car distance
+	//update car distance for score
 	cardistance += GetCarVelocity() * 1.0f / 60.0f;
 }
 
@@ -86,15 +86,48 @@ void Car::UpdateForce()
 	}
 }
 
-void Car::MoveFowards(float delta, float accelfactor)
+void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameObject*> mapgo)
 {
 	mCarVelocity.z += ((accelfactor * mCarMaxSpeed.z) - mCarVelocity.z) * mCarAcceleration.z * delta;
 
 	XMFLOAT3 dir = carrender.GetPositionFloat3();
 	XMFLOAT3 rot = carrender.GetRotationFloat3();
 
-	dir.x += mCarVelocity.z * sin(rot.y);
-	dir.z += mCarVelocity.z * cos(rot.y);
+	//collision check
+	bool canmove = true;
+	auto carscl = carrender.GetScaleFloat3();
+	auto carrot = carrender.GetRotationFloat3();
+	auto carpos = carrender.GetPositionFloat3();
+	auto coobb = carrender.GetCollisionObject()->originobb;
+	auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
+		* XMMatrixRotationRollPitchYaw(carrot.x , carrot.y, carrot.z )
+		* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
+	coobb.Transform(coobb, coworldMatrix);
+	for (size_t i = 0; i < mapgo.size(); i++)
+	{
+		/*if (mapgo.at(i)->b_modelview)
+		{*/
+			auto obb = mapgo.at(i)->GetCollisionObject()->obb;
+			DirectX::ContainmentType coresult = coobb.Contains(obb);
+			if (coresult == 2 || coresult == 1)
+			{
+				canmove = false;
+				break;
+			}
+		//}
+	}
+	
+	if (canmove)
+	{
+		mCollsionOn = true;
+		dir.x += mCarVelocity.z * sin(rot.y);
+		dir.z += mCarVelocity.z * cos(rot.y);
+	}
+	else
+	{
+		mCollsionOn = false;
+		mCarVelocity.z = 0;
+	}
 
 	carrender.SetPosition(dir);
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderableGameObject.h"
 #include "CarSpeedUI.h"
+#include "Collision.h"
 
 enum PhysicsMode
 {
@@ -36,7 +37,7 @@ public:
 	void Update(float delta_time, const XMMATRIX & viewProjectionMatrix);
 	void Draw(const XMMATRIX & viewProjectionMatrix);
 
-	void MoveFowards(float delta, float accelfactor);
+	void MoveFowards(float delta, float accelfactor, std::vector<RenderableGameObject*> mapgo);
 	float CalcWheelSpeed(float delta);
 	void Turn(float delta, float accelfactor);
 
