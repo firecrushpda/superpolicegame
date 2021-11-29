@@ -19,6 +19,8 @@ public:
 	Sprite mapsprite;
 	float mapwidth = 600;
 	float maphight = 400;
+	float Camera3DSpeed = 0.06f;
+	float Camera3DBurstSpeed = 0.2f;
 
 	RenderableGameObject* selectedGo;
 

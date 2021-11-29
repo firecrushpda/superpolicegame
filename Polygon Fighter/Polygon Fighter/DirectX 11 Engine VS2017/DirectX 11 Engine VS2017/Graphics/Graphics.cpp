@@ -299,12 +299,27 @@ void Graphics::RenderFrame()
 
 		ImGui::Checkbox("setactive mapsprite", &m_editor.mapspriteflag);
 		
-		if (ImGui::Button("Add to Scene")) {
-			RenderableGameObject* rgo = new RenderableGameObject();
-			//rgo = m_editor.primitives.at(m_editor.item_current);
-			rgo->DeepCopy(*m_editor.primitives.at(m_editor.item_current));
-			m_editor.selectedGo = rgo;
-			mapgo.push_back(rgo);
+		ImGui::DragFloat("CameraBurstSpeed", &this->m_editor.Camera3DBurstSpeed, 0.01f, 0.0f, 10.0f);
+
+		if (ImGui::Button("Add to Scene")) 
+		{
+			Ray ray = Ray::ScreenToRay(Camera3D, windowWidth / 2, windowHeight / 2);
+			auto p1 = XMVectorSet(0,0,9999,0);
+			auto p2 = XMVectorSet(-9999,0,-9999,0);
+			auto p3 = XMVectorSet(9999, 0, -9999, 0);
+			float dis = 0;
+			if (ray.Hit(p1, p2, p3,&dis))
+			{
+				RenderableGameObject* rgo = new RenderableGameObject();
+				//rgo = m_editor.primitives.at(m_editor.item_current);
+				rgo->DeepCopy(*m_editor.primitives.at(m_editor.item_current));
+				m_editor.selectedGo = rgo;
+				mapgo.push_back(rgo);
+				auto vec = XMVectorSet(ray.origin.x + dis * ray.direction.x,
+									   ray.origin.y + dis * ray.direction.y,
+									   ray.origin.z + dis * ray.direction.z,0);
+				rgo->SetPosition(vec);
+			}
 		}
 			
 		if (ImGui::Button("Delete from Scene"))
@@ -336,6 +351,18 @@ void Graphics::RenderFrame()
 				}
 				out.close();
 			}
+
+			ofstream cm("CameraStatus.txt");
+			if (cm.is_open())
+			{
+				auto pos = Camera3D.GetPositionFloat3();
+				auto rot = Camera3D.GetRotationFloat3();
+				cm.clear();
+				cm << pos.x << " " << pos.y << " " << pos.z << "\n";
+				cm << rot.x << " " << rot.y << " " << rot.z ;
+				cm.close();
+			}
+			
 		}
 			
 
@@ -660,8 +687,6 @@ bool Graphics::InitializeScene()
 		//stageco->collisionuse = false;
 		//stage.SetCollisionBoxView(false);
 
-		LoadMap();
-
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//
 		auto quadco = quad.GetCollisionObject();
@@ -699,6 +724,8 @@ bool Graphics::InitializeScene()
 		//camera3D
 		Camera3D.ChangeFocusMode(0, &car.carrender);
 		Camera3D.SetProjectionValues(90, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
+		
+		LoadMap();
 	}
 	catch (COMException & exception)
 	{
@@ -1130,6 +1157,38 @@ void Graphics::LoadMap() {
 	}
 	if (mapgo.size()>=1)
 		mapgo.erase(mapgo.end() - 1);
+
+	std::ifstream cmFile;
+	cmFile.open("CameraStatus.txt");
+
+	if (!cmFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Map file\n";
+		return;
+	}
+	else {
+		std::cerr << "CameraStatus File found\n";
+		std::string datafile = "";
+
+		std::string input;
+		while (!cmFile.eof()) {
+
+			float px, py, pz;
+
+			cmFile >> px;
+			cmFile >> py;
+			cmFile >> pz;
+
+			float rx, ry, rz;
+
+			cmFile >> rx;
+			cmFile >> ry;
+			cmFile >> rz;
+
+			Camera3D.SetPosition(XMFLOAT3(px, py, pz));
+			Camera3D.SetRotation(XMFLOAT3(rx, ry, rz));
+		}
+	}
 }
 
 ID3D11Device* Graphics::GetDevice() 

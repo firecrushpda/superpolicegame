@@ -1,3 +1,4 @@
 O Data\Objects\test\guardrail02.obj
 O Data\Objects\test\guardrail03.obj
 O Data\Objects\test\house.obj
+O Data\Objects\test\field.fbx

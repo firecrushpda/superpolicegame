@@ -28,6 +28,7 @@
 #include "Title.h"
 #include "Fade.h"
 #include "Editor.h"
+#include "Collision.h"
 
 enum GameState
 {

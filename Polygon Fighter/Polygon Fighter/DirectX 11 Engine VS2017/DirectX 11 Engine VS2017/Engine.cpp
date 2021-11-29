@@ -411,9 +411,9 @@ void Engine::Update()
 			}
 		}
 
-		float Camera3DSpeed = 0.06f;
+		float Camera3DSpeed = gfx.m_editor.Camera3DSpeed;
 		if (keyboard.KeyIsPressed(VK_SHIFT))
-			Camera3DSpeed = 0.2f;
+			Camera3DSpeed = gfx.m_editor.Camera3DBurstSpeed;
 
 
 		if (gfx.m_editor.cameratype == 0)
@@ -422,6 +422,23 @@ void Engine::Update()
 				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
 			if (keyboard.KeyIsPressed('S'))
 				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+
+			if (keyboard.KeyIsPressed('Q'))
+			{
+				auto rot = gfx.Camera3D.GetRotationFloat3();
+				auto up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(rot.x, rot.y, 0.0f);
+				XMVECTOR vec_up = XMVector3TransformCoord(up, vecRotationMatrix);
+				this->gfx.Camera3D.AdjustPosition(vec_up * Camera3DSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('E'))
+			{
+				auto rot = gfx.Camera3D.GetRotationFloat3();
+				auto down = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(rot.x, rot.y, 0.0f);
+				XMVECTOR vec_down = XMVector3TransformCoord(down, vecRotationMatrix);
+				this->gfx.Camera3D.AdjustPosition(vec_down * Camera3DSpeed * dt);
+			}
 		}
 
 		if (gfx.m_editor.cameratype == 1)
