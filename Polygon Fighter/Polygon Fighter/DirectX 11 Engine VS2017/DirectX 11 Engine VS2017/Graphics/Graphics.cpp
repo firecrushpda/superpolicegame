@@ -36,6 +36,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	if (!InitializeIBLStatus())
 		return false;
 	
+	m_Sound = new Sound();
+	if (!m_Sound)
+	{
+		return false;
+	}
+
+	// Initialize the sound object.
+	HRESULT result = m_Sound->Initialize(hwnd);
 
 	//effekseer 
 	/*if (!InitializeEffekseer())

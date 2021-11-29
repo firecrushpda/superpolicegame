@@ -30,7 +30,7 @@
 #include "Editor.h"
 #include "Npc.h"
 #include "MoneyUI.h"
-
+#include "../Sound.h"
 
 enum GameState
 {
@@ -220,6 +220,7 @@ private:
 	//ID3D11RenderTargetView* brdfLUTRTV;
 	ID3D11ShaderResourceView* brdfLUTSRV;
 
+	Sound* m_Sound;
 	//effekseer
 	//Effekseer::ManagerRef manager;
 	//Effekseer::EffectRef effect;
