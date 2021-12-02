@@ -155,23 +155,46 @@ void Engine::Update()
 					if (keycode == '4')//camerawork point
 					{
 						gfx.Camera3D.cameratype = 4;
-						gfx.Camera3D.focusgo = &gfx.car.carrender;
 						gfx.car.carbar_drawflag = false;
 						gfx.Camera3D.timer.Restart();
+						for (size_t i = 0; i < gfx.mapgo.size(); i++)
+						{
+							if (StringHelper::IsContain(gfx.mapgo.at(i)->path, gfx.Camera3D.focusname))
+							{
+								gfx.Camera3D.focusgo = gfx.mapgo.at(i);
+								break;
+							}
+						}
 					}
 					if (keycode == '5')//camerawork line
 					{
 						gfx.Camera3D.cameratype = 5;
-						gfx.Camera3D.focusgo = &gfx.car.carrender;
+						//gfx.Camera3D.focusgo = &gfx.car.carrender;
 						gfx.car.carbar_drawflag = false;
 						gfx.Camera3D.timer.Restart();
+						for (size_t i = 0; i < gfx.mapgo.size(); i++)
+						{
+							if (StringHelper::IsContain(gfx.mapgo.at(i)->path, gfx.Camera3D.focusname))
+							{
+								gfx.Camera3D.focusgo = gfx.mapgo.at(i);
+								break;
+							}
+						}
 					}
 					if (keycode == '6')//camerawork rotate
 					{
 						gfx.Camera3D.cameratype = 6;
-						gfx.Camera3D.focusgo = &gfx.car.carrender;
+						//gfx.Camera3D.focusgo = &gfx.car.carrender;
 						gfx.car.carbar_drawflag = false;
 						gfx.Camera3D.timer.Restart();
+						for (size_t i = 0; i < gfx.mapgo.size(); i++)
+						{
+							if (StringHelper::IsContain(gfx.mapgo.at(i)->path, gfx.Camera3D.focusname))
+							{
+								gfx.Camera3D.focusgo = gfx.mapgo.at(i);
+								break;
+							}
+						}
 					}
 
 
@@ -237,7 +260,7 @@ void Engine::Update()
 			}
 
 			//fix camera
-			if (cameratype == 0)
+			if (cameratype == 0 || cameratype == 4 || cameratype == 5 || cameratype == 6)
 			{
 
 				if (keyboard.KeyIsPressed('W'))
@@ -334,7 +357,7 @@ void Engine::Update()
 			// camera works point
 			if (cameratype == 4)
 			{
-				if (gfx.Camera3D.timer.GetMilisecondsElapsed() >= 2.0f * 1000)
+				if (gfx.Camera3D.timer.GetMilisecondsElapsed() >= gfx.Camera3D.cwwaittime * 1000)
 				{
 					gfx.Camera3D.timer.Restart();
 					if (gfx.Camera3D.cwpointindex >= gfx.Camera3D.mCameraWorkTrack_Point.size() - 1)
@@ -349,7 +372,7 @@ void Engine::Update()
 					}
 				}
 				gfx.Camera3D.SetPosition(gfx.Camera3D.mCameraWorkTrack_Point.at(gfx.Camera3D.cwpointindex));
-				gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+				gfx.Camera3D.SetLookAtPos(gfx.Camera3D.focusgo->GetPositionFloat3());
 			}
 
 			//camera works line
@@ -371,11 +394,12 @@ void Engine::Update()
 				dir.y /= len;
 				dir.z /= len;
 
-				campos.x += dir.x * gfx.Camera3D.cwlineSpeed * 1.0f/60.0f;
-				campos.z += dir.z * gfx.Camera3D.cwlineSpeed * 1.0f/60.0f;
+				campos.x += dir.x * gfx.Camera3D.cwlineSpeed * 1.0f / 60.0f;
+				campos.y += dir.y * gfx.Camera3D.cwlineSpeed * 1.0f / 60.0f;
+				campos.z += dir.z * gfx.Camera3D.cwlineSpeed * 1.0f / 60.0f;
 
 				gfx.Camera3D.SetPosition(campos);
-				if (abs(campos.x - tgpos.x) <= 1.0f && abs(campos.y - tgpos.y) <= 1.0f)
+				if (abs(campos.x - tgpos.x) <= 1.0f && abs(campos.y - tgpos.y) <= 1.0f && abs(campos.z - tgpos.z) <= 1.0f)
 				{
 					if (gfx.Camera3D.cwlineindex >= gfx.Camera3D.mCameraWorkTrack_Line.size() - 1)
 					{
@@ -402,7 +426,8 @@ void Engine::Update()
 				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
 				auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
 
-				auto testpos = gfx.Camera3D.focusgo->GetPositionVector() + vec_backward * gfx.Camera3D.cwrotatedistance;
+				auto yjiku = XMVectorSet(0, gfx.Camera3D.cwrotateheight,0,0);
+				auto testpos = gfx.Camera3D.focusgo->GetPositionVector() + vec_backward * gfx.Camera3D.cwrotatedistance + yjiku;
 				DirectX::XMFLOAT3 temp;
 				DirectX::XMStoreFloat3(&temp, testpos);
 				gfx.Camera3D.SetPosition(temp);

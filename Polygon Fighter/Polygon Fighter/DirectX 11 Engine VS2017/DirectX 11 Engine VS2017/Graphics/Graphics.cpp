@@ -235,15 +235,18 @@ void Graphics::RenderFrame()
 
 	if (gs == GameState::game)
 	{
-		car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix(), 
-			(car.warninguiflag && cac->possign_flag), !car.mCollsionOn, (cac->countdown > 0 && cac->hasbeenfound && cac->possign_flag));
-		moneyui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		if (b_UIflag)
+		{
+			car.carsui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix(),
+				(car.warninguiflag && cac->possign_flag), !car.mCollsionOn, (cac->countdown > 0 && cac->hasbeenfound && cac->possign_flag));
+			moneyui.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
-		if (car.warninguiflag && cac->possign_flag)
-			cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			if (car.warninguiflag && cac->possign_flag)
+				cac->possign.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 
-		for (size_t i = 0; i < npc.size(); i++)
-			npc.at(i)->Draw2D(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < npc.size(); i++)
+				npc.at(i)->Draw2D(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		}
 		
 	}
 
@@ -292,10 +295,14 @@ void Graphics::RenderFrame()
 		XMFLOAT3 co;
 		XMStoreFloat3(&co,vec);
 		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);*/
-		XMFLOAT3 co = car.carrender.GetPositionFloat3();
-		std::string pos = std::to_string(co.x) + "_" + std::to_string(co.y) + "_" + std::to_string(co.z);
+		XMFLOAT3 co = Camera3D.focusgo->GetPositionFloat3();
+		std::string pos = "target position " + std::to_string(co.x) + "_" + std::to_string(co.y) + "_" + std::to_string(co.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
-		std::wstring wsnum = cv.from_bytes(pos);
+		std::wstring carpos = cv.from_bytes(pos);
+
+		XMFLOAT3 camp = Camera3D.GetPositionFloat3();
+		pos = "camera position " + std::to_string(camp.x) + "_" + std::to_string(camp.y) + "_" + std::to_string(camp.z);
+		std::wstring campos = cv.from_bytes(pos);
 
 		//auto vel = std::to_string(co.Extents.x) + "_" + std::to_string(co.Extents.y) + "_" + std::to_string(co.Extents.z);
 		//std::wstring velutf8 = cv.from_bytes(vel);
@@ -313,12 +320,15 @@ void Graphics::RenderFrame()
 		std::string testbooltext = std::to_string(car.cardistance);
 		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
-		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-		//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		//spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteBatch->End();
+		if (b_debugUIflag)
+		{
+			spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
+			spriteFont->DrawString(spriteBatch.get(), carpos.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			spriteFont->DrawString(spriteBatch.get(), campos.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			spriteBatch->End();
+		}
 	}
 	if (gs == GameState::editor)
 	{
@@ -337,8 +347,6 @@ void Graphics::RenderFrame()
 	{
 		//Create ImGui Test Window
 		ImGui::Begin("Light Controls");
-		//ImGui::NewLine();
-		//ImGui::DragFloat3("Ambient Light Color", &this->cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Roughness", &this->cb_ps_iblstatus.data.roughness, 0.01f, 0.0f, 1.0f);
 		ImGui::NewLine();
@@ -349,6 +357,14 @@ void Graphics::RenderFrame()
 		ImGui::NewLine();
 		ImGui::DragFloat3("mCarMaxSpeed", &car.mCarMaxSpeed.x, 0.1f, 0.0f, 8.0f);
 		ImGui::DragFloat3("mCarAcceleration", &car.mCarAcceleration.x, 0.1f, 0.0f, 1.0f);
+		ImGui::NewLine();
+		ImGui::Checkbox("UIflag", &b_UIflag);
+		ImGui::Checkbox("b_debugUIflag", &b_debugUIflag);
+		ImGui::DragFloat("Camera Works Wait Time(4)", &Camera3D.cwwaittime, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Camera Works Line Speed(5)", &Camera3D.cwlineSpeed, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Camera Works Rotate Distance(6)", &Camera3D.cwrotatedistance, 0.1f, 0.0f, 20.0f);
+		ImGui::DragFloat("Camera Works Rotate Additional Height(6)", &Camera3D.cwrotateheight, 0.1f, 0.0f, 100.0f);
+		ImGui::DragFloat("Camera Works Rotate Speed(6)", &Camera3D.cwrotatespeed, 0.01f, 0.0f, 1.0f);
 
 		ImGui::End();
 	}
@@ -762,6 +778,7 @@ bool Graphics::InitializeScene()
 
 		//load map game object
 		LoadMap();
+		
 
 		//load npc object
 		LoadNpc();
