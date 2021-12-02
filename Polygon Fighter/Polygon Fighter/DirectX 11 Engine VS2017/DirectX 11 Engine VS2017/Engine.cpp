@@ -152,6 +152,27 @@ void Engine::Update()
 						gfx.Camera3D.cameratype = 2;
 						gfx.car.carbar_drawflag = true;
 					}
+					if (keycode == '4')//camerawork point
+					{
+						gfx.Camera3D.cameratype = 4;
+						gfx.Camera3D.focusgo = &gfx.car.carrender;
+						gfx.car.carbar_drawflag = false;
+						gfx.Camera3D.timer.Restart();
+					}
+					if (keycode == '5')//camerawork line
+					{
+						gfx.Camera3D.cameratype = 5;
+						gfx.Camera3D.focusgo = &gfx.car.carrender;
+						gfx.car.carbar_drawflag = false;
+						gfx.Camera3D.timer.Restart();
+					}
+					if (keycode == '6')//camerawork rotate
+					{
+						gfx.Camera3D.cameratype = 6;
+						gfx.Camera3D.focusgo = &gfx.car.carrender;
+						gfx.car.carbar_drawflag = false;
+						gfx.Camera3D.timer.Restart();
+					}
 
 
 					if (keycode == '\r')
@@ -218,17 +239,6 @@ void Engine::Update()
 			//fix camera
 			if (cameratype == 0)
 			{
-				/*if (speedupflag)
-				{
-					this->gfx.car.MoveFowards(dt, 1.0f);
-					mIsInput = true;
-				}
-
-				if (speeddownflag)
-				{
-					this->gfx.car.MoveFowards(dt, -1.0f);
-					mIsInput = true;
-				}*/
 
 				if (keyboard.KeyIsPressed('W'))
 				{
@@ -321,6 +331,84 @@ void Engine::Update()
 				gfx.Camera3D.SetLookAtPos(temp);
 			}
 
+			// camera works point
+			if (cameratype == 4)
+			{
+				if (gfx.Camera3D.timer.GetMilisecondsElapsed() >= 2.0f * 1000)
+				{
+					gfx.Camera3D.timer.Restart();
+					if (gfx.Camera3D.cwpointindex >= gfx.Camera3D.mCameraWorkTrack_Point.size() - 1)
+					{
+						gfx.Camera3D.cwpointindex = 0;
+						return;
+					}
+					else
+					{
+						gfx.Camera3D.cwpointindex++;
+						return;
+					}
+				}
+				gfx.Camera3D.SetPosition(gfx.Camera3D.mCameraWorkTrack_Point.at(gfx.Camera3D.cwpointindex));
+				gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+			}
+
+			//camera works line
+			if (cameratype == 5)
+			{
+				float epsilon = 1.0f;
+				XMFLOAT3 dir;
+
+				auto campos = gfx.Camera3D.GetPositionFloat3();
+				auto camrot = gfx.Camera3D.GetRotationFloat3();
+				auto tgpos = gfx.Camera3D.mCameraWorkTrack_Line.at(gfx.Camera3D.cwlineindex);
+
+				dir.x = tgpos.x - campos.x;
+				dir.y = tgpos.y - campos.y;
+				dir.z = tgpos.z - campos.z;
+
+				float len = sqrt(dir.x*dir.x + dir.y*dir.y + dir.z*dir.z);
+				dir.x /= len;
+				dir.y /= len;
+				dir.z /= len;
+
+				campos.x += dir.x * gfx.Camera3D.cwlineSpeed * 1.0f/60.0f;
+				campos.z += dir.z * gfx.Camera3D.cwlineSpeed * 1.0f/60.0f;
+
+				gfx.Camera3D.SetPosition(campos);
+				if (abs(campos.x - tgpos.x) <= 1.0f && abs(campos.y - tgpos.y) <= 1.0f)
+				{
+					if (gfx.Camera3D.cwlineindex >= gfx.Camera3D.mCameraWorkTrack_Line.size() - 1)
+					{
+						gfx.Camera3D.cwlineindex = 0;
+						return;
+					}
+					else
+					{
+						gfx.Camera3D.cwlineindex++;
+						return;
+					}
+				}
+				//gfx.Camera3D.SetPosition(gfx.Camera3D.mCameraWorkTrack_Line.at(gfx.Camera3D.cwlineindex));
+				gfx.Camera3D.SetLookAtPos(gfx.Camera3D.focusgo->GetPositionFloat3());
+			}
+
+			//camera works rotate
+			if (cameratype == 6)
+			{
+				auto viewrot = gfx.Camera3D.roundviewrot;
+				gfx.Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + gfx.Camera3D.cwrotatespeed, viewrot.z);
+
+				auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
+				auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
+
+				auto testpos = gfx.Camera3D.focusgo->GetPositionVector() + vec_backward * gfx.Camera3D.cwrotatedistance;
+				DirectX::XMFLOAT3 temp;
+				DirectX::XMStoreFloat3(&temp, testpos);
+				gfx.Camera3D.SetPosition(temp);
+				gfx.Camera3D.SetLookAtPos(gfx.Camera3D.focusgo->GetPositionFloat3());
+
+			}
 			if (mIsInput == false)
 			{
 				this->gfx.car.MoveFowards(dt, 0.0f, gfx.mapgo);
@@ -504,7 +592,7 @@ void Engine::Update()
 				gfx.Fade(GameState::score);
 			}
 		}
-		else
+		else //game pause
 		{
 			//catch car animation
 			//change camera to 3 position and stay 1/3 second

@@ -18,6 +18,11 @@ Camera3D::Camera3D()
 	if (collision == nullptr)
 		ProcessCollsion(CollsionType::Camera);
 	this->UpdateMatrix();
+
+	LoadCameraWorks_Point();
+	LoadCameraWorks_Line();
+	//LoadCameraWorks_Line();
+	timer.Start();
 }
 
 //=============================================================================
@@ -116,6 +121,97 @@ void Camera3D::ResetFollowCamera() {
 	temp = DirectX::XMFLOAT3(temp.x, temp.y + 10, temp.z);
 	SetPosition(temp);
 	SetLookAtPos(focusgo->GetPositionFloat3());
+}
+
+void Camera3D::LoadCameraWorks_Point()
+{
+	std::ifstream inFile;
+	inFile.open("CameraWorks_Point.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Road Content file\n";
+		return;
+	}
+	else {
+		std::cerr << "Scene layout File found\n";
+
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+				float x, y, z;
+
+				inFile >> x;
+				inFile >> y;
+				inFile >> z;
+				mCameraWorkTrack_Point.push_back(XMFLOAT3(x, y, z));
+			}
+		}
+	}
+}
+
+void Camera3D::LoadCameraWorks_Line()
+{
+	std::ifstream inFile;
+	inFile.open("CameraWorks_Line.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Road Content file\n";
+		return;
+	}
+	else {
+		std::cerr << "Scene layout File found\n";
+
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+				float x, y, z;
+
+				inFile >> x;
+				inFile >> y;
+				inFile >> z;
+				mCameraWorkTrack_Line.push_back(XMFLOAT3(x, y, z));
+			}
+		}
+	}
+}
+
+void Camera3D::LoadCameraWorks_Rotate()
+{
+	std::ifstream inFile;
+	inFile.open("CameraWorks_Rotate.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Road Content file\n";
+		return;
+	}
+	else {
+		std::cerr << "Scene layout File found\n";
+
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+				float x, y, z;
+
+				inFile >> x;
+				inFile >> y;
+				inFile >> z;
+				mCameraWorkTrack_Rotate.push_back(XMFLOAT3(x, y, z));
+			}
+		}
+	}
+	
 }
 
 bool Camera3D::ProcessCollsion(CollsionType cotype) 

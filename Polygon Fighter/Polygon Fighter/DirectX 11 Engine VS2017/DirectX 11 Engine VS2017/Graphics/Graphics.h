@@ -85,6 +85,7 @@ public:
 
 	//map game object
 	std::vector<RenderableGameObject*> mapgo;
+	std::vector<RenderableGameObject*> primitivesgo;
 
 	//
 	Car car;

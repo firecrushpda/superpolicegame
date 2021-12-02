@@ -143,6 +143,7 @@ void Graphics::RenderFrame()
 		{
 			stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
 			auto viewrot = Camera3D.roundviewrot;
 			Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + title.cam_rotfrequance, viewrot.z);
 			if (title.cam_updowmflag)
@@ -154,7 +155,6 @@ void Graphics::RenderFrame()
 				title.cam_updowmflag = !title.cam_updowmflag;
 
 			auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
-			
 			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(Camera3D.roundviewrot.x, Camera3D.roundviewrot.y, 0.0f);
 			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
 
@@ -315,7 +315,7 @@ void Graphics::RenderFrame()
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
 		//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-		spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		//spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		spriteBatch->End();
@@ -728,7 +728,7 @@ bool Graphics::InitializeScene()
 
 		//load prerender quad
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;//
+			return false;
 		auto quadco = quad.GetCollisionObject();
 		quadco->collisionuse = false;
 		quad.SetCollisionBoxView(false);
@@ -887,7 +887,6 @@ bool Graphics::InitializeIBLStatus()
 
 		XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(0.5f * XM_PI, 1.0f, 0.1f, 100.0f);
 		//XMStoreFloat4x4(&camProjMatrix, DirectX::XMMatrixTranspose(P));
-
 
 		deviceContext->OMSetRenderTargets(1, &skyIBLRTV[i], 0);
 		deviceContext->RSSetViewports(1, &skyIBLviewport);
@@ -1175,6 +1174,9 @@ void Graphics::LoadMap() {
 				std::string filename;
 				inFile >> filename;
 
+				//compare primitive
+				
+
 				float px, py, pz;
 
 				inFile >> px;
@@ -1209,6 +1211,15 @@ void Graphics::LoadMap() {
 		}
 	}
 }
+
+//return true if primitive
+//bool Graphics::CampareMapname(std::string name)
+//{
+//	for (size_t i = 0; i < primitive; i++)
+//	{
+//
+//	}
+//}
 
 void Graphics::LoadNpc()
 {

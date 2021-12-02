@@ -47,8 +47,6 @@ private:
 	int mWayPointNum;
 	float mAvoidSpeed;
 
-	
-
 	std::string roadcontentfile;
 	void LoadContent();
 };

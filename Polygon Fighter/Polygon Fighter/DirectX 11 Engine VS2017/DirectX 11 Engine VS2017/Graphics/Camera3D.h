@@ -17,6 +17,10 @@ public:
 	void ChangeFocusMode(unsigned int index, GameObject3D* go);
 	void ResetFollowCamera();
 
+	void LoadCameraWorks_Point();
+	void LoadCameraWorks_Line();
+	void LoadCameraWorks_Rotate();
+
 	const XMMATRIX & GetViewMatrix() const;
 	const XMMATRIX & GetProjectionMatrix() const;
 
@@ -29,6 +33,20 @@ public:
 	GameObject3D* focusgo;
 	XMFLOAT3 roundviewrot;
 	D3D11_VIEWPORT viewport;
+
+	std::vector<XMFLOAT3>mCameraWorkTrack_Point;
+	std::vector<XMFLOAT3>mCameraWorkTrack_Line;
+	std::vector<XMFLOAT3>mCameraWorkTrack_Rotate;
+	unsigned int cwpointindex = 0;
+	unsigned int cwlineindex = 0;
+	unsigned int cwrotateindex = 0;
+	float cwlineSpeed = 5.0f;
+	Timer timer;
+	
+	float cwwaittime = 2.0f;
+	float cwforward = 0.16f;
+	float cwrotatedistance = 10;
+	float cwrotatespeed = 0.01;
 
 	float cf_fheight = 0.0f;
 	float cf_front = 3.0f;
