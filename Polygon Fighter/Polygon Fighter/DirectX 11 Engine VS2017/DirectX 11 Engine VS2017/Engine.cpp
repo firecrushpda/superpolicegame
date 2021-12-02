@@ -11,6 +11,7 @@
 //=============================================================================
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
+	
 	timer.Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
@@ -20,6 +21,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 
 	gfx.ResetTitle();
+
+	//change input setting
+	LoadKeyboardLayout(_T("0x0409"), KLF_ACTIVATE);
+
 	return true;
 }
 
@@ -39,6 +44,8 @@ void Engine::Update()
 	// ŽžŠÔ‚Ì‰Šú‰»
 	float dt = 1.0;//timer.GetMilisecondsElapsed();
 	timer.Restart();
+
+	gfx.m_Sound->Update();
 
 	if (gfx.gs == GameState::title)
 	{
@@ -335,15 +342,17 @@ void Engine::Update()
 			gfx.cac->Update(1.0f / 60.0f);
 
 			//update chase car position sign
-			auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
-			auto camviewport = gfx.Camera3D.viewport;
-			auto vec = XMVector3Project(chasecarvecpos, camviewport.TopLeftX, camviewport.TopLeftY,
-				camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
-				gfx.Camera3D.GetProjectionMatrix(), gfx.Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
-			XMFLOAT3 co;
-			XMStoreFloat3(&co, vec);
-			co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f), clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 25, 0);
-			gfx.cac->possign.SetPosition(co);
+			{
+				auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
+				auto camviewport = gfx.Camera3D.viewport;
+				auto vec = XMVector3Project(chasecarvecpos, camviewport.TopLeftX, camviewport.TopLeftY,
+					camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
+					gfx.Camera3D.GetProjectionMatrix(), gfx.Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
+				XMFLOAT3 co;
+				XMStoreFloat3(&co, vec);
+				co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f), clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 25, 0);
+				gfx.cac->possign.SetPosition(co);
+			}
 
 			if (cameratype == 0)
 			{
@@ -455,6 +464,7 @@ void Engine::Update()
 					if (npc->npcstate == 0 && (coresult == 2 || coresult == 1)
 						&& std::fabs(vel) <= 0.5 && !gfx.car.haspassenger && npc->starttrigger.collisionuse)
 					{
+						//hit girl
 						//change npcstate
 						npc->starttrigger.collisionuse = false;
 						gfx.Camera3D.cameratype = 3;
@@ -463,6 +473,7 @@ void Engine::Update()
 						npc->uiflag = true;
 						gfx.car.haspassenger = true;
 						gfx.currentnpcindex = npc->npcindex;
+						gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_kyaa);
 					}
 				}
 				if (npc->npcstate >= 2)
@@ -472,6 +483,7 @@ void Engine::Update()
 						DirectX::ContainmentType coresult = cocar->obb.Contains(npc->endtrigger.obb);
 						if ((coresult == 2 || coresult == 1) && std::fabs(vel) <= 0.5 && gfx.car.haspassenger)
 						{
+							//hit destination point
 							//change npcstate
 							npc->npcstate = 3;
 							gfx.moneyui.Hide();
@@ -485,7 +497,7 @@ void Engine::Update()
 				}
 			}
 
-			//end
+			//npc count down end
 			if (gfx.cac->countdown <= 0)
 			{
 				gfx.cac->countdown = 60;
@@ -687,29 +699,31 @@ void Engine::Update()
 #pragma endregion
 
 	//fade
-	auto fadestate = gfx.fade.fadestate;
-	auto rate = gfx.fade.rate;
-	if (fadestate == FadeState::Fade_In)
 	{
-		auto alpha = gfx.fade.fadesprite.color.w - rate;
-		alpha = std::clamp(alpha, 0.0f, 1.0f);
-		gfx.fade.fadesprite.color = XMFLOAT4(gfx.fade.fadesprite.color.x,
-			gfx.fade.fadesprite.color.y, gfx.fade.fadesprite.color.z, alpha);
-		alpha <= 0.0f ? fadestate = FadeState::Fade_none : FadeState::Fade_In;
-	}
-	if (fadestate == FadeState::Fade_Out)
-	{
-		auto alpha = gfx.fade.fadesprite.color.w + rate;
-		alpha = std::clamp(alpha, 0.0f, 1.0f);
-		gfx.fade.fadesprite.color = XMFLOAT4(gfx.fade.fadesprite.color.x,
-			gfx.fade.fadesprite.color.y, gfx.fade.fadesprite.color.z, alpha);
-		if (alpha >= 1.0f)
+		auto fadestate = gfx.fade.fadestate;
+		auto rate = gfx.fade.rate;
+		if (fadestate == FadeState::Fade_In)
 		{
-			gfx.fade.fadestate = FadeState::Fade_In;
+			auto alpha = gfx.fade.fadesprite.color.w - rate;
+			alpha = std::clamp(alpha, 0.0f, 1.0f);
+			gfx.fade.fadesprite.color = XMFLOAT4(gfx.fade.fadesprite.color.x,
+				gfx.fade.fadesprite.color.y, gfx.fade.fadesprite.color.z, alpha);
+			alpha <= 0.0f ? fadestate = FadeState::Fade_none : FadeState::Fade_In;
+		}
+		if (fadestate == FadeState::Fade_Out)
+		{
+			auto alpha = gfx.fade.fadesprite.color.w + rate;
+			alpha = std::clamp(alpha, 0.0f, 1.0f);
+			gfx.fade.fadesprite.color = XMFLOAT4(gfx.fade.fadesprite.color.x,
+				gfx.fade.fadesprite.color.y, gfx.fade.fadesprite.color.z, alpha);
+			if (alpha >= 1.0f)
+			{
+				gfx.fade.fadestate = FadeState::Fade_In;
 
-			//change game state
-			gfx.gs = gfx.tempgs;
-			ChangeStats(gfx.gs);
+				//change game state
+				gfx.gs = gfx.tempgs;
+				ChangeStats(gfx.gs);
+			}
 		}
 	}
 }

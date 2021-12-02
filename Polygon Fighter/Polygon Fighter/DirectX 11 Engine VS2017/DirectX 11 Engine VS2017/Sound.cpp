@@ -1,322 +1,388 @@
 #include "Sound.h"
 
-bool Sound::Initialize(HWND hwnd)
+//=============================================================================
+// 初期化処理
+//=============================================================================
+bool Sound::InitSound(HWND hWnd)
 {
-	bool result;
+	HRESULT hr;
 
-		// Initialize direct sound and the primary sound buffer.
-		result = InitializeDirectSound(hwnd);
-	if (!result)
+	// COMライブラリの初期化
+	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+
+	// XAudio2オブジェクトの作成
+	hr = XAudio2Create(&g_pXAudio2, 0);
+	if (FAILED(hr))
 	{
+		MessageBox(hWnd, L"XAudio2オブジェクトの作成に失敗！", L"警告！", MB_ICONWARNING);
+
+		// COMライブラリの終了処理
+		CoUninitialize();
+
 		return false;
 	}
 
-	// Load a wave audio file onto a secondary buffer.
-	result = LoadWaveFile((char*)"Data/BGM/Better Days.wav", &m_secondaryBuffer1);
-	if (!result)
+	// マスターボイスの生成
+	hr = g_pXAudio2->CreateMasteringVoice(&g_pMasteringVoice);
+	if (FAILED(hr))
 	{
+		MessageBox(hWnd, L"マスターボイスの生成に失敗！", L"警告！", MB_ICONWARNING);
+
+		if (g_pXAudio2)
+		{
+			// XAudio2オブジェクトの開放
+			g_pXAudio2->Release();
+			g_pXAudio2 = NULL;
+		}
+
+		// COMライブラリの終了処理
+		CoUninitialize();
+
 		return false;
 	}
 
-	// Play the wave file now that it has been loaded.
-	result = PlayWaveFile();
-	if (!result)
+	// サウンドデータの初期化
+	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
 	{
-		return false;
+		HANDLE hFile;
+		DWORD dwChunkSize = 0;
+		DWORD dwChunkPosition = 0;
+		DWORD dwFiletype;
+		WAVEFORMATEXTENSIBLE wfx;
+		XAUDIO2_BUFFER buffer;
+
+		// バッファのクリア
+		memset(&wfx, 0, sizeof(WAVEFORMATEXTENSIBLE));
+		memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
+
+		// サウンドデータファイルの生成
+		hFile = CreateFile(g_aParam[nCntSound].pFilename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			MessageBox(hWnd, L"サウンドデータファイルの生成に失敗！(1)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+		if (SetFilePointer(hFile, 0, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+		{// ファイルポインタを先頭に移動
+			MessageBox(hWnd, L"サウンドデータファイルの生成に失敗！(2)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+
+		// WAVEファイルのチェック
+		hr = CheckChunk(hFile, 'FFIR', &dwChunkSize, &dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"WAVEファイルのチェックに失敗！(1)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+		hr = ReadChunkData(hFile, &dwFiletype, sizeof(DWORD), dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"WAVEファイルのチェックに失敗！(2)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+		if (dwFiletype != 'EVAW')
+		{
+			MessageBox(hWnd, L"WAVEファイルのチェックに失敗！(3)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+
+		// フォーマットチェック
+		hr = CheckChunk(hFile, ' tmf', &dwChunkSize, &dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"フォーマットチェックに失敗！(1)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+		hr = ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"フォーマットチェックに失敗！(2)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+
+		// オーディオデータ読み込み
+		hr = CheckChunk(hFile, 'atad', &g_aSizeAudio[nCntSound], &dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"オーディオデータ読み込みに失敗！(1)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+		g_apDataAudio[nCntSound] = (BYTE*)malloc(g_aSizeAudio[nCntSound]);
+		hr = ReadChunkData(hFile, g_apDataAudio[nCntSound], g_aSizeAudio[nCntSound], dwChunkPosition);
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"オーディオデータ読み込みに失敗！(2)", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+
+		// ソースボイスの生成
+		hr = g_pXAudio2->CreateSourceVoice(&g_apSourceVoice[nCntSound], &(wfx.Format));
+		if (FAILED(hr))
+		{
+			MessageBox(hWnd, L"ソースボイスの生成に失敗！", L"警告！", MB_ICONWARNING);
+			return false;
+		}
+
+		// バッファの値設定
+		memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
+		buffer.AudioBytes = g_aSizeAudio[nCntSound];
+		buffer.pAudioData = g_apDataAudio[nCntSound];
+		buffer.Flags = XAUDIO2_END_OF_STREAM;
+		buffer.LoopCount = g_aParam[nCntSound].nCntLoop;
+
+		// オーディオバッファの登録
+		g_apSourceVoice[nCntSound]->SubmitSourceBuffer(&buffer);
 	}
 
 	return true;
 }
 
-void Sound::Shutdown()
+//=============================================================================
+// 終了処理
+//=============================================================================
+void Sound::UninitSound(void)
 {
-	// Release the secondary buffer.
-	ShutdownWaveFile(&m_secondaryBuffer1);
+	// 一時停止
+	for (int nCntSound = 0; nCntSound < Sound::SOUND_LABEL_MAX; nCntSound++)
+	{
+		if (g_apSourceVoice[nCntSound])
+		{
+			// 一時停止
+			g_apSourceVoice[nCntSound]->Stop(0);
 
-	// Shutdown the Direct Sound API.
-	ShutdownDirectSound();
+			// ソースボイスの破棄
+			g_apSourceVoice[nCntSound]->DestroyVoice();
+			g_apSourceVoice[nCntSound] = NULL;
 
-	return;
+			// オーディオデータの開放
+			free(g_apDataAudio[nCntSound]);
+			g_apDataAudio[nCntSound] = NULL;
+		}
+	}
+
+	// マスターボイスの破棄
+	g_pMasteringVoice->DestroyVoice();
+	g_pMasteringVoice = NULL;
+
+	if (g_pXAudio2)
+	{
+		// XAudio2オブジェクトの開放
+		g_pXAudio2->Release();
+		g_pXAudio2 = NULL;
+	}
+
+	// COMライブラリの終了処理
+	CoUninitialize();
 }
 
-bool Sound::InitializeDirectSound(HWND hwnd)
+//=============================================================================
+// セグメント再生(再生中なら停止)
+//=============================================================================
+void Sound::PlayIndexSound(int label)
 {
-	HRESULT result;
-	DSBUFFERDESC bufferDesc;
-	WAVEFORMATEX waveFormat;
+	XAUDIO2_VOICE_STATE xa2state;
+	XAUDIO2_BUFFER buffer;
 
+	// バッファの値設定
+	memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
+	buffer.AudioBytes = g_aSizeAudio[label];
+	buffer.pAudioData = g_apDataAudio[label];
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.LoopCount = g_aParam[label].nCntLoop;
 
-	// Initialize the direct sound interface pointer for the default sound device.
-	result = DirectSoundCreate8(NULL, &m_DirectSound, NULL);
-	if (FAILED(result))
-	{
-		return false;
+	// 状態取得
+	g_apSourceVoice[label]->GetState(&xa2state);
+	if (xa2state.BuffersQueued != 0)
+	{// 再生中
+		// 一時停止
+		g_apSourceVoice[label]->Stop(0);
+
+		// オーディオバッファの削除
+		g_apSourceVoice[label]->FlushSourceBuffers();
 	}
 
-	// Set the cooperative level to priority so the format of the primary sound buffer can be modified.
-	result = m_DirectSound->SetCooperativeLevel(hwnd, DSSCL_PRIORITY);
-	if (FAILED(result))
-	{
-		return false;
-	}
+	// オーディオバッファの登録
+	g_apSourceVoice[label]->SubmitSourceBuffer(&buffer);
 
-		// Setup the primary buffer description.
-		bufferDesc.dwSize = sizeof(DSBUFFERDESC);
-	bufferDesc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME;
-	bufferDesc.dwBufferBytes = 0;
-	bufferDesc.dwReserved = 0;
-	bufferDesc.lpwfxFormat = NULL;
-	bufferDesc.guid3DAlgorithm = GUID_NULL;
+	// 再生
+	g_apSourceVoice[label]->Start(0);
 
-	// Get control of the primary sound buffer on the default sound device.
-	result = m_DirectSound->CreateSoundBuffer(&bufferDesc, &m_primaryBuffer, NULL);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-		// Setup the format of the primary sound bufffer.
-		// In this case it is a .WAV file recorded at 44,100 samples per second in 16-bit stereo (cd audio format).
-		waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.nSamplesPerSec = 44100;
-	waveFormat.wBitsPerSample = 16;
-	waveFormat.nChannels = 2;
-	waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-	waveFormat.cbSize = 0;
-
-	// Set the primary buffer to be the wave format specified.
-	result = m_primaryBuffer->SetFormat(&waveFormat);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
 }
 
-void Sound::ShutdownDirectSound()
+//=============================================================================
+// セグメント停止(ラベル指定)
+//=============================================================================
+void Sound::StopSound(int label)
 {
-	// Release the primary sound buffer pointer.
-	if (m_primaryBuffer)
-	{
-		m_primaryBuffer->Release();
-		m_primaryBuffer = 0;
-	}
+	XAUDIO2_VOICE_STATE xa2state;
 
-	// Release the direct sound interface pointer.
-	if (m_DirectSound)
-	{
-		m_DirectSound->Release();
-		m_DirectSound = 0;
-	}
+	// 状態取得
+	g_apSourceVoice[label]->GetState(&xa2state);
+	if (xa2state.BuffersQueued != 0)
+	{// 再生中
+		// 一時停止
+		g_apSourceVoice[label]->Stop(0);
 
-	return;
+		// オーディオバッファの削除
+		g_apSourceVoice[label]->FlushSourceBuffers();
+	}
 }
 
-bool Sound::LoadWaveFile(char* filename, IDirectSoundBuffer8** secondaryBuffer)
+//=============================================================================
+// セグメント停止(全て)
+//=============================================================================
+void Sound::StopSound(void)
 {
-	int error;
-	FILE* filePtr;
-	unsigned int count;
-	WaveHeaderType waveFileHeader;
-	WAVEFORMATEX waveFormat;
-	DSBUFFERDESC bufferDesc;
-	HRESULT result;
-	IDirectSoundBuffer* tempBuffer;
-	unsigned char* waveData;
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
-
-		// Open the wave file in binary.
-		error = fopen_s(&filePtr, filename, "rb");
-	if (error != 0)
+	// 一時停止
+	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
 	{
-		return false;
+		if (g_apSourceVoice[nCntSound])
+		{
+			// 一時停止
+			g_apSourceVoice[nCntSound]->Stop(0);
+		}
 	}
-
-	// Read in the wave file header.
-	count = fread(&waveFileHeader, sizeof(waveFileHeader), 1, filePtr);
-	if (count != 1)
-	{
-		return false;
-	}
-
-	// Check that the chunk ID is the RIFF format.
-	if ((waveFileHeader.chunkId[0] != 'R') || (waveFileHeader.chunkId[1] != 'I') ||
-		(waveFileHeader.chunkId[2] != 'F') || (waveFileHeader.chunkId[3] != 'F'))
-	{
-		return false;
-	}
-
-	// Check that the file format is the WAVE format.
-	if ((waveFileHeader.format[0] != 'W') || (waveFileHeader.format[1] != 'A') ||
-		(waveFileHeader.format[2] != 'V') || (waveFileHeader.format[3] != 'E'))
-	{
-		return false;
-	}
-
-	// Check that the sub chunk ID is the fmt format.
-	if ((waveFileHeader.subChunkId[0] != 'f') || (waveFileHeader.subChunkId[1] != 'm') ||
-		(waveFileHeader.subChunkId[2] != 't') || (waveFileHeader.subChunkId[3] != ' '))
-	{
-		return false;
-	}
-
-	// Check that the audio format is WAVE_FORMAT_PCM.
-	if (waveFileHeader.audioFormat != WAVE_FORMAT_PCM)
-	{
-		return false;
-	}
-
-	// Check that the wave file was recorded in stereo format.
-	if (waveFileHeader.numChannels != 2)
-	{
-		return false;
-	}
-
-	// Check that the wave file was recorded at a sample rate of 44.1 KHz.
-	if (waveFileHeader.sampleRate != 44100)
-	{
-		return false;
-	}
-
-	// Ensure that the wave file was recorded in 16 bit format.
-	if (waveFileHeader.bitsPerSample != 16)
-	{
-		return false;
-	}
-
-	// Check for the data chunk header.
-	if ((waveFileHeader.dataChunkId[0] != 'd') || (waveFileHeader.dataChunkId[1] != 'a') ||
-		(waveFileHeader.dataChunkId[2] != 't') || (waveFileHeader.dataChunkId[3] != 'a'))
-	{
-		return false;
-	}
-
-		// Set the wave format of secondary buffer that this wave file will be loaded onto.
-		waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.nSamplesPerSec = 44100;
-	waveFormat.wBitsPerSample = 16;
-	waveFormat.nChannels = 2;
-	waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-	waveFormat.cbSize = 0;
-
-	// Set the buffer description of the secondary sound buffer that the wave file will be loaded onto.
-	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
-	bufferDesc.dwFlags = DSBCAPS_CTRLVOLUME;
-	bufferDesc.dwBufferBytes = waveFileHeader.dataSize;
-	bufferDesc.dwReserved = 0;
-	bufferDesc.lpwfxFormat = &waveFormat;
-	bufferDesc.guid3DAlgorithm = GUID_NULL;
-
-		// Create a temporary sound buffer with the specific buffer settings.
-		result = m_DirectSound->CreateSoundBuffer(&bufferDesc, &tempBuffer, NULL);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Test the buffer format against the direct sound 8 interface and create the secondary buffer.
-	result = tempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&*secondaryBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Release the temporary buffer.
-	tempBuffer->Release();
-	tempBuffer = 0;
-
-		// Move to the beginning of the wave data which starts at the end of the data chunk header.
-		fseek(filePtr, sizeof(WaveHeaderType), SEEK_SET);
-
-	// Create a temporary buffer to hold the wave file data.
-	waveData = new unsigned char[waveFileHeader.dataSize];
-	if (!waveData)
-	{
-		return false;
-	}
-
-	// Read in the wave file data into the newly created buffer.
-	count = fread(waveData, 1, waveFileHeader.dataSize, filePtr);
-	if (count != waveFileHeader.dataSize)
-	{
-		return false;
-	}
-
-	// Close the file once done reading.
-	error = fclose(filePtr);
-	if (error != 0)
-	{
-		return false;
-	}
-
-	// Lock the secondary buffer to write wave data into it.
-	result = (*secondaryBuffer)->Lock(0, waveFileHeader.dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Copy the wave data into the buffer.
-	memcpy(bufferPtr, waveData, waveFileHeader.dataSize);
-
-	// Unlock the secondary buffer after the data has been written to it.
-	result = (*secondaryBuffer)->Unlock((void*)bufferPtr, bufferSize, NULL, 0);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Release the wave data since it was copied into the secondary buffer.
-	delete[] waveData;
-	waveData = 0;
-
-	return true;
 }
 
-void Sound::ShutdownWaveFile(IDirectSoundBuffer8** secondaryBuffer)
+//=============================================================================
+// チャンクのチェック
+//=============================================================================
+HRESULT Sound::CheckChunk(HANDLE hFile, DWORD format, DWORD *pChunkSize, DWORD *pChunkDataPosition)
 {
-	// Release the secondary sound buffer.
-	if (*secondaryBuffer)
-	{
-		(*secondaryBuffer)->Release();
-		*secondaryBuffer = 0;
+	HRESULT hr = S_OK;
+	DWORD dwRead;
+	DWORD dwChunkType;
+	DWORD dwChunkDataSize;
+	DWORD dwRIFFDataSize = 0;
+	DWORD dwFileType;
+	DWORD dwBytesRead = 0;
+	DWORD dwOffset = 0;
+
+	if (SetFilePointer(hFile, 0, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	{// ファイルポインタを先頭に移動
+		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
-	return;
+	while (hr == S_OK)
+	{
+		if (ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL) == 0)
+		{// チャンクの読み込み
+			hr = HRESULT_FROM_WIN32(GetLastError());
+		}
+
+		if (ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL) == 0)
+		{// チャンクデータの読み込み
+			hr = HRESULT_FROM_WIN32(GetLastError());
+		}
+
+		switch (dwChunkType)
+		{
+		case 'FFIR':
+			dwRIFFDataSize = dwChunkDataSize;
+			dwChunkDataSize = 4;
+			if (ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL) == 0)
+			{// ファイルタイプの読み込み
+				hr = HRESULT_FROM_WIN32(GetLastError());
+			}
+			break;
+
+		default:
+			if (SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT) == INVALID_SET_FILE_POINTER)
+			{// ファイルポインタをチャンクデータ分移動
+				return HRESULT_FROM_WIN32(GetLastError());
+			}
+		}
+
+		dwOffset += sizeof(DWORD) * 2;
+		if (dwChunkType == format)
+		{
+			*pChunkSize = dwChunkDataSize;
+			*pChunkDataPosition = dwOffset;
+
+			return S_OK;
+		}
+
+		dwOffset += dwChunkDataSize;
+		if (dwBytesRead >= dwRIFFDataSize)
+		{
+			return S_FALSE;
+		}
+	}
+
+	return S_OK;
 }
 
-bool Sound::PlayWaveFile()
+//=============================================================================
+// チャンクデータの読み込み
+//=============================================================================
+HRESULT Sound::ReadChunkData(HANDLE hFile, void *pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset)
 {
-	HRESULT result;
+	DWORD dwRead;
 
-
-	// Set position at the beginning of the sound buffer.
-	result = m_secondaryBuffer1->SetCurrentPosition(0);
-	if (FAILED(result))
-	{
-		return false;
+	if (SetFilePointer(hFile, dwBufferoffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	{// ファイルポインタを指定位置まで移動
+		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
-	// Set volume of the buffer to 100%.
-	result = m_secondaryBuffer1->SetVolume(DSBVOLUME_MAX);
-	if (FAILED(result))
-	{
-		return false;
+	if (ReadFile(hFile, pBuffer, dwBuffersize, &dwRead, NULL) == 0)
+	{// データの読み込み
+		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
-	// Play the contents of the secondary sound buffer.
-	result = m_secondaryBuffer1->Play(0, 0, 0);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
+	return S_OK;
 }
 
+void Sound::FadeSound(int label)
+{
+	tgbgmindex = label;
+}
 
+void Sound::PlayBGM(int label)
+{
+	b_infadestate = true;
+	tgbgmindex = label;
+}
+
+void Sound::Update() 
+{
+	if (b_infadestate)
+	{
+		XAUDIO2_VOICE_STATE xa2state;
+		float volume;
+
+		// 状態取得
+		g_apSourceVoice[tgbgmindex]->GetState(&xa2state);
+		if (xa2state.BuffersQueued != 0)
+		{// 再生中
+
+			g_apSourceVoice[tgbgmindex]->GetVolume(&volume);
+			volume += 0.016;
+
+			if (volume >= 1)
+			{
+				volume = 1;
+				curbgmindex = tgbgmindex;
+			}
+				
+
+			g_apSourceVoice[tgbgmindex]->SetVolume(volume);
+		}
+
+		g_apSourceVoice[curbgmindex]->GetState(&xa2state);
+		if (xa2state.BuffersQueued != 0)
+		{// 再生中
+
+			g_apSourceVoice[curbgmindex]->GetVolume(&volume);
+			volume -= 0.016;
+
+			if (volume <= 0)
+			{
+				volume = 0;
+				tgbgmindex = -1;
+			}
+			g_apSourceVoice[curbgmindex]->SetVolume(volume);
+		}
+	}
+}
 

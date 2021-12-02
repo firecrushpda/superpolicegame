@@ -139,6 +139,8 @@ public:
 	ID3D11DeviceContext* GetDeviceContent();
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 
+	Sound* m_Sound;
+
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
@@ -220,7 +222,6 @@ private:
 	//ID3D11RenderTargetView* brdfLUTRTV;
 	ID3D11ShaderResourceView* brdfLUTSRV;
 
-	Sound* m_Sound;
 	//effekseer
 	//Effekseer::ManagerRef manager;
 	//Effekseer::EffectRef effect;

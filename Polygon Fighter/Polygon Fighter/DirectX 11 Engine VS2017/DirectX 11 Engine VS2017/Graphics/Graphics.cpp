@@ -16,6 +16,10 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	this->windowHeight = height;
 	this->fpsTimer.Start();//タイマー
 
+	//sound
+	m_Sound = new Sound();
+	m_Sound->InitSound(hwnd);
+
 	//DirectX設置
 	if (!InitializeDirectX(hwnd))
 		return false;
@@ -35,15 +39,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	//IBL試して
 	if (!InitializeIBLStatus())
 		return false;
-	
-	m_Sound = new Sound();
-	if (!m_Sound)
-	{
-		return false;
-	}
-
-	// Initialize the sound object.
-	HRESULT result = m_Sound->Initialize(hwnd);
 
 	//effekseer 
 	/*if (!InitializeEffekseer())
@@ -716,6 +711,7 @@ bool Graphics::InitializeScene()
 		car.carbar.SetScale(0.1, 0.1, 0.1);
 		car.carrender.SetCollisionBoxView(false);
 		car.carbar.SetCollisionBoxView(false);
+		car.m_Sound = this->m_Sound;
 
 		//game chase car
 		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -1295,6 +1291,8 @@ void Graphics::ResetTitle()
 	Camera3D.SetPosition(temp);
 	Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
 
+	m_Sound->StopSound();
+	m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_BetterDays);
 }
 
 void Graphics::ResetGame()
@@ -1303,6 +1301,9 @@ void Graphics::ResetGame()
 	stage.b_use = false;
 	car.carrender.SetScale(0.3, 0.3, 0.3);
 	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
+
+	m_Sound->StopSound();
+	m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_taxi);
 }
 
 #pragma region not use

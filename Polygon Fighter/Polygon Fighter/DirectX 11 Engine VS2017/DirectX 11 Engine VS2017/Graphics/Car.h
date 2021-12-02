@@ -2,6 +2,7 @@
 #include "RenderableGameObject.h"
 #include "CarSpeedUI.h"
 #include "Collision.h"
+#include "../Sound.h"
 
 enum PhysicsMode
 {
@@ -56,6 +57,7 @@ public:
 	float cardistance = 0;
 	int catchcount = 0;
 	
+	Sound* m_Sound;
 private:
 
 	float mWheelRadius;

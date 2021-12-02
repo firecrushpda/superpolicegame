@@ -105,16 +105,17 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 	coobb.Transform(coobb, coworldMatrix);
 	for (size_t i = 0; i < mapgo.size(); i++)
 	{
-		/*if (mapgo.at(i)->b_modelview)
-		{*/
+		if (mapgo.at(i)->b_modelview)
+		{
 			auto obb = mapgo.at(i)->GetCollisionObject()->obb;
 			DirectX::ContainmentType coresult = coobb.Contains(obb);
 			if (coresult == 2 || coresult == 1)
 			{
+				m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
 				canmove = false;
 				break;
 			}
-		//}
+		}
 	}
 	
 	if (canmove)

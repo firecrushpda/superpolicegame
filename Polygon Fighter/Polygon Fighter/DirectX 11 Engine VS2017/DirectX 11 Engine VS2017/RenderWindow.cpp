@@ -6,6 +6,7 @@
 //=============================================================================
 #include "WindowContainer.h"
 #include "input.h"
+//#include <wchar.h>
 
 //=============================================================================
 // èâä˙âª
@@ -121,12 +122,28 @@ RenderWindow::~RenderWindow()
 //=============================================================================
 LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	wchar_t msg[32];
 	switch (uMsg)
 	{
 		// All other messages
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		return 0;
+
+	case WM_IME_KEYDOWN:
+		swprintf_s(msg, L"WM_IME_KEYDOWN: 0x%x\n", wParam);
+		OutputDebugString(msg);
+		break;
+
+		//case WM_SYSCHAR:
+		//	swprintf_s(msg, L"WM_SYSCHAR: %c\n", (wchar_t)wParam);
+		//	OutputDebugString(msg);
+		//	break;
+
+		//case WM_SYSKEYUP:
+		//	swprintf_s(msg, L"WM_SYSKEYUP: 0x%x\n", wParam);
+		//	OutputDebugString(msg);
+		//	break;
 
 	default:
 	{
