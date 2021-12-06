@@ -190,6 +190,23 @@ void Graphics::RenderFrame()
 			for (size_t i = 0; i < mapgo.size(); i++)
 				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
+			//auto firstsign = true;
+			//for (size_t i = 0; i < primitivesgo.size(); i++)
+			//{
+			//	auto primgo = primitivesgo.at(i);
+			//	for (size_t j = 0; j < mapgo.size(); j++)
+			//	{
+			//		if (primgo->path == mapgo.at(j)->path)
+			//		{
+			//			mapgo.at(j)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//			//mapgo.at(j)->BatchDraw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(),firstsign);
+			//			//if (firstsign) firstsign = false;
+			//		}
+			//		//if (j == mapgo.size() - 1) firstsign = true;
+			//	}
+			//	
+			//}
+
 		}
 
 		if (gs == GameState::editor)
@@ -314,7 +331,7 @@ void Graphics::RenderFrame()
 		std::wstring testboolutf8 = cv.from_bytes(testbooltext);
 
 		spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-		//spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+		spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), wsnum.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 		//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -774,7 +791,7 @@ bool Graphics::InitializeScene()
 
 		//camera3D
 		Camera3D.ChangeFocusMode(0, &car.carrender);
-		Camera3D.SetProjectionValues(90, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
+		Camera3D.SetProjectionValues(90, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 500.0f);
 	}
 	catch (COMException & exception)
 	{
@@ -1175,7 +1192,9 @@ void Graphics::LoadMap() {
 				inFile >> filename;
 
 				//compare primitive
-				
+				int primitiveindex = -1;
+				if (filename != "")
+					primitiveindex = CampareMapname(filename);
 
 				float px, py, pz;
 
@@ -1194,32 +1213,47 @@ void Graphics::LoadMap() {
 				inFile >> sx;
 				inFile >> sy;
 				inFile >> sz;
+
 				if (filename!= "")
 				{
 					RenderableGameObject* go = new RenderableGameObject();
-					go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
-					go->path = filename;
+					if (primitiveindex == -1)
+					{
+						go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+						go->path = filename;
+						mapgo.push_back(go);
+						primitivesgo.push_back(go);
+					}
+					else
+					{
+						go->DeepCopy(*primitivesgo.at(primitiveindex));
+						mapgo.push_back(go);
+					}
 					go->SetPosition(XMFLOAT3(px, py, pz));
 					go->SetRotation(XMFLOAT3(rx, ry, rz));
 					go->SetScale(sx, sy, sz);
 					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
 					go->SetCollisionBoxView(false);
-					mapgo.push_back(go);
 				}
-				
 			}
 		}
 	}
+
+	//primitivesgo.clear();
 }
 
-//return true if primitive
-//bool Graphics::CampareMapname(std::string name)
-//{
-//	for (size_t i = 0; i < primitive; i++)
-//	{
-//
-//	}
-//}
+//return true if primitive already has value
+int Graphics::CampareMapname(std::string name)
+{
+	for (size_t i = 0; i < primitivesgo.size(); i++)
+	{
+		if (primitivesgo.at(i)->path == name)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
 
 void Graphics::LoadNpc()
 {

@@ -20,6 +20,8 @@ public:
 
 	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
 
+	void BatchDraw(const XMMATRIX & viewProjectionMatrix, bool firstsign);
+
 	void Update(float dt, const XMMATRIX & viewProjectionMatrix);
 
 	void SetSkeletonDebugFlag();

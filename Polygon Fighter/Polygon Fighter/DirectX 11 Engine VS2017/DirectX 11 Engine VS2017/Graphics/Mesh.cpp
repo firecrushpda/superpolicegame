@@ -84,6 +84,40 @@ void Mesh::Draw()
 	}
 }
 
+void Mesh::BatchDraw()
+{
+	UINT offset = 0;
+	this->deviceContext->IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
+	this->deviceContext->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	this->deviceContext->DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
+}
+
+void Mesh::SetTextureInfo() {
+	for (int i = 0; i < textures.size(); i++)
+	{
+		if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
+		{
+			this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress());
+			break;
+		}
+		else if (textures[i].GetType() == aiTextureType::aiTextureType_SPECULAR)
+		{
+			this->deviceContext->PSSetShaderResources(1, 1, textures[i].GetTextureResourceViewAddress());
+			break;
+		}
+		else if (textures[i].GetType() == aiTextureType::aiTextureType_HEIGHT)
+		{
+			this->deviceContext->PSSetShaderResources(2, 1, textures[i].GetTextureResourceViewAddress());
+			break;
+		}
+		else if (textures[i].GetType() == aiTextureType::aiTextureType_DISPLACEMENT)
+		{
+			this->deviceContext->PSSetShaderResources(3, 1, textures[i].GetTextureResourceViewAddress());
+			break;
+		}
+	}
+}
+
 //=============================================================================
 // マトリクス取る
 //=============================================================================

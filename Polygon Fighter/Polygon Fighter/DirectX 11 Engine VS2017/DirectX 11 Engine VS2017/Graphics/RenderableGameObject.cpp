@@ -65,6 +65,37 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 	}
 }
 
+void RenderableGameObject::BatchDraw(const XMMATRIX & viewProjectionMatrix,bool firstsign)
+{
+	if (!b_use) return;
+
+	if (b_modelview)
+	{
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		model.BatchDraw(this->worldMatrix, viewProjectionMatrix,firstsign);
+	}
+
+	//collision debug block
+	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	if (!(collision == nullptr))
+	{
+		if (collision->debugmeshflag)
+		{
+			for (size_t i = 0; i < collision->debugmesh.size(); i++)
+			{
+				/*auto matrixmesh = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
+					* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
+					* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);*/
+				this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
+				this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx();//offsetmat
+				this->cb_vs_vertexshader->ApplyChanges();
+
+				collision->debugmesh.at(i).Draw();
+			}
+		}
+	}
+}
+
 //=============================================================================
 // マトリクス更新処理
 //=============================================================================

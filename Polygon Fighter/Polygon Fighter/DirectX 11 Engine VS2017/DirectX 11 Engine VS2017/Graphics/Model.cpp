@@ -163,8 +163,56 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 				debugBlocks[i].Draw();
 			}
 		}
-
 }
+
+void Model::BatchDraw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix,bool firsttime)
+{
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	this->deviceContext->VSSetConstantBuffers(1, 1, this->cb_bone_info.GetAddressOf());
+	//if (isFbxModel)
+	//{
+	//	//fbx sdk draw
+	//	//fbx sdkモデル描画
+	//	//m_fbxmodel->Draw(worldMatrix, viewProjectionMatrix);
+	//}
+	//else
+	//{
+		//assimpモデル描画
+	if (!m_showskeleton)//デバッグフラッグ
+	{
+		for (int i = 0; i < meshes.size(); i++)
+		{
+			//Update Constant buffer with WVP Matrix
+			this->cb_vs_vertexshader->data.wvpMatrix = m_GlobalInverseTransform * meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix;//
+			this->cb_vs_vertexshader->data.worldMatrix = m_GlobalInverseTransform * meshes[i].GetTransformMatrix() * worldMatrix;//
+
+			this->cb_vs_vertexshader->ApplyChanges();
+
+			if (firsttime)
+				meshes[i].SetTextureInfo();
+
+			meshes[i].BatchDraw();
+		}
+	}
+
+	//デバッグモデル描画
+	if (bHasBone == true && m_showskeleton == true)//
+	{
+		for (size_t i = 0; i < debugBlocks.size(); i++)
+		{
+			//Update Constant buffer with WVP Matrix
+			this->cb_vs_vertexshader->data.wvpMatrix = debugBlocks[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix;
+			this->cb_vs_vertexshader->data.worldMatrix = debugBlocks[i].GetTransformMatrix() * worldMatrix;
+
+			this->cb_vs_vertexshader->ApplyChanges();
+			if (firsttime)
+				debugBlocks[i].SetTextureInfo();
+
+			debugBlocks[i].BatchDraw();
+		}
+	}
+}
+
 
 //=============================================================================
 // モデル読み込む関数

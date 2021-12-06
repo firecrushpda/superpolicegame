@@ -154,6 +154,7 @@ private:
 	void EffekseerDraw();
 
 	void LoadMap();
+	int CampareMapname(std::string name);
 	void LoadNpc();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;//ダイレクトエクスデバイス

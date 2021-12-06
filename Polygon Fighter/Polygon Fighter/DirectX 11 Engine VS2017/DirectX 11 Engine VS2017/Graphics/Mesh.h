@@ -31,6 +31,8 @@ public:
 	bool isActive = true;//•\‚µ‚Ü‚·‚©
 
 	void Draw();
+	void BatchDraw();
+	void SetTextureInfo();
 	const DirectX::XMMATRIX & GetTransformMatrix();
 
 	void RefreshVerTexBuffer(ID3D11DeviceContext* devicecontext, std::vector<Vertex3D> varray, UINT vertexCount);

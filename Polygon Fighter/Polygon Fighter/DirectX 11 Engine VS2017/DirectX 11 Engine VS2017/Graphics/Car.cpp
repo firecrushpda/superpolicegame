@@ -64,7 +64,7 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	carrender.Update(delta_time, viewProjectionMatrix);
 
 	//update car distance for score
-	cardistance += GetCarVelocity() * 1.0f / 60.0f;
+	cardistance += std::abs(GetCarVelocity()) * 1.0f / 60.0f;
 }
 
 void Car::Draw( const XMMATRIX & viewProjectionMatrix)

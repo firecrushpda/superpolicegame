@@ -176,6 +176,7 @@ public:
 	bool Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 	void Update(float delta_time, const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
 	void Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix);
+	void BatchDraw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix, bool firsttime);
 
 	//animation function
 	void PlayAnimaition(const int num,AnimationPlayStyle aps);
