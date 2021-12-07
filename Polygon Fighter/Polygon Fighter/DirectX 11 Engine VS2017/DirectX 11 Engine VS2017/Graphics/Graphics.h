@@ -131,6 +131,10 @@ public:
 	int catchcar_animaitonindex = 0;
 	int catchcar_animaitonmax = 3;
 
+	//flag
+	bool b_debugUIflag = true;
+	bool b_UIflag = true;
+
 	void ResetTitle();
 	void ResetGame();
 

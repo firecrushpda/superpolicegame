@@ -22,7 +22,7 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 	npcUI_thank.SetPosition(XMFLOAT3(200, 400, 0));
 	
 	//pos sign
-	possign.Initialize(device, deviceContext, 10, 10, "Data\\Textures\\redpoint.png", cb_vs_vertexshader_2d);
+	possign.Initialize(device, deviceContext, 75, 77, "Data\\Textures\\marker01.png", cb_vs_vertexshader_2d);
 
 	//trigger
 	starttrigger = *girl.GetCollisionObject();
@@ -105,7 +105,7 @@ void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix)
 		this->camera3d->GetProjectionMatrix(), this->camera3d->GetViewMatrix(), DirectX::XMMatrixIdentity());
 	XMFLOAT3 co;
 	XMStoreFloat3(&co, vec);
-	co = XMFLOAT3(std::clamp(co.x, -200.0f, 800 + 100.0f), std::clamp(co.y, -200.0f, 600 + 100.0f) - 25, 0);
+	co = XMFLOAT3(std::clamp(co.x, -200.0f, 800 + 100.0f), std::clamp(co.y, -200.0f, 600 + 100.0f) - 50, 0);
 	possign.SetPosition(co);
 }
 //

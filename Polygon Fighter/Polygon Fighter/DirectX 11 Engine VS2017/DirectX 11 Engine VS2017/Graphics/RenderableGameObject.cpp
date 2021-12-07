@@ -55,6 +55,7 @@ void RenderableGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 				/*auto matrixmesh = XMMatrixScaling(this->collision->obb.Extents.x, this->collision->obb.Extents.y, this->collision->obb.Extents.z)
 					* XMMatrixRotationQuaternion(XMLoadFloat4(&this->collision->obb.Orientation))
 					* XMMatrixTranslation(this->collision->obb.Center.x, this->collision->obb.Center.y, this->collision->obb.Center.z);*/
+
 				this->cb_vs_vertexshader->data.wvpMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx() * viewProjectionMatrix;//offsetmat
 				this->cb_vs_vertexshader->data.worldMatrix = model.m_GlobalInverseTransform  * GetWorldMatirx();//offsetmat
 				this->cb_vs_vertexshader->ApplyChanges();
@@ -186,6 +187,14 @@ std::vector<Mesh> RenderableGameObject::GetMesh() {
 DirectX::XMMATRIX RenderableGameObject::GetWorldMatirx() {
 	return  this->worldMatrix;
 }
+
+//=============================================================================
+// ワールドマトリックスを取る
+//=============================================================================
+void RenderableGameObject::SetWorldMatirx(DirectX::XMMATRIX world) {
+	this->worldMatrix = world;
+}
+
 
 //=============================================================================
 // 調整マトリックスを設置

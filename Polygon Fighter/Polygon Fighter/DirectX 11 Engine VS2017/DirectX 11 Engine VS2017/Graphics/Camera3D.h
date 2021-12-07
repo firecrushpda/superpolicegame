@@ -34,17 +34,18 @@ public:
 	XMFLOAT3 roundviewrot;
 	D3D11_VIEWPORT viewport;
 
+	std::string focusname = "maincharactercar"; //bigsite
 	std::vector<XMFLOAT3>mCameraWorkTrack_Point;
 	std::vector<XMFLOAT3>mCameraWorkTrack_Line;
 	std::vector<XMFLOAT3>mCameraWorkTrack_Rotate;
 	unsigned int cwpointindex = 0;
 	unsigned int cwlineindex = 0;
 	unsigned int cwrotateindex = 0;
-	float cwlineSpeed = 5.0f;
-	Timer timer;
 	
+	Timer timer;
+	float cwlineSpeed = 5.0f;
 	float cwwaittime = 2.0f;
-	float cwforward = 0.16f;
+	float cwrotateheight = 5;
 	float cwrotatedistance = 10;
 	float cwrotatespeed = 0.01;
 

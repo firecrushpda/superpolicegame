@@ -72,6 +72,24 @@ void Car::Draw( const XMMATRIX & viewProjectionMatrix)
 	carrender.Draw(viewProjectionMatrix);
 	if (carbar_drawflag)
 		carbar.Draw(viewProjectionMatrix);
+
+	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	for (size_t i = 0; i <  carrender.GetCollisionObject()->debugmesh.size(); i++)
+	{
+		auto carscl = carrender.GetScaleFloat3();
+		auto carrot = carrender.GetRotationFloat3();
+		auto carpos = carrender.GetPositionFloat3();
+		auto coobb = carrender.GetCollisionObject()->originobb;
+		auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
+			* XMMatrixRotationRollPitchYaw(carrot.x, carrot.y, carrot.z)
+			* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
+		coobb.Transform(coobb, coworldMatrix);
+		this->cb_vs_vertexshader->data.wvpMatrix = coworldMatrix * viewProjectionMatrix;//offsetmat
+		this->cb_vs_vertexshader->data.worldMatrix = coworldMatrix;//offsetmat
+		this->cb_vs_vertexshader->ApplyChanges();
+
+		carrender.GetCollisionObject()->debugmesh.at(i).Draw();
+	}
 }
 
 void Car::UpdateForce() 

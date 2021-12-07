@@ -42,6 +42,8 @@ public:
 
 	DirectX::XMMATRIX GetWorldMatirx();
 
+	void SetWorldMatirx(DirectX::XMMATRIX world);
+
 	void SetGlobalMatirx(DirectX::XMMATRIX worldmat);
 
 	CollsionObject* GetCollisionObject();
