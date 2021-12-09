@@ -79,8 +79,8 @@ void Graphics::RenderFrame()
 	deviceContext->PSSetShader(pixelshader_skyBox.GetShader(), NULL, 0);
 	deviceContext->RSSetState(rasterizerState_CullFront.Get());
 	deviceContext->OMSetDepthStencilState(depthUnenableStencilState.Get(), 0);
-	//スカイボックス描画
-	skybox.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		//スカイボックス描画
+		skybox.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 	deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
@@ -135,14 +135,17 @@ void Graphics::RenderFrame()
 	deviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
 	{
 		//シェーダーリソース
-		this->deviceContext->PSSetShaderResources(4, 1, &brdfLUTSRV);
-		this->deviceContext->PSSetShaderResources(5, 1, &skyIBLSRV);
-		this->deviceContext->PSSetShaderResources(6, 1, &envMapSRV);
+		this->deviceContext->PSSetShaderResources(4, 1, disslovenoise.texture.get()->GetTextureResourceViewAddress());
+		this->deviceContext->PSSetShaderResources(5, 1, &brdfLUTSRV);
+		this->deviceContext->PSSetShaderResources(6, 1, &skyIBLSRV);
+		this->deviceContext->PSSetShaderResources(7, 1, &envMapSRV);
+		
 
 		if (gs == GameState::title)
 		{
 			stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
+			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
 			auto viewrot = Camera3D.roundviewrot;
 			Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + title.cam_rotfrequance, viewrot.z);
@@ -170,13 +173,14 @@ void Graphics::RenderFrame()
 		{
 			//draw car
 			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+
+			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
 			//draw chase car
 			cb_ps_iblstatus.data.color = XMFLOAT4(0, 0.8, 0.8, 0.8);
 			//cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
 			cb_ps_iblstatus.ApplyChanges();
-			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 			cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
 			cb_ps_iblstatus.ApplyChanges();
 
@@ -189,23 +193,6 @@ void Graphics::RenderFrame()
 			//ステージ描画
 			for (size_t i = 0; i < mapgo.size(); i++)
 				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-
-			//auto firstsign = true;
-			//for (size_t i = 0; i < primitivesgo.size(); i++)
-			//{
-			//	auto primgo = primitivesgo.at(i);
-			//	for (size_t j = 0; j < mapgo.size(); j++)
-			//	{
-			//		if (primgo->path == mapgo.at(j)->path)
-			//		{
-			//			mapgo.at(j)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			//			//mapgo.at(j)->BatchDraw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(),firstsign);
-			//			//if (firstsign) firstsign = false;
-			//		}
-			//		//if (j == mapgo.size() - 1) firstsign = true;
-			//	}
-			//	
-			//}
 
 		}
 
@@ -366,6 +353,8 @@ void Graphics::RenderFrame()
 		ImGui::Begin("Light Controls");
 		ImGui::DragFloat("Metallic", &this->cb_ps_iblstatus.data.metallic, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Roughness", &this->cb_ps_iblstatus.data.roughness, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("dissolveThreshold", &this->cb_ps_iblstatus.data.dissolveThreshold, 0.01f, 0.0f, 1.0f);
+		
 		ImGui::NewLine();
 		ImGui::DragFloat("FollowCameraFrontHeight", &Camera3D.cf_fheight, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("FollowCameraFront", &Camera3D.cf_front, 0.1f, 0.0f, 10.0f);
@@ -735,9 +724,10 @@ bool Graphics::InitializeScene()
 		gameroad.SetCollisionBoxView(false);
 
 		//game character car
-		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,true))
 			return false;
 		car.carrender.SetScale(0.3, 0.3, 0.3);
+		car.taxirender.SetScale(0.15, 0.15, 0.15);
 		car.carrender.SetPosition(100, 0, 100);
 		car.carbar.Initialize("Data\\Objects\\test\\p_steering.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
 		car.carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI / 2, 0));
@@ -747,7 +737,7 @@ bool Graphics::InitializeScene()
 		car.m_Sound = this->m_Sound;
 
 		//game chase car
-		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,false))
 			return false;
 		chasecar.carrender.SetScale(0.2, 0.2, 0.2);
 		chasecar.carrender.SetCollisionBoxView(false);
@@ -795,10 +785,13 @@ bool Graphics::InitializeScene()
 
 		//load map game object
 		LoadMap();
-		
 
 		//load npc object
 		LoadNpc();
+
+		//disslovenoise texture
+		disslovenoise.Initialize(device.Get(), deviceContext.Get(), 300, 300,
+			"Data\\Textures\\DissolveNoise.png", cb_vs_vertexshader_2d);
 
 		//カメラ設置
 		camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
@@ -839,6 +832,9 @@ bool Graphics::InitalizeBuffers() {
 	cb_ps_iblstatus.data.metallic = 0.0f;
 	cb_ps_iblstatus.data.roughness = 0.0f;
 	cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
+	cb_ps_iblstatus.data.dissolvelineWidth = 0.1;
+	cb_ps_iblstatus.data.dissolveThreshold = 0.0f;
+	cb_ps_iblstatus.data.dissolveColor = XMFLOAT4(1, 0, 0, 1);
 
 	return true;
 }
@@ -1287,7 +1283,7 @@ void Graphics::LoadNpc()
 	else {
 		std::cerr << "Npc File found\n";
 
-		std::string filename = "Data\\Objects\\test\\gile_wavehand.fbx";//jk_bread4 (1).fbx
+		std::string filename = "Data\\Objects\\test\\gile_wavehand.fbx";
 		std::string input;
 		while (!inFile.eof()) {
 			inFile >> input;
@@ -1309,7 +1305,8 @@ void Graphics::LoadNpc()
 
 				Npc* npcgo = new Npc();
 				npcgo->Init(filename, this->device.Get(), this->deviceContext.Get(), 
-						cb_vs_vertexshader, cb_vs_vertexshader_2d, &Camera3D);
+						cb_vs_vertexshader, cb_vs_vertexshader_2d, &Camera3D,
+						windowWidth,windowHeight);
 				npcgo->girl.path = filename;
 				npcgo->girl.SetPosition(XMFLOAT3(px, py, pz));
 				npcgo->tgpos = XMFLOAT3(pex, pey, pez);
@@ -1337,8 +1334,11 @@ void Graphics::ResetTitle()
 {
 	//reset title
 	stage.b_use = true;
+	car.taxirender.b_modelview = false;
 	car.carrender.SetScale(2, 2, 2);
 	car.carrender.SetPosition(XMFLOAT3(0, 3, 0));
+	car.cardrate = 0.0f;
+	car.taxidrate = 1.0f;
 	Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
 
 	auto viewrot = Camera3D.roundviewrot;
@@ -1361,8 +1361,11 @@ void Graphics::ResetGame()
 {
 	//reset game
 	stage.b_use = false;
+	car.cardrate = 1.0f;
+	car.taxidrate = 0.0f;
 	car.carrender.SetScale(0.3, 0.3, 0.3);
 	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
+	car.taxirender.b_modelview = true;
 
 	m_Sound->StopSound();
 	m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_taxi);

@@ -111,6 +111,12 @@ struct CB_PS_IBLSTATUS
 	DirectX::XMFLOAT4 color;
 	float roughness;
 	float metallic;
-	float padding;
-	float padding1;
+	float dissolveThreshold;
+	float dissolvelineWidth;
+	DirectX::XMFLOAT4 dissolveColor;
+};
+
+struct CB_PS_Dissolve 
+{
+	
 };

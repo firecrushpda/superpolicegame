@@ -13,6 +13,9 @@ public:
 	ID3D11DeviceContext * deviceContext = nullptr;
 	Camera3D* camera3d;
 	
+	float windowwidth;
+	float windowheight;
+
 	//ステージ 
 	//0 no interaction
 	//1 active animation
@@ -36,14 +39,17 @@ public:
 	bool possignshowflag;
 	Sprite possign;
 
+	Sprite desdirsign;
+
 	Timer npctimer;
 
 	bool uiflag = false;
 	Sprite npcUI_thank;
 
 	bool Init(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d,Camera3D* camera3d);
-	void Update(float dt, const XMMATRIX & viewProjectionMatrix);
+		ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d
+		,Camera3D* camera3d, float windowwidth, float windowheight);
+	void Update(float dt, const XMMATRIX & viewProjectionMatrix,XMFLOAT3 carpos);
 	void Draw3D(const XMMATRIX & viewProjectionMatrix);
 	void Draw2D(const XMMATRIX & viewProjectionMatrix2d);
 	

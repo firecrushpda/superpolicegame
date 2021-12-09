@@ -135,6 +135,10 @@ void Engine::Update()
 							gfx.mapgo.at(i)->SetCollisionBoxView(true);
 						}
 					}
+					if (keycode == 'U')
+					{
+						gfx.car.StartDissolveAnimaion();
+					}
 
 					//camera
 					if (keycode == '0')//follow
@@ -521,7 +525,8 @@ void Engine::Update()
 			}
 			//update npc
 			for (size_t i = 0; i < gfx.npc.size(); i++)
-				gfx.npc.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+				gfx.npc.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix(),
+									gfx.car.carrender.GetPositionFloat3());
 
 			//collision
 			//è’ìÀîªíË

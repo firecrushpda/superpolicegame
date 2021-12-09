@@ -1,11 +1,13 @@
 #include "Npc.h"
 
 bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext,
-	ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d, Camera3D* camera3d)
+	ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d, Camera3D* camera3d,float windowwidth,float windowheight)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->camera3d = camera3d;
+	this->windowwidth = windowwidth;
+	this->windowheight = windowheight;
 
 	npctimer.Start();
 
@@ -23,6 +25,8 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 	
 	//pos sign
 	possign.Initialize(device, deviceContext, 75, 77, "Data\\Textures\\marker01.png", cb_vs_vertexshader_2d);
+	desdirsign.Initialize(device, deviceContext, 76, 132, "Data\\Textures\\yajirushi01.png", cb_vs_vertexshader_2d);
+	desdirsign.SetPosition(XMFLOAT3(windowwidth/2 - 76,windowheight/2 - 132,0));
 
 	//trigger
 	starttrigger = *girl.GetCollisionObject();
@@ -30,7 +34,6 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 		starttrigger.originobb.Extents.y * npctrigger_distance,
 		starttrigger.originobb.Extents.z * npctrigger_distance);
 	starttrigger.collisionuse = true;
-	
 
 	endtrigger = *girl.GetCollisionObject();
 	endtrigger.originobb.Extents = XMFLOAT3(endtrigger.originobb.Extents.x * npctrigger_distance,
@@ -41,7 +44,7 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 	return true;
 }
 
-void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix)
+void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix,XMFLOAT3 carpos)
 {
 	girl.Update(dt, viewProjectionMatrix);
 
@@ -107,6 +110,12 @@ void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix)
 	XMStoreFloat3(&co, vec);
 	co = XMFLOAT3(std::clamp(co.x, -200.0f, 800 + 100.0f), std::clamp(co.y, -200.0f, 600 + 100.0f) - 50, 0);
 	possign.SetPosition(co);
+
+	//dessign rot
+	auto desdir = XMFLOAT2(tgpos.x - carpos.x,tgpos.z - carpos.z);
+	float angle = atan2(desdir.x, desdir.y);
+	//desdirsign.AdjustRotation(XMFLOAT3(0, 0, 0.01));
+	desdirsign.SetRotation(XMFLOAT3(0,0, angle));
 }
 //
 void Npc::Draw3D(const XMMATRIX & viewProjectionMatrix) 
@@ -122,6 +131,12 @@ void Npc::Draw2D(const XMMATRIX & viewProjectionMatrix2d)
 {
 	if (possignshowflag && npcstate == 2)
 		possign.Draw(viewProjectionMatrix2d);
+
+	if (npcstate == 2 && !possignshowflag)
+	{
+		desdirsign.Draw(viewProjectionMatrix2d);
+	}
+		
 	
 	if (uiflag)
 		npcUI_thank.Draw(viewProjectionMatrix2d);

@@ -1,16 +1,34 @@
 #include "Car.h"
 
+
+
 bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 						ID3D11DeviceContext * deviceContext, 
-						ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader) 
+						ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,bool isCharacter) 
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
+	this->isCharacter = isCharacter;
 
 	carrender.Initialize(filePath, device, deviceContext, cb_vs_vertexshader);
 	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity()); 
-
+	if (this->isCharacter)
+	{
+		taxirender.Initialize("Data\\Objects\\taxi\\taxi.obj", device, deviceContext, cb_vs_vertexshader);
+		auto gmatrix = XMMatrixSet(0, 0, 1, 0,
+									0, 1, 0, 0,
+									-1, 0, 0, 0,
+									0, -1, 0, 1)*
+						XMMatrixSet(0, 0, 1, 0,
+									0, 1, 0, 0,
+									-1, 0, 0, 0,
+									0, 0, 0, 1) ;
+		taxirender.SetGlobalMatirx(gmatrix);
+		//taxirender.SetScale(0.2, 0.2, 0.2);
+	}
+		
+	
 	mMaxSpeed = 1.5f;
 	mCarMaxSpeed = XMFLOAT3(0.03f, 0.0f, 1.5f); // Steering, Up, Fowards//XMFLOAT3(0.015f, 0.0f, 8.0f)
 	mCarSpeed = 0.0f;
@@ -57,21 +75,63 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	{
 		temp.y = 1.0f;
 	}
+	UpdateForce();
 
 	carrender.SetPosition(temp);
-
-	UpdateForce();
 	carrender.Update(delta_time, viewProjectionMatrix);
+
+	if (isCharacter)
+	{
+		taxirender.SetPosition(temp);
+		taxirender.Update(delta_time, viewProjectionMatrix);
+	}
 
 	//update car distance for score
 	cardistance += std::abs(GetCarVelocity()) * 1.0f / 60.0f;
+
+	//dissolve animation
+	if (inDissolveProcess) {
+		if (dstate == dissolveState::tocar)
+		{
+			taxidrate += frate;
+			cardrate -= frate;
+			taxidrate = std::clamp(taxidrate, 0.0f, 1.0f);
+			cardrate = std::clamp(cardrate, 0.0f, 1.0f);
+			if (cardrate <= 0.0f) 
+			{
+				taxidrate = 1;
+				inDissolveProcess = false;
+			}
+		}
+		else if (dstate == dissolveState::totaxi)
+		{
+			taxidrate -= frate;
+			cardrate += frate;
+			taxidrate = std::clamp(taxidrate, 0.0f, 1.0f);
+			cardrate = std::clamp(cardrate, 0.0f, 1.0f);
+			if (taxidrate <= 0.0f)
+			{
+				cardrate = 1;
+				inDissolveProcess = false;
+			}
+		}
+	}
 }
 
-void Car::Draw( const XMMATRIX & viewProjectionMatrix)
+void Car::Draw( const XMMATRIX & viewProjectionMatrix, ConstantBuffer<CB_PS_IBLSTATUS>& cbps_iblstatus)
 {
+	cbps_iblstatus.data.dissolveThreshold = cardrate;
+	cbps_iblstatus.ApplyChanges();
 	carrender.Draw(viewProjectionMatrix);
-	if (carbar_drawflag)
-		carbar.Draw(viewProjectionMatrix);
+
+	if (isCharacter) {
+		cbps_iblstatus.data.dissolveThreshold = taxidrate;
+		cbps_iblstatus.ApplyChanges();
+		taxirender.Draw(viewProjectionMatrix);
+
+		if (carbar_drawflag)
+			carbar.Draw(viewProjectionMatrix);
+	}
 
 	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	for (size_t i = 0; i <  carrender.GetCollisionObject()->debugmesh.size(); i++)
@@ -90,6 +150,9 @@ void Car::Draw( const XMMATRIX & viewProjectionMatrix)
 
 		carrender.GetCollisionObject()->debugmesh.at(i).Draw();
 	}
+
+	cbps_iblstatus.data.dissolveThreshold = 0;
+	cbps_iblstatus.ApplyChanges();
 }
 
 void Car::UpdateForce() 
@@ -149,6 +212,7 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 	}
 
 	carrender.SetPosition(dir);
+	taxirender.SetPosition(dir);
 }
 
 float Car::CalcWheelSpeed(float delta)
@@ -176,7 +240,7 @@ void Car::Turn(float delta, float accelfactor)
 		carbar.SetRotation(carbarrot.x, carbarrot.y, carbarrot.z + mCarVelocity.x);
 	}
 	carrender.SetRotation(rot);
-
+	taxirender.SetRotation(rot);
 
 }
 
@@ -188,4 +252,12 @@ float Car::GetCarVelocity()
 float Car::GetMaxSpeed() 
 {
 	return mMaxSpeed;
+}
+
+void Car::StartDissolveAnimaion()
+{
+	if (inDissolveProcess) return;
+
+	inDissolveProcess = true;
+	taxidrate == 0.0f ? dstate = dissolveState::tocar : dstate = dissolveState::totaxi;
 }

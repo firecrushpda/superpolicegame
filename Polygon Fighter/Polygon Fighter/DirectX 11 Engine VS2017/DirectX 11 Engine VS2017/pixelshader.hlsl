@@ -73,7 +73,9 @@ cbuffer constantBuffer : register(b1)
 	float4 cbcolor;
 	float cbroughness;
 	float cbmetallic;
-	float2 padding;
+	float cbdissolveThreshold;
+	float cblineWidth;
+	float4 cbdissolveColor;
 }
 
 struct PS_INPUT
@@ -90,12 +92,14 @@ Texture2D specularTexture : TEXTURE: register(t1);
 Texture2D normalSRV : TEXTURE: register(t2);
 Texture2D depthTexture : TEXTURE: register(t3);
 
-Texture2D brdfLUT : TEXTURE: register(t4);
-TextureCube skyIR : register(t5);
-TextureCube skyPrefilter: register(t6);
+Texture2D dissolveNoiseTexture : TEXTURE: register(t4);
+Texture2D brdfLUT : TEXTURE: register(t5);
+TextureCube skyIR : register(t6);
+TextureCube skyPrefilter: register(t7);
+
+
 
 SamplerState basicSampler : SAMPLER : register(s0);
-
 
 float NormalDistributionGGXTR(float3 normalVec, float3 halfwayVec, float roughness)
 {
@@ -175,8 +179,10 @@ void CalcRadiance(PS_INPUT input, float3 viewDir, float3 normalVec, float3 light
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
+	float3 noise = dissolveNoiseTexture.Sample(basicSampler, input.uv).rgb;
+	clip(noise.r - cbdissolveThreshold);
 
-	float3 albedo = pow(albedoSRV.Sample(basicSampler, input.uv).rgb, 2.2f); //
+	float3 albedo = pow(albedoSRV.Sample(basicSampler, input.uv).rgb, 2.2f);
 
 	float3 viewDir = normalize(cameraPosition - input.worldPos);
 
@@ -218,11 +224,14 @@ float4 main(PS_INPUT input) : SV_TARGET
 	float2 brdf = brdfLUT.Sample(basicSampler, float2(max(dot(normalVec, viewDir), 0.0f), cbroughness)).rg;
 	float3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
-	float3 ambient = (kD * diffuse + specular) * 1.0f;// ao 
-	float3 color = ambient + Lo;
+	float3 ambient = (kD * diffuse + specular) * 1.0f + Lo;// ao 
 
-	//color = color / (color + float3(1.0f, 1.0f, 1.0f));
-	//color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+	/*color = color / (color + float3(1.0f, 1.0f, 1.0f));
+	color = pow(color, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));*/
+
+	float t = 1 - smoothstep(0.0, cblineWidth, noise.r - cbdissolveThreshold);
+	float3 finalColor = lerp(ambient, cbdissolveColor, t * step(0.001, cbdissolveThreshold));
+	float3 color = finalColor;
 
 	return float4(color * cbcolor.rgb, cbcolor.a);
 }

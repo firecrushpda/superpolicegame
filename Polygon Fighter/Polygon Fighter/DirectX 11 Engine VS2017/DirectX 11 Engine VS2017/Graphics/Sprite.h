@@ -21,6 +21,8 @@ public:
 	float GetWidth();
 	float GetHeight();
 
+	std::unique_ptr<Texture> texture;//テクスチャ
+
 	XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1);
 	void UpdateFillAmount(float rate);
 	void UpdateUV(std::vector<Vertex2D> vertexData);
@@ -31,7 +33,7 @@ private:
 	XMMATRIX worldMatrix = XMMatrixIdentity();//位置
 	
 
-	std::unique_ptr<Texture> texture;//テクスチャ
+	
 	ID3D11DeviceContext * deviceContext = nullptr;
 
 	IndexBuffer indices;//インデックスバッファ

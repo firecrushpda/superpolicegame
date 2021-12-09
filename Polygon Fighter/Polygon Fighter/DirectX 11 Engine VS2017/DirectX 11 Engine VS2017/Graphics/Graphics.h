@@ -207,6 +207,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pavementTexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brdfLUT;
+	
+	Sprite disslovenoise;
 
 	//タイマー
 	Timer fpsTimer;

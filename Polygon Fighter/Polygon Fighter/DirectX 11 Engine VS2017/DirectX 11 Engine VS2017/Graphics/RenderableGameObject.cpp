@@ -495,7 +495,11 @@ void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, cons
 //=============================================================================
 void RenderableGameObject::SetCollisionBoxView(bool view)
 {
-	this->collision->debugmeshflag = view;
+	if (this->collision!=nullptr)
+	{
+		this->collision->debugmeshflag = view;
+	}
+	
 }
 
 //=============================================================================

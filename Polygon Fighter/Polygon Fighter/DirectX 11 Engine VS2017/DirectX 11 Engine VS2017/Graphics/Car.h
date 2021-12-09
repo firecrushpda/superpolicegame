@@ -18,8 +18,25 @@ class Car
 public:
 	//renderobject
 	RenderableGameObject carrender;
-
 	RenderableGameObject carbar;
+	RenderableGameObject taxirender;
+
+	//if is character
+	bool isCharacter = false;
+
+	//dissolve param
+	enum dissolveState
+	{
+		tocar,
+		totaxi
+	};
+	dissolveState dstate;
+	float cardrate = 0;//0 is full 1 is empty
+	float taxidrate = 1;
+	float frate = 0.01f;
+	bool inDissolveProcess = false;
+
+	void StartDissolveAnimaion();
 
 	//rotatespeed
 	float rotatespeed = 0.001f;
@@ -34,9 +51,9 @@ public:
 
 	bool mCollsionOn;
 
-	bool CarInitialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
+	bool CarInitialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, bool isCharacter);
 	void Update(float delta_time, const XMMATRIX & viewProjectionMatrix);
-	void Draw(const XMMATRIX & viewProjectionMatrix);
+	void Draw(const XMMATRIX & viewProjectionMatrix, ConstantBuffer<CB_PS_IBLSTATUS>& cbps_iblstatus);
 
 	void MoveFowards(float delta, float accelfactor, std::vector<RenderableGameObject*> mapgo);
 	float CalcWheelSpeed(float delta);
