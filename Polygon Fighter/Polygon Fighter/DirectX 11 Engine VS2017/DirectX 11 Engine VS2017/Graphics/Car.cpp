@@ -15,7 +15,7 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	carrender.SetGlobalMatirx(DirectX::XMMatrixIdentity()); 
 	if (this->isCharacter)
 	{
-		taxirender.Initialize("Data\\Objects\\taxi\\taxi.obj", device, deviceContext, cb_vs_vertexshader);
+		taxirender.Initialize("Data\\Objects\\test\\taxi.obj", device, deviceContext, cb_vs_vertexshader);
 		auto gmatrix = XMMatrixSet(0, 0, 1, 0,
 									0, 1, 0, 0,
 									-1, 0, 0, 0,

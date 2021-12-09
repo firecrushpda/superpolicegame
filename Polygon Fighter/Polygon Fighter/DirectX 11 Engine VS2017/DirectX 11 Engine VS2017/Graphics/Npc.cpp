@@ -21,7 +21,7 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 
 	//sprite
 	npcUI_thank.Initialize(device, deviceContext, 400, 200, "Data\\Textures\\npcUIthank.png", cb_vs_vertexshader_2d);
-	npcUI_thank.SetPosition(XMFLOAT3(200, 400, 0));
+	npcUI_thank.SetPosition(XMFLOAT3(windowwidth / 2 - 200, windowwidth - 100, 0));
 	
 	//pos sign
 	possign.Initialize(device, deviceContext, 75, 77, "Data\\Textures\\marker01.png", cb_vs_vertexshader_2d);

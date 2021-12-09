@@ -171,18 +171,13 @@ void Graphics::RenderFrame()
 
 		if (gs == GameState::game)
 		{
-			//draw car
+			
 			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
+			//draw car
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
-			//draw chase car
-			cb_ps_iblstatus.data.color = XMFLOAT4(0, 0.8, 0.8, 0.8);
-			//cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
-			cb_ps_iblstatus.ApplyChanges();
 			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
-			cb_ps_iblstatus.data.color = XMFLOAT4(1, 1, 1, 1);
-			cb_ps_iblstatus.ApplyChanges();
 
 			//draw npc
 			//girl.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
@@ -718,7 +713,7 @@ bool Graphics::InitializeScene()
 		stage.SetCollisionBoxView(false);
 
 		//game stage
-		if (!gameroad.Initialize("Data\\Objects\\test\\douro_01.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		if (!gameroad.Initialize("Data\\Objects\\test\\douro_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
 		gameroad.SetCollisionBoxView(false);
@@ -737,7 +732,7 @@ bool Graphics::InitializeScene()
 		car.m_Sound = this->m_Sound;
 
 		//game chase car
-		if (!chasecar.CarInitialize("Data\\Objects\\POLI\\poli.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,false))
+		if (!chasecar.CarInitialize("Data\\Objects\\test\\enemy.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,false))
 			return false;
 		chasecar.carrender.SetScale(0.2, 0.2, 0.2);
 		chasecar.carrender.SetCollisionBoxView(false);

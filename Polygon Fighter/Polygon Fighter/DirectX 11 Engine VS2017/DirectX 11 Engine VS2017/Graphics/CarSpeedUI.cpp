@@ -55,7 +55,7 @@ void CarSpeedUI::Update(float fillamount, float speed,int catchcount, int cd) {
 	speedbar.UpdateFillAmount(fillamount);
 
 	//speedUI
-	speed *= 40;
+	speed *= 200;
 	int speedf = floor(speed);
 	for (size_t i = 0; i < 3; i++)
 	{
