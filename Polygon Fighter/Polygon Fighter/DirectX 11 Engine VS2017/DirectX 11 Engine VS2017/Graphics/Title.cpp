@@ -5,8 +5,8 @@ void Title::Init(ID3D11Device * device, ID3D11DeviceContext * deviceContext, Con
 	Bg.Initialize(device, deviceContext, width, height, "Data/Textures/title_background.png", cb_vs_vertexshader_2d);
 	//Bg.SetPosition(XMFLOAT3(0, 0, 0));
 	//Bg.color = XMFLOAT4(1, 1, 1, 0.9f);
-	startUI.Initialize(device, deviceContext, 300 / 2, 100 / 2, "Data/Textures/title_start.png", cb_vs_vertexshader_2d);
-	startUI.SetPosition(XMFLOAT3(600, 400, 0));
+	startUI.Initialize(device, deviceContext, 400,201, "Data/Textures/title01.png", cb_vs_vertexshader_2d);
+	startUI.SetPosition(XMFLOAT3(width-650, 50, 0));
 	editor.Initialize(device, deviceContext, 300 / 2, 100 / 2, "Data/Textures/title_editor.png", cb_vs_vertexshader_2d);
 	editor.SetPosition(XMFLOAT3(600, 450, 0));
 	tutorial.Initialize(device, deviceContext, 300 / 2, 100 / 2, "Data/Textures/title_tutorial.png", cb_vs_vertexshader_2d);
@@ -42,7 +42,7 @@ void Title::Update()
 void Title::Draw(XMMATRIX orthoMatrix) {
 	//Bg.Draw(orthoMatrix);
 	startUI.Draw(orthoMatrix);
-	tutorial.Draw(orthoMatrix);
-	editor.Draw(orthoMatrix);
+	//tutorial.Draw(orthoMatrix);
+	//editor.Draw(orthoMatrix);
 	
 }

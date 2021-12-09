@@ -25,6 +25,7 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 									-1, 0, 0, 0,
 									0, 0, 0, 1) ;
 		taxirender.SetGlobalMatirx(gmatrix);
+		taxirender.SetCollisionBoxView(false);
 		//taxirender.SetScale(0.2, 0.2, 0.2);
 	}
 		
@@ -133,23 +134,23 @@ void Car::Draw( const XMMATRIX & viewProjectionMatrix, ConstantBuffer<CB_PS_IBLS
 			carbar.Draw(viewProjectionMatrix);
 	}
 
-	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	for (size_t i = 0; i <  carrender.GetCollisionObject()->debugmesh.size(); i++)
-	{
-		auto carscl = carrender.GetScaleFloat3();
-		auto carrot = carrender.GetRotationFloat3();
-		auto carpos = carrender.GetPositionFloat3();
-		auto coobb = carrender.GetCollisionObject()->originobb;
-		auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
-			* XMMatrixRotationRollPitchYaw(carrot.x, carrot.y, carrot.z)
-			* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
-		coobb.Transform(coobb, coworldMatrix);
-		this->cb_vs_vertexshader->data.wvpMatrix = coworldMatrix * viewProjectionMatrix;//offsetmat
-		this->cb_vs_vertexshader->data.worldMatrix = coworldMatrix;//offsetmat
-		this->cb_vs_vertexshader->ApplyChanges();
+	//deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	//for (size_t i = 0; i <  carrender.GetCollisionObject()->debugmesh.size(); i++)
+	//{
+	//	auto carscl = carrender.GetScaleFloat3();
+	//	auto carrot = carrender.GetRotationFloat3();
+	//	auto carpos = carrender.GetPositionFloat3();
+	//	auto coobb = carrender.GetCollisionObject()->originobb;
+	//	auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
+	//		* XMMatrixRotationRollPitchYaw(carrot.x, carrot.y, carrot.z)
+	//		* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
+	//	coobb.Transform(coobb, coworldMatrix);
+	//	this->cb_vs_vertexshader->data.wvpMatrix = coworldMatrix * viewProjectionMatrix;//offsetmat
+	//	this->cb_vs_vertexshader->data.worldMatrix = coworldMatrix;//offsetmat
+	//	this->cb_vs_vertexshader->ApplyChanges();
 
-		carrender.GetCollisionObject()->debugmesh.at(i).Draw();
-	}
+	//	//carrender.GetCollisionObject()->debugmesh.at(i).Draw();
+	//}
 
 	cbps_iblstatus.data.dissolveThreshold = 0;
 	cbps_iblstatus.ApplyChanges();
