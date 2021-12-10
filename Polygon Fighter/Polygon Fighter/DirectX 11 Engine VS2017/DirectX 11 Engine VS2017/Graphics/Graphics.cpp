@@ -173,6 +173,10 @@ void Graphics::RenderFrame()
 		{
 			
 			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			zimen.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			zimen1.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			field_L.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			field_R.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 			//draw car
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
@@ -715,8 +719,25 @@ bool Graphics::InitializeScene()
 		//game stage
 		if (!gameroad.Initialize("Data\\Objects\\test\\douro_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
-		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
+		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		gameroad.SetCollisionBoxView(false);
+		if (!zimen.Initialize("Data\\Objects\\test\\zimen.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		zimen.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		zimen.SetCollisionBoxView(false);
+		if (!zimen1.Initialize("Data\\Objects\\test\\zimen_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		zimen1.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		zimen1.SetCollisionBoxView(false);
+		if (!field_L.Initialize("Data\\Objects\\test\\field_L.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		field_L.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		field_L.SetCollisionBoxView(false);
+		if (!field_R.Initialize("Data\\Objects\\test\\field_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		field_R.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		field_R.SetCollisionBoxView(false);
+
 
 		//game character car
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,true))

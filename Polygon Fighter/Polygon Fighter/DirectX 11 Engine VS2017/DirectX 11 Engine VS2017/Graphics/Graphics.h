@@ -74,6 +74,10 @@ public:
 
 	//ステージ
 	RenderableGameObject gameroad;
+	RenderableGameObject zimen;
+	RenderableGameObject zimen1;
+	RenderableGameObject field_L;
+	RenderableGameObject field_R;
 
 	//ステージ
 	std::vector<Npc*> npc;

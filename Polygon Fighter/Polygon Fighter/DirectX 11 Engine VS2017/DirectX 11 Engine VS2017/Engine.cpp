@@ -520,7 +520,7 @@ void Engine::Update()
 			//update map game object
 			for (size_t i = 0; i < gfx.mapgo.size(); i++)
 			{
-				gfx.mapgo.at(i)->AdjustRotation(XMFLOAT3(0, 0.01, 0));
+				//gfx.mapgo.at(i)->AdjustRotation(XMFLOAT3(0, 0.01, 0));
 				gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 			}
 			//update npc
