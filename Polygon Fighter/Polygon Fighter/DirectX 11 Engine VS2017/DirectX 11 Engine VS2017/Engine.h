@@ -8,7 +8,7 @@
 #include "WindowContainer.h"
 #include "Timer.h"
 #include "../DirectX 11 Engine VS2017/Graphics/Collision.h"
-#include <atlstr.h>
+//#include <atlstr.h>
 
 class Engine : WindowContainer
 {

@@ -23,7 +23,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	gfx.ResetTitle();
 
 	//change input setting
-	LoadKeyboardLayout(_T("0x0409"), KLF_ACTIVATE);
+	//LoadKeyboardLayout(_T("0x0409"), KLF_ACTIVATE);
 
 	return true;
 }
