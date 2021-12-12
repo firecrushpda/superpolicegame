@@ -26,6 +26,7 @@ public:
 	bool possign_flag = true;
 	Sprite possign;
 	float countdown = 60;
+	bool canmove = false;
 
 	void Update(float delta);
 

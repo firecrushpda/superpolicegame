@@ -23,7 +23,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	gfx.ResetTitle();
 
 	//change input setting
-	//LoadKeyboardLayout(_T("0x0409"), KLF_ACTIVATE);
+	LoadKeyboardLayout(_T("0x0409"), KLF_ACTIVATE);
 
 	return true;
 }
@@ -123,6 +123,10 @@ void Engine::Update()
 				unsigned char keycode = kbe.GetKeyCode();
 				if (kbe.IsPress())
 				{
+					if (keycode == 'L')
+					{
+						gfx.gamepause = !gfx.gamepause;
+					}
 					if (keycode == 'O')
 					{
 						gfx.showImgui = !gfx.showImgui;
@@ -184,6 +188,7 @@ void Engine::Update()
 								break;
 							}
 						}
+						gfx.cac->canmove = !gfx.cac->canmove;
 					}
 					if (keycode == '6')//camerawork rotate
 					{
@@ -467,7 +472,7 @@ void Engine::Update()
 					gfx.Camera3D.GetProjectionMatrix(), gfx.Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
 				XMFLOAT3 co;
 				XMStoreFloat3(&co, vec);
-				co = XMFLOAT3(clamp(co.x, -200.0f, gfx.windowWidth + 100.0f), clamp(co.y, -200.0f, gfx.windowHeight + 100.0f) - 50, 0);
+				co = XMFLOAT3(clamp(co.x - 75/2, -200.0f, gfx.windowWidth + 100.0f), clamp(co.y - 77/2, -200.0f, gfx.windowHeight + 100.0f) - 50, 0);
 				gfx.cac->possign.SetPosition(co);
 			}
 
@@ -626,6 +631,53 @@ void Engine::Update()
 		}
 		else //game pause
 		{
+			
+			//test code should be delete
+			while (!keyboard.KeyBufferIsEmpty())
+			{
+				KeyboardEvent kbe = keyboard.ReadKey();
+				unsigned char keycode = kbe.GetKeyCode();
+				if (kbe.IsPress())
+				{
+					if (keycode == 'L')
+					{
+						gfx.gamepause = !gfx.gamepause;
+					}
+				}
+			}
+
+			while (!mouse.EventBufferIsEmpty())
+			{
+				MouseEvent me = mouse.ReadEvent();
+
+				if (mouse.IsRightDown())
+				{
+					if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+					{
+						this->gfx.Camera3D.AdjustRotation((float)me.GetPosY() * 0.005f, (float)me.GetPosX() * 0.005f, 0);
+					}
+				}
+			}
+
+			float Camera3DSpeed = 2.0f;
+			if (keyboard.KeyIsPressed('W'))
+			{
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('S'))
+			{
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('A'))
+			{
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('D'))
+			{
+				this->gfx.Camera3D.AdjustPosition(this->gfx.Camera3D.GetRightVector() * Camera3DSpeed * dt);
+			}
+
+
 			//catch car animation
 			//change camera to 3 position and stay 1/3 second
 			//make some noise

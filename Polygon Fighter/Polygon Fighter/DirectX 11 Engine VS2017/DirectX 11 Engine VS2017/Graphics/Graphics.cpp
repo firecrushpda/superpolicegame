@@ -362,11 +362,12 @@ void Graphics::RenderFrame()
 		ImGui::NewLine();
 		ImGui::DragFloat3("mCarMaxSpeed", &car.mCarMaxSpeed.x, 0.1f, 0.0f, 8.0f);
 		ImGui::DragFloat3("mCarAcceleration", &car.mCarAcceleration.x, 0.1f, 0.0f, 1.0f);
+		ImGui::Checkbox("mCarAiContronlCanMove",&cac->canmove);
 		ImGui::NewLine();
 		ImGui::Checkbox("UIflag", &b_UIflag);
 		ImGui::Checkbox("b_debugUIflag", &b_debugUIflag);
 		ImGui::DragFloat("Camera Works Wait Time(4)", &Camera3D.cwwaittime, 0.1f, 0.0f, 10.0f);
-		ImGui::DragFloat("Camera Works Line Speed(5)", &Camera3D.cwlineSpeed, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Camera Works Line Speed(5)", &Camera3D.cwlineSpeed, 0.1f, 0.0f, 100.0f);
 		ImGui::DragFloat("Camera Works Rotate Distance(6)", &Camera3D.cwrotatedistance, 0.1f, 0.0f, 20.0f);
 		ImGui::DragFloat("Camera Works Rotate Additional Height(6)", &Camera3D.cwrotateheight, 0.1f, 0.0f, 100.0f);
 		ImGui::DragFloat("Camera Works Rotate Speed(6)", &Camera3D.cwrotatespeed, 0.01f, 0.0f, 1.0f);
@@ -737,7 +738,7 @@ bool Graphics::InitializeScene()
 			return false;
 		field_R.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		field_R.SetCollisionBoxView(false);
-
+		field_R.SetScale(XMFLOAT3(10, 0, 10));
 
 		//game character car
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,true))
@@ -1380,7 +1381,7 @@ void Graphics::ResetGame()
 	car.cardrate = 1.0f;
 	car.taxidrate = 0.0f;
 	car.carrender.SetScale(0.3, 0.3, 0.3);
-	car.carrender.SetPosition(XMFLOAT3(100, 3, 100));
+	car.carrender.SetPosition(XMFLOAT3(1095, 1, 812));
 	car.taxirender.b_modelview = true;
 
 	m_Sound->StopSound();

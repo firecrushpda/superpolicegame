@@ -43,8 +43,8 @@ public:
 	unsigned int cwrotateindex = 0;
 	
 	Timer timer;
-	float cwlineSpeed = 5.0f;
-	float cwwaittime = 2.0f;
+	float cwlineSpeed = 20.0f;
+	float cwwaittime = 3.0f;
 	float cwrotateheight = 5;
 	float cwrotatedistance = 10;
 	float cwrotatespeed = 0.01;

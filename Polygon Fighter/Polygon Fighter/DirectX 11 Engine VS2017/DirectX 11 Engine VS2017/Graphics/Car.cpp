@@ -185,7 +185,7 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 		* XMMatrixRotationRollPitchYaw(carrot.x , carrot.y, carrot.z )
 		* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
 	coobb.Transform(coobb, coworldMatrix);
-	for (size_t i = 0; i < mapgo.size(); i++)
+	/*for (size_t i = 0; i < mapgo.size(); i++)
 	{
 		if (mapgo.at(i)->b_modelview)
 		{
@@ -198,7 +198,7 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 				break;
 			}
 		}
-	}
+	}*/
 	
 	if (canmove)
 	{
