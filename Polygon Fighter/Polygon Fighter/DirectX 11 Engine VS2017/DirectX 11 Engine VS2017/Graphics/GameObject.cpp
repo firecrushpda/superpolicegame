@@ -86,6 +86,17 @@ void GameObject::SetRotation(const XMFLOAT3 & rot)
 	this->UpdateMatrix();
 }
 
+void GameObject::SetRotation(XMVECTOR quat)
+{
+	float angle; XMVECTOR rot; XMFLOAT3 rotf;
+	XMQuaternionToAxisAngle( &rot, &angle, quat);
+	XMStoreFloat3(&rotf, rot);
+	this->rot = rotf;
+	this->rotVector = rot;
+
+	//update matrix
+}
+
 void GameObject::SetRotation(float x, float y, float z)
 {
 	this->rot = XMFLOAT3(x, y, z);

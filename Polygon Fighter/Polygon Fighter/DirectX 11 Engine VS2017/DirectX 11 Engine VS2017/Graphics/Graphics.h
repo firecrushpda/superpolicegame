@@ -31,6 +31,7 @@
 #include "Npc.h"
 #include "MoneyUI.h"
 #include "../Sound.h"
+#include "PhysicsGameObject.h"
 
 enum GameState
 {
@@ -149,6 +150,10 @@ public:
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 
 	Sound* m_Sound;
+
+	//physics
+	PhyGameObject pgotest;
+	PhysXBasic physxbase;
 
 private:
 	bool InitializeDirectX(HWND hwnd);

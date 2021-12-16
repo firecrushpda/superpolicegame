@@ -1,7 +1,6 @@
 #include "Car.h"
 
 
-
 bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 						ID3D11DeviceContext * deviceContext, 
 						ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,bool isCharacter) 
@@ -67,25 +66,34 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 
 void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix) 
 {
-	XMFLOAT3 temp = carrender.GetPositionFloat3();
-	temp.x += mGravity.x * _mass * delta_time;
-	temp.y += mGravity.y * _mass * delta_time;
-	temp.z += mGravity.z * _mass * delta_time;
-
-	if (temp.y < 1.0f)
-	{
-		temp.y = 1.0f;
-	}
-	UpdateForce();
-
-	carrender.SetPosition(temp);
-	carrender.Update(delta_time, viewProjectionMatrix);
-
 	if (isCharacter)
 	{
-		taxirender.SetPosition(temp);
+		auto trans = actor->getGlobalPose();
+		float angle; PxVec3 rot;
+		trans.q.toRadiansAndUnitAxis(angle, rot);
+
+		auto xmrot = XMFLOAT3(rot.x * angle, rot.y * angle, rot.z * angle);
+		xmrot = Adjustrot(xmrot);
+		auto xmpos = XMFLOAT3(trans.p.x, trans.p.y, trans.p.z);
+		auto xmstrot = XMLoadFloat3(&xmrot);
+		auto xmstpos = XMLoadFloat3(&xmpos);
+		if (CanUseVector(xmstrot)) {
+			carrender.SetRotation(xmrot);
+			taxirender.SetRotation(xmrot);
+		}
+		
+		if (CanUseVector(xmstpos)) {
+			carrender.SetPosition(xmpos);
+			taxirender.SetPosition(xmpos);
+		}
 		taxirender.Update(delta_time, viewProjectionMatrix);
+		carrender.Update(delta_time, viewProjectionMatrix);
 	}
+	else
+	{
+		carrender.Update(delta_time, viewProjectionMatrix);
+	}
+	
 
 	//update car distance for score
 	cardistance += std::abs(GetCarVelocity()) * 1.0f / 60.0f;
@@ -177,28 +185,28 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 
 	//collision check
 	bool canmove = true;
-	auto carscl = carrender.GetScaleFloat3();
-	auto carrot = carrender.GetRotationFloat3();
-	auto carpos = carrender.GetPositionFloat3();
-	auto coobb = carrender.GetCollisionObject()->originobb;
-	auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
-		* XMMatrixRotationRollPitchYaw(carrot.x , carrot.y, carrot.z )
-		* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
-	coobb.Transform(coobb, coworldMatrix);
-	/*for (size_t i = 0; i < mapgo.size(); i++)
-	{
-		if (mapgo.at(i)->b_modelview)
-		{
-			auto obb = mapgo.at(i)->GetCollisionObject()->obb;
-			DirectX::ContainmentType coresult = coobb.Contains(obb);
-			if (coresult == 2 || coresult == 1)
-			{
-				m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
-				canmove = false;
-				break;
-			}
-		}
-	}*/
+	//auto carscl = carrender.GetScaleFloat3();
+	//auto carrot = carrender.GetRotationFloat3();
+	//auto carpos = carrender.GetPositionFloat3();
+	//auto coobb = carrender.GetCollisionObject()->originobb;
+	//auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
+	//	* XMMatrixRotationRollPitchYaw(carrot.x , carrot.y, carrot.z )
+	//	* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
+	//coobb.Transform(coobb, coworldMatrix);
+	//for (size_t i = 0; i < mapgo.size(); i++)
+	//{
+	//	if (mapgo.at(i)->b_modelview)
+	//	{
+	//		auto obb = mapgo.at(i)->GetCollisionObject()->obb;
+	//		DirectX::ContainmentType coresult = coobb.Contains(obb);
+	//		if (coresult == 2 || coresult == 1)
+	//		{
+	//			m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
+	//			canmove = false;
+	//			break;
+	//		}
+	//	}
+	//}
 	
 	if (canmove)
 	{
@@ -245,6 +253,7 @@ void Car::Turn(float delta, float accelfactor)
 
 }
 
+
 float Car::GetCarVelocity() 
 {
 	return mCarVelocity.z;
@@ -261,4 +270,34 @@ void Car::StartDissolveAnimaion()
 
 	inDissolveProcess = true;
 	taxidrate == 0.0f ? dstate = dissolveState::tocar : dstate = dissolveState::totaxi;
+}
+
+bool Car::CanUseVector(XMVECTOR vec) {
+	bool canuse = true;
+	auto nan = XMVectorIsNaN(vec);
+	auto infin = XMVectorIsInfinite(vec);
+	if (XMVectorGetX(XMVectorNotEqual(nan, XMVectorFalseInt())) == true
+		|| XMVectorGetX(XMVectorNotEqual(infin, XMVectorFalseInt())) == true)
+	{
+		canuse = false;
+	}
+	return canuse;
+}
+
+XMFLOAT3 Car::Adjustrot(XMFLOAT3 vec)
+{
+	XMFLOAT3 rtn = vec;
+	if (rtn.x > XM_PI)
+		rtn.x -= XM_2PI;
+	if (rtn.x < -XM_PI)
+		rtn.x += XM_2PI;
+	if (rtn.y > XM_PI)
+		rtn.y -= XM_2PI;
+	if (rtn.y < -XM_PI)
+		rtn.y += XM_2PI;
+	if (rtn.z > XM_PI)
+		rtn.z -= XM_2PI;
+	if (rtn.z < -XM_PI)
+		rtn.z += XM_2PI;
+	return rtn;
 }

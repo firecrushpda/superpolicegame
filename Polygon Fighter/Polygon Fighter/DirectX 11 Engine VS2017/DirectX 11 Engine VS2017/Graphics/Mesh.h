@@ -35,6 +35,16 @@ public:
 	void SetTextureInfo();
 	const DirectX::XMMATRIX & GetTransformMatrix();
 
+	enum PrimitiveGeomtry
+	{
+		box,
+	};
+
+	static Mesh DefaultGeometry(PrimitiveGeomtry type, ID3D11Device * device,
+		ID3D11DeviceContext * devicecontent,
+		std::string texturepath,
+		std::string meshname);
+
 	void RefreshVerTexBuffer(ID3D11DeviceContext* devicecontext, std::vector<Vertex3D> varray, UINT vertexCount);
 
 	ID3D11Buffer* GetVertexBuffer();//VertexBuffer<Vertex3D> 

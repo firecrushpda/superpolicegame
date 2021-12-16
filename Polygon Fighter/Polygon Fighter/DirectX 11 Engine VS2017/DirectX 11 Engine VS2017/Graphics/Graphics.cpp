@@ -190,8 +190,10 @@ void Graphics::RenderFrame()
 			
 
 			//ステージ描画
-			for (size_t i = 0; i < mapgo.size(); i++)
-				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			/*for (size_t i = 0; i < mapgo.size(); i++)
+				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());*/
+
+			pgotest.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		}
 
@@ -298,8 +300,12 @@ void Graphics::RenderFrame()
 		XMFLOAT3 co;
 		XMStoreFloat3(&co,vec);
 		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);*/
-		XMFLOAT3 co = Camera3D.focusgo->GetPositionFloat3();
-		std::string pos = "target position " + std::to_string(co.x) + "_" + std::to_string(co.y) + "_" + std::to_string(co.z);
+		auto co = car.actor->getGlobalPose().q;
+		float angle; PxVec3 rot;
+		co.toRadiansAndUnitAxis(angle, rot);
+		PxMat44 trans = car.actor->getGlobalPose();
+
+		std::string pos = "rot" + std::to_string(angle * rot.x) + "_" + std::to_string(angle * rot.y) + "_" + std::to_string(angle * rot.z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring carpos = cv.from_bytes(pos);
 
@@ -326,7 +332,7 @@ void Graphics::RenderFrame()
 		if (b_debugUIflag)
 		{
 			spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-			//spriteFont->DrawString(spriteBatch.get(), carpos.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			spriteFont->DrawString(spriteBatch.get(), carpos.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), campos.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -745,12 +751,13 @@ bool Graphics::InitializeScene()
 			return false;
 		car.carrender.SetScale(0.3, 0.3, 0.3);
 		car.taxirender.SetScale(0.15, 0.15, 0.15);
-		car.carrender.SetPosition(100, 0, 100);
+		//car.carrender.SetPosition(100, 0, 100);
 		car.carbar.Initialize("Data\\Objects\\test\\p_steering.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
 		car.carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI / 2, 0));
 		car.carbar.SetScale(0.1, 0.1, 0.1);
 		car.carrender.SetCollisionBoxView(false);
 		car.carbar.SetCollisionBoxView(false);
+		
 		car.m_Sound = this->m_Sound;
 
 		//game chase car
@@ -803,6 +810,12 @@ bool Graphics::InitializeScene()
 		//load map game object
 		LoadMap();
 
+		//physics
+		physxbase.initPhysics();
+		pgotest.Initialize("", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, &physxbase);
+		car.actor = physxbase.gVehicle4W->getRigidDynamicActor();
+
+
 		//load npc object
 		LoadNpc();
 
@@ -818,7 +831,7 @@ bool Graphics::InitializeScene()
 
 		//camera3D
 		Camera3D.ChangeFocusMode(0, &car.carrender);
-		Camera3D.SetProjectionValues(90, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		Camera3D.SetProjectionValues(90, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 3000.0f);
 	}
 	catch (COMException & exception)
 	{
@@ -1259,9 +1272,9 @@ void Graphics::LoadMap() {
 						go->DeepCopy(*primitivesgo.at(primitiveindex));
 						mapgo.push_back(go);
 					}
-					go->SetPosition(XMFLOAT3(px, py, pz));
+					go->SetPosition(XMFLOAT3(px *10, py*10, pz * 10));
 					go->SetRotation(XMFLOAT3(rx, ry, rz));
-					go->SetScale(sx, sy, sz);
+					go->SetScale(sx * 10, sy *10, sz *10);
 					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
 					go->SetCollisionBoxView(false);
 				}
@@ -1381,7 +1394,7 @@ void Graphics::ResetGame()
 	car.cardrate = 1.0f;
 	car.taxidrate = 0.0f;
 	car.carrender.SetScale(0.3, 0.3, 0.3);
-	car.carrender.SetPosition(XMFLOAT3(1095, 1, 812));
+	//car.carrender.SetPosition(XMFLOAT3(1095, 1, 812));
 	car.taxirender.b_modelview = true;
 
 	m_Sound->StopSound();

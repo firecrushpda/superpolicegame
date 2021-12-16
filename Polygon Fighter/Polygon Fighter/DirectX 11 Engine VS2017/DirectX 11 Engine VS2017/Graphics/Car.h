@@ -3,6 +3,7 @@
 #include "CarSpeedUI.h"
 #include "Collision.h"
 #include "../Sound.h"
+#include "PhysicsGameObject.h"
 
 enum PhysicsMode
 {
@@ -23,6 +24,9 @@ public:
 
 	//if is character
 	bool isCharacter = false;
+
+	//physics
+	PxRigidDynamic* actor;
 
 	//dissolve param
 	enum dissolveState
@@ -58,6 +62,9 @@ public:
 	void MoveFowards(float delta, float accelfactor, std::vector<RenderableGameObject*> mapgo);
 	float CalcWheelSpeed(float delta);
 	void Turn(float delta, float accelfactor);
+
+	bool CanUseVector(XMVECTOR vec);
+	XMFLOAT3 Adjustrot(XMFLOAT3 vec);
 
 	float GetCarVelocity();
 	float GetMaxSpeed();

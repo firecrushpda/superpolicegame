@@ -77,7 +77,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\a\Desktop\DirectX-11-Engine-VS2017-Tutorial_60\DirectX 11 Engine VS2017\DirectX 11 Engine VS2017\Includes\Effekseer\src;$(SolutionDir)DirectX 11 Engine VS2017\Includes;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\a\Desktop\DirectX-11-Engine-VS2017-Tutorial_60\DirectX 11 Engine VS2017\DirectX 11 Engine VS2017\Includes\Effekseer\src;$(SolutionDir)DirectX 11 Engine VS2017\Includes;$(SolutionDir)DirectX 11 Engine VS2017\Includes\physx\include;$(SolutionDir)DirectX 11 Engine VS2017\Includes\pxshared\include;$(SolutionDir)DirectX 11 Engine VS2017\Includes\source\foundation\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\a\Desktop\DirectX-11-Engine-VS2017-Tutorial_60\DirectX 11 Engine VS2017\DirectX 11 Engine VS2017\Libs\x64\Debug;$(SolutionDir)DirectX 11 Engine VS2017\Libs\x64\Debug;$(SolutionDir)DirectX 11 Engine VS2017\Libs\Any;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,7 +108,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;NOMINMAX;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;RENDER_SNIPPET;PX_PHYSX_STATIC_LIB;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=0;PX_SUPPORT_PVD=1;CMAKE_INTDIR="debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -117,7 +117,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d11.lib;DirectXTK.lib;DXGI.lib;D3DCompiler.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;DirectXTK.lib;DXGI.lib;D3DCompiler.lib;assimp-vc140-mt.lib;PhysXExtensions_static_64.lib;PhysX_static_64.lib;PhysXPvdSDK_static_64.lib;PhysXVehicle_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCooking_static_64.lib;PhysXCommon_static_64.lib;PhysXFoundation_static_64.lib;SnippetUtils_static_64.lib;SnippetRender_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -182,6 +182,7 @@
     <ClCompile Include="Graphics\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Graphics\MoneyUI.cpp" />
     <ClCompile Include="Graphics\Npc.cpp" />
+    <ClCompile Include="Graphics\PhysicsGameObject.cpp" />
     <ClCompile Include="Graphics\PointLight.cpp" />
     <ClCompile Include="Graphics\SkyBox.cpp" />
     <ClCompile Include="Graphics\SpotLight.cpp" />
@@ -194,6 +195,15 @@
     <ClCompile Include="Mouse\MouseClass.cpp" />
     <ClCompile Include="Mouse\MouseEvent.cpp" />
     <ClCompile Include="Graphics\RenderableGameObject.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehicle4w\SnippetVehicle4W.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicle4WCreate.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleCreate.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleFilterShader.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleNoDriveCreate.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleSceneQuery.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleTankCreate.cpp" />
+    <ClCompile Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleTireFriction.cpp" />
+    <ClCompile Include="PhyXBasic.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Sound.cpp" />
@@ -235,6 +245,7 @@
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClInclude Include="Graphics\MoneyUI.h" />
     <ClInclude Include="Graphics\Npc.h" />
+    <ClInclude Include="Graphics\PhysicsGameObject.h" />
     <ClInclude Include="Graphics\PointLight.h" />
     <ClInclude Include="Graphics\SkyBox.h" />
     <ClInclude Include="Graphics\SpotLight.h" />
@@ -248,6 +259,15 @@
     <ClInclude Include="Mouse\MouseClass.h" />
     <ClInclude Include="Mouse\MouseEvent.h" />
     <ClInclude Include="Graphics\RenderableGameObject.h" />
+    <ClInclude Include="PhysXvehicle\snippetcommon\SnippetPrint.h" />
+    <ClInclude Include="PhysXvehicle\snippetcommon\SnippetPVD.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleConcurrency.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleCreate.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleFilterShader.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleSceneQuery.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleTireFriction.h" />
+    <ClInclude Include="PhysXvehicle\snippetvehiclecommon\SnippetVehicleWheelQueryResult.h" />
+    <ClInclude Include="PhyXBasic.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Graphics\Sprite.h" />

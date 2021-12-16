@@ -33,7 +33,9 @@ void Camera3D::SetProjectionValues(float fovDegrees, float aspectRatio, float ne
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 
-	collision->orifrustum = BoundingFrustum(this->projectionMatrix);
+	float frustumfovRadians = (fovDegrees + 45 / 360.0f) * XM_2PI;
+	auto frustumprojectionMatrix = XMMatrixPerspectiveFovLH(frustumfovRadians, aspectRatio, nearZ, farZ);
+	collision->orifrustum = BoundingFrustum(projectionMatrix);
 	collision->frustum = collision->orifrustum;
 }
 

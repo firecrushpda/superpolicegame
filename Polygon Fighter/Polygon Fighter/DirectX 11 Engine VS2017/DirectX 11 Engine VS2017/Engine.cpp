@@ -47,6 +47,10 @@ void Engine::Update()
 
 	gfx.m_Sound->Update();
 
+	gfx.pgotest.Update();
+
+	gfx.physxbase.stepPhysics();
+
 	if (gfx.gs == GameState::title)
 	{
 		while (!keyboard.KeyBufferIsEmpty())
@@ -271,8 +275,79 @@ void Engine::Update()
 			//fix camera
 			if (cameratype == 0 || cameratype == 4 || cameratype == 5 || cameratype == 6)
 			{
-
+				//control myself
+				/*gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 				if (keyboard.KeyIsPressed('W'))
+				{
+					if (keyboard.KeyIsPressed('A'))
+					{
+						gfx.physxbase.startTurnHardLeftMode();
+					}
+					else if (keyboard.KeyIsPressed('D'))
+					{
+						gfx.physxbase.startTurnHardRightMode();
+					}
+					else
+					{
+						gfx.physxbase.releaseAllControls();
+						gfx.physxbase.startAccelerateForwardsMode();
+					}
+				}
+				else if (keyboard.KeyIsPressed('S'))
+				{
+
+					if (keyboard.KeyIsPressed('A'))
+					{
+						gfx.physxbase.startTurnHardLeftMode();
+					}
+					else if (keyboard.KeyIsPressed('D'))
+					{
+						gfx.physxbase.startTurnHardRightMode();
+					}
+					else
+					{
+						
+						gfx.physxbase.startAccelerateReverseMode();
+					}
+					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+				}
+				else
+				{
+					gfx.physxbase.releaseAllControls();
+				}*/
+				//control backup
+				PxRigidDynamic* Actor = gfx.car.actor;
+				physx::PxTransform transform = Actor->getGlobalPose();
+
+				PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
+				PxVec3 vel = Actor->getLinearVelocity();
+				if (keyboard.KeyIsPressed('W'))
+				{
+					if (gfx.physxbase.gIsVehicleInAir) {
+						Actor->addTorque(0.025f *transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
+					}
+					if (vel.normalize() < 15)
+					{
+						gfx.physxbase.startAccelerateForwardsMode();
+					}
+					else
+					{
+						gfx.physxbase.startAccelerateForwardsSecond();
+					}
+				}
+				else if (keyboard.KeyIsPressed('S'))
+				{
+					if (gfx.physxbase.gIsVehicleInAir)
+					{
+						Actor->addTorque(-0.025f* transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
+					}
+					// Reculer
+					gfx.physxbase.startAccelerateReverseMode();
+				}
+				else {
+					gfx.physxbase.releaseAllControls();
+				}
+				/*if (keyboard.KeyIsPressed('W'))
 				{
 					this->gfx.car.MoveFowards(dt, 1.0f,gfx.mapgo);
 					mIsInput = true;
@@ -294,13 +369,50 @@ void Engine::Update()
 				else
 				{
 					this->gfx.car.Turn(dt, 0.0f);
-				}
+				}*/
 			}
 
 			if (cameratype == 2)
 			{
 
+				gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 				if (keyboard.KeyIsPressed('W'))
+				{
+					if (keyboard.KeyIsPressed('A'))
+					{
+						gfx.physxbase.startTurnHardLeftMode();
+					}
+					else if (keyboard.KeyIsPressed('D'))
+					{
+						gfx.physxbase.startTurnHardRightMode();
+					}
+					else
+					{
+						gfx.physxbase.startAccelerateForwardsMode();
+					}
+				}
+				else if (keyboard.KeyIsPressed('S'))
+				{
+
+					if (keyboard.KeyIsPressed('A'))
+					{
+						gfx.physxbase.startTurnHardLeftMode();
+					}
+					else if (keyboard.KeyIsPressed('D'))
+					{
+						gfx.physxbase.startTurnHardRightMode();
+					}
+					else
+					{
+						gfx.physxbase.startAccelerateReverseMode();
+					}
+					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+				}
+				else
+				{
+					gfx.physxbase.releaseAllControls();
+				}
+				/*if (keyboard.KeyIsPressed('W'))
 				{
 					this->gfx.car.MoveFowards(dt, 1.0f, gfx.mapgo);
 					mIsInput = true;
@@ -322,7 +434,7 @@ void Engine::Update()
 				else
 				{
 					this->gfx.car.Turn(dt, 0.0f);
-				}
+				}*/
 
 				auto viewrot = gfx.Camera3D.roundviewrot;
 				auto carrot = gfx.car.carrender.GetRotationFloat3();
