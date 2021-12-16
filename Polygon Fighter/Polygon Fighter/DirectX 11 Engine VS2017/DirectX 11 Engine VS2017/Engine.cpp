@@ -276,7 +276,13 @@ void Engine::Update()
 			if (cameratype == 0 || cameratype == 4 || cameratype == 5 || cameratype == 6)
 			{
 				//control myself
-				/*gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+				PxRigidDynamic* Actor = gfx.car.actor;
+				physx::PxTransform transform = Actor->getGlobalPose();
+
+				PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
+				PxVec3 vel = Actor->getLinearVelocity();
+
+				gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 				if (keyboard.KeyIsPressed('W'))
 				{
 					if (keyboard.KeyIsPressed('A'))
@@ -292,6 +298,11 @@ void Engine::Update()
 						gfx.physxbase.releaseAllControls();
 						gfx.physxbase.startAccelerateForwardsMode();
 					}
+					if (keyboard.KeyIsPressed(VK_SHIFT))
+					{
+						if (dir.dot(vel) < 50)
+							gfx.car.actor->addForce(1000 * dir);
+					}
 				}
 				else if (keyboard.KeyIsPressed('S'))
 				{
@@ -306,7 +317,6 @@ void Engine::Update()
 					}
 					else
 					{
-						
 						gfx.physxbase.startAccelerateReverseMode();
 					}
 					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
@@ -314,39 +324,73 @@ void Engine::Update()
 				else
 				{
 					gfx.physxbase.releaseAllControls();
-				}*/
+				}
 				//control backup
-				PxRigidDynamic* Actor = gfx.car.actor;
-				physx::PxTransform transform = Actor->getGlobalPose();
+				//PxRigidDynamic* Actor = gfx.car.actor;
+				//physx::PxTransform transform = Actor->getGlobalPose();
 
-				PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
-				PxVec3 vel = Actor->getLinearVelocity();
-				if (keyboard.KeyIsPressed('W'))
-				{
-					if (gfx.physxbase.gIsVehicleInAir) {
-						Actor->addTorque(0.025f *transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
-					}
-					if (vel.normalize() < 15)
-					{
-						gfx.physxbase.startAccelerateForwardsMode();
-					}
-					else
-					{
-						gfx.physxbase.startAccelerateForwardsSecond();
-					}
-				}
-				else if (keyboard.KeyIsPressed('S'))
-				{
-					if (gfx.physxbase.gIsVehicleInAir)
-					{
-						Actor->addTorque(-0.025f* transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
-					}
-					// Reculer
-					gfx.physxbase.startAccelerateReverseMode();
-				}
-				else {
-					gfx.physxbase.releaseAllControls();
-				}
+				//PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
+				//PxVec3 vel = Actor->getLinearVelocity();
+				//if (keyboard.KeyIsPressed('W'))
+				//{
+				//	if (gfx.physxbase.gIsVehicleInAir) 
+				//	{
+				//		//Actor->addTorque(0.025f *transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
+				//	}
+				//	if (vel.normalize() < 15)
+				//	{
+				//		gfx.physxbase.startAccelerateForwardsMode();
+				//	}
+				//	else
+				//	{
+				//		gfx.physxbase.startAccelerateForwardsSecond();
+				//	}
+				//}
+				//else if (keyboard.KeyIsPressed('S'))
+				//{
+				//	if (gfx.physxbase.gIsVehicleInAir)
+				//	{
+				//		Actor->addTorque(-0.025f* transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
+				//	}
+				//	// Reculer
+				//	gfx.physxbase.startAccelerateReverseMode();
+				//}
+				//else {
+				//	gfx.physxbase.releaseAllControls();
+				//}
+
+				//if (keyboard.KeyIsPressed(VK_SHIFT))
+				//{
+				//	if (dir.dot(vel) < 50)
+				//		Actor->addForce(25 * dir);
+				//}
+				//else
+				//{
+				//	if (vel.normalize() > 25) {
+				//		Actor->addForce(-5 * vel.getNormalized());
+				//	}
+				//}
+
+				//if (keyboard.KeyIsPressed('A'))
+				//{
+				//	if (gfx.physxbase.gIsVehicleInAir)
+				//	{
+				//		Actor->addTorque(-0.05f * transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f)), PxForceMode::eVELOCITY_CHANGE);
+				//	}
+				//	gfx.physxbase.startTurnHardLeftMode();
+				//}
+				//else if (keyboard.KeyIsPressed('D'))
+				//{
+				//	if (gfx.physxbase.gIsVehicleInAir)
+				//	{
+				//		Actor->addTorque(0.05f * transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f)), PxForceMode::eVELOCITY_CHANGE);
+				//	}
+				//	gfx.physxbase.startTurnHardRightMode();
+				//}
+				//else {
+				//	gfx.physxbase.releaseAllControls();
+				//}
+
 				/*if (keyboard.KeyIsPressed('W'))
 				{
 					this->gfx.car.MoveFowards(dt, 1.0f,gfx.mapgo);
@@ -555,10 +599,12 @@ void Engine::Update()
 				gfx.Camera3D.SetLookAtPos(gfx.Camera3D.focusgo->GetPositionFloat3());
 
 			}
-			if (mIsInput == false)
+
+			/*if (mIsInput == false)
 			{
 				this->gfx.car.MoveFowards(dt, 0.0f, gfx.mapgo);
-			}
+			}*/
+
 			//update car
 			this->gfx.car.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 

@@ -287,17 +287,17 @@ bool Car::CanUseVector(XMVECTOR vec) {
 XMFLOAT3 Car::Adjustrot(XMFLOAT3 vec)
 {
 	XMFLOAT3 rtn = vec;
-	if (rtn.x > XM_PI)
-		rtn.x -= XM_2PI;
-	if (rtn.x < -XM_PI)
-		rtn.x += XM_2PI;
-	if (rtn.y > XM_PI)
-		rtn.y -= XM_2PI;
-	if (rtn.y < -XM_PI)
-		rtn.y += XM_2PI;
-	if (rtn.z > XM_PI)
-		rtn.z -= XM_2PI;
-	if (rtn.z < -XM_PI)
-		rtn.z += XM_2PI;
+	if (rtn.x >= XM_2PI)
+		rtn.x -= 2 * XM_2PI;
+	if (rtn.x < -XM_2PI)
+		rtn.x += 2 * XM_2PI;
+	if (rtn.y >= XM_2PI)
+		rtn.y -= 2 * XM_2PI;
+	if (rtn.y < -XM_2PI)
+		rtn.y += 2 * XM_2PI;
+	if (rtn.z >= XM_2PI)
+		rtn.z -= 2 * XM_2PI;
+	if (rtn.z < -XM_2PI)
+		rtn.z += 2 * XM_2PI;
 	return rtn;
 }

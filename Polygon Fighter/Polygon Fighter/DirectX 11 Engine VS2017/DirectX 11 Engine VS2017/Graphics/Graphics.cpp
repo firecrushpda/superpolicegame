@@ -812,6 +812,30 @@ bool Graphics::InitializeScene()
 
 		//physics
 		physxbase.initPhysics();
+		
+		//read map gameobject and create buildings
+		//const PxF32 boxHalfHeights[1] = { 5.0f };
+		//const PxF32 boxZ[1] = { 20.0f };
+		for (PxU32 i = 0; i < mapgo.size(); i++)
+		{
+			auto go = mapgo.at(i);
+			auto co = go->GetCollisionObject();
+			
+			PxTransform t(PxVec3(co->obb.Center.x, co->obb.Center.y, co->obb.Center.z), PxQuat(PxIdentity));
+			PxRigidStatic* rd = physxbase.gPhysics->createRigidStatic(t);
+
+			PxBoxGeometry boxGeom(PxVec3(co->obb.Extents.x, co->obb.Extents.y, co->obb.Extents.z));
+			PxShape* shape = PxRigidActorExt::createExclusiveShape(*rd, boxGeom, *physxbase.gMaterial);
+
+			PxFilterData simFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_WHEEL, PxPairFlag::eMODIFY_CONTACTS | PxPairFlag::eDETECT_CCD_CONTACT, 0);
+			shape->setSimulationFilterData(simFilterData);
+			PxFilterData qryFilterData;
+			setupDrivableSurface(qryFilterData);
+			shape->setQueryFilterData(qryFilterData);
+
+			physxbase.gScene->addActor(*rd);
+		}
+
 		pgotest.Initialize("", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, &physxbase);
 		car.actor = physxbase.gVehicle4W->getRigidDynamicActor();
 
@@ -1272,9 +1296,9 @@ void Graphics::LoadMap() {
 						go->DeepCopy(*primitivesgo.at(primitiveindex));
 						mapgo.push_back(go);
 					}
-					go->SetPosition(XMFLOAT3(px *10, py*10, pz * 10));
+					go->SetPosition(XMFLOAT3(px * 10, py * 10, pz * 10));
 					go->SetRotation(XMFLOAT3(rx, ry, rz));
-					go->SetScale(sx * 10, sy *10, sz *10);
+					go->SetScale(sx * 10, sy * 10, sz * 10);
 					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
 					go->SetCollisionBoxView(false);
 				}

@@ -25,7 +25,7 @@ void PhysXBasic::initPhysics()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-	gMaterial = gPhysics->createMaterial(0.1f, 0.1f, 0.12f);//x5
+	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);//x5
 
 	gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(PxTolerancesScale()));
 
@@ -75,25 +75,7 @@ void PhysXBasic::initPhysics()
 
 	startBrakeMode();
 
-	//read map gameobject and create buildings
-	const PxF32 boxHalfHeights[1] = { 5.0f };
-	const PxF32 boxZ[1] = { 20.0f };
-	for (PxU32 i = 0; i < 1; i++)
-	{
-		PxTransform t(PxVec3(0, boxHalfHeights[i], boxZ[i]), PxQuat(PxIdentity));
-		PxRigidStatic* rd = gPhysics->createRigidStatic(t);
-
-		PxBoxGeometry boxGeom(PxVec3(3.0f, boxHalfHeights[i], 3.0f));//
-		PxShape* shape = PxRigidActorExt::createExclusiveShape(*rd, boxGeom, *gMaterial);
-
-		PxFilterData simFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_WHEEL, PxPairFlag::eMODIFY_CONTACTS | PxPairFlag::eDETECT_CCD_CONTACT, 0);
-		shape->setSimulationFilterData(simFilterData);
-		PxFilterData qryFilterData;
-		setupDrivableSurface(qryFilterData);
-		shape->setQueryFilterData(qryFilterData);
-
-		gScene->addActor(*rd);
-	}
+	
 }
 
 VehicleDesc PhysXBasic::initVehicleDesc()
@@ -114,7 +96,7 @@ VehicleDesc PhysXBasic::initVehicleDesc()
 	const PxF32 wheelMass = 4.0f;//20.0f
 	const PxF32 wheelRadius = 0.1f;//0.5f
 	const PxF32 wheelWidth = 0.08f;//0.4f
-	const PxF32 wheelMOI = 0.1f * wheelMass * wheelRadius * wheelRadius;//0.5f
+	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;//0.5f
 	const PxU32 nbWheels = 4;
 
 	VehicleDesc vehicleDesc;
