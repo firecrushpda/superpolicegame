@@ -29,7 +29,7 @@ bool Car::CarInitialize(const std::string & filePath, ID3D11Device * device,
 	}
 		
 	
-	mMaxSpeed = 1.5f;
+	mMaxSpeed = 38.0f;
 	mCarMaxSpeed = XMFLOAT3(0.03f, 0.0f, 1.5f); // Steering, Up, Fowards//XMFLOAT3(0.015f, 0.0f, 8.0f)
 	mCarSpeed = 0.0f;
 	mCarVelocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -69,19 +69,21 @@ void Car::Update(float delta_time, const XMMATRIX & viewProjectionMatrix)
 	if (isCharacter)
 	{
 		auto trans = actor->getGlobalPose();
+
 		float angle; PxVec3 rot;
 		trans.q.toRadiansAndUnitAxis(angle, rot);
-
-		auto xmrot = XMFLOAT3(rot.x * angle, rot.y * angle, rot.z * angle);
-		xmrot = Adjustrot(xmrot);
-		auto xmpos = XMFLOAT3(trans.p.x, trans.p.y, trans.p.z);
+		auto xmrot = XMFLOAT3(rot.x / 1000000.0f, rot.y * angle, rot.z / 1000000.0f);
+	
+		//xmrot = Adjustrot(xmrot);
 		auto xmstrot = XMLoadFloat3(&xmrot);
-		auto xmstpos = XMLoadFloat3(&xmpos);
+
 		if (CanUseVector(xmstrot)) {
 			carrender.SetRotation(xmrot);
 			taxirender.SetRotation(xmrot);
 		}
 		
+		auto xmpos = XMFLOAT3(trans.p.x, trans.p.y, trans.p.z);
+		auto xmstpos = XMLoadFloat3(&xmpos);
 		if (CanUseVector(xmstpos)) {
 			carrender.SetPosition(xmpos);
 			taxirender.SetPosition(xmpos);
@@ -142,28 +144,11 @@ void Car::Draw( const XMMATRIX & viewProjectionMatrix, ConstantBuffer<CB_PS_IBLS
 			carbar.Draw(viewProjectionMatrix);
 	}
 
-	//deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	//for (size_t i = 0; i <  carrender.GetCollisionObject()->debugmesh.size(); i++)
-	//{
-	//	auto carscl = carrender.GetScaleFloat3();
-	//	auto carrot = carrender.GetRotationFloat3();
-	//	auto carpos = carrender.GetPositionFloat3();
-	//	auto coobb = carrender.GetCollisionObject()->originobb;
-	//	auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
-	//		* XMMatrixRotationRollPitchYaw(carrot.x, carrot.y, carrot.z)
-	//		* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
-	//	coobb.Transform(coobb, coworldMatrix);
-	//	this->cb_vs_vertexshader->data.wvpMatrix = coworldMatrix * viewProjectionMatrix;//offsetmat
-	//	this->cb_vs_vertexshader->data.worldMatrix = coworldMatrix;//offsetmat
-	//	this->cb_vs_vertexshader->ApplyChanges();
-
-	//	//carrender.GetCollisionObject()->debugmesh.at(i).Draw();
-	//}
-
 	cbps_iblstatus.data.dissolveThreshold = 0;
 	cbps_iblstatus.ApplyChanges();
 }
 
+//unuse
 void Car::UpdateForce() 
 {
 	mNetForce = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -176,6 +161,7 @@ void Car::UpdateForce()
 	}
 }
 
+//unuse
 void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameObject*> mapgo)
 {
 	mCarVelocity.z += ((accelfactor * mCarMaxSpeed.z) - mCarVelocity.z) * mCarAcceleration.z * delta;
@@ -183,47 +169,11 @@ void Car::MoveFowards(float delta, float accelfactor,std::vector<RenderableGameO
 	XMFLOAT3 dir = carrender.GetPositionFloat3();
 	XMFLOAT3 rot = carrender.GetRotationFloat3();
 
-	//collision check
-	bool canmove = true;
-	//auto carscl = carrender.GetScaleFloat3();
-	//auto carrot = carrender.GetRotationFloat3();
-	//auto carpos = carrender.GetPositionFloat3();
-	//auto coobb = carrender.GetCollisionObject()->originobb;
-	//auto coworldMatrix = XMMatrixScaling(carscl.x, carscl.y, carscl.z)
-	//	* XMMatrixRotationRollPitchYaw(carrot.x , carrot.y, carrot.z )
-	//	* XMMatrixTranslation(carpos.x + mCarVelocity.z * sin(carrot.y), carpos.y, carpos.z + mCarVelocity.z * cos(carrot.y));
-	//coobb.Transform(coobb, coworldMatrix);
-	//for (size_t i = 0; i < mapgo.size(); i++)
-	//{
-	//	if (mapgo.at(i)->b_modelview)
-	//	{
-	//		auto obb = mapgo.at(i)->GetCollisionObject()->obb;
-	//		DirectX::ContainmentType coresult = coobb.Contains(obb);
-	//		if (coresult == 2 || coresult == 1)
-	//		{
-	//			m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
-	//			canmove = false;
-	//			break;
-	//		}
-	//	}
-	//}
-	
-	if (canmove)
-	{
-		mCollsionOn = true;
-		dir.x += mCarVelocity.z * sin(rot.y);
-		dir.z += mCarVelocity.z * cos(rot.y);
-	}
-	else
-	{
-		mCollsionOn = false;
-		mCarVelocity.z = 0;
-	}
-
 	carrender.SetPosition(dir);
 	taxirender.SetPosition(dir);
 }
 
+//unuse
 float Car::CalcWheelSpeed(float delta)
 {
 	float radius = 0.05f;
@@ -233,6 +183,7 @@ float Car::CalcWheelSpeed(float delta)
 	return wheelAngle * 10;
 }
 
+//unuse
 void Car::Turn(float delta, float accelfactor)
 {
 	auto rot = carrender.GetRotationFloat3();
@@ -253,10 +204,16 @@ void Car::Turn(float delta, float accelfactor)
 
 }
 
-
 float Car::GetCarVelocity() 
 {
-	return mCarVelocity.z;
+	//return mCarVelocity.z;
+	if (isCharacter)
+	{
+		physx::PxTransform transform = actor->getGlobalPose();
+		PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
+		PxVec3 vel = actor->getLinearVelocity();
+		return dir.dot(vel);
+	}
 }
 
 float Car::GetMaxSpeed() 
@@ -299,5 +256,14 @@ XMFLOAT3 Car::Adjustrot(XMFLOAT3 vec)
 		rtn.z -= 2 * XM_2PI;
 	if (rtn.z < -XM_2PI)
 		rtn.z += 2 * XM_2PI;
+	return rtn;
+}
+
+
+DirectX::XMMATRIX Car::GetMatrixFromPxMatrix(PxMat44 mat) {
+	auto rtn = XMMatrixSet(mat.column0.x, mat.column0.y, mat.column0.z, mat.column0.w,
+		mat.column1.x, mat.column1.y, mat.column1.z, mat.column1.w,
+		mat.column2.x, mat.column2.y, mat.column2.z, mat.column2.w,
+		mat.column3.x, mat.column3.y, mat.column3.z, mat.column3.w);
 	return rtn;
 }

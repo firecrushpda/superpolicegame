@@ -13,6 +13,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 {
 	
 	timer.Start();
+	chasecarcdtimer.Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
 		return false;
@@ -43,7 +44,6 @@ void Engine::Update()
 {
 	// 時間の初期化
 	float dt = 1.0;//timer.GetMilisecondsElapsed();
-	timer.Restart();
 
 	gfx.m_Sound->Update();
 
@@ -94,17 +94,240 @@ void Engine::Update()
 
 	if (gfx.gs == GameState::score)
 	{
-		while (!keyboard.KeyBufferIsEmpty())
+		if (gfx.scorepageindex == 0)
 		{
-			KeyboardEvent kbe = keyboard.ReadKey();
-			unsigned char keycode = kbe.GetKeyCode();
-			if (kbe.IsPress())
+			while (!keyboard.KeyBufferIsEmpty())
 			{
-				if (keycode == '\r')
+				KeyboardEvent kbe = keyboard.ReadKey();
+				unsigned char keycode = kbe.GetKeyCode();
+				if (kbe.IsPress())
 				{
-					gfx.Fade(GameState::title);
+					if (keycode == '\r')
+					{
+						gfx.scorepageindex++;
+						/*if (gfx.scorepageindex > 1)
+							gfx.Fade(GameState::title);*/
+					}
 				}
 			}
+
+			int score = gfx.gamescore;
+			score >= 999999 ? score = 999999 : score = score;
+			for (size_t i = 0; i < 6; i++)
+			{
+				float dig = (float)(score % 10);
+				score = (int)score / 10;
+				std::vector<Vertex2D> vertexData =
+				{
+					Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+					Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+					Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+					Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+				};
+				gfx.scoredigf[i].UpdateUV(vertexData);
+			}
+
+			float totalscore = gfx.gamescore * (gfx.car.catchcount + 1);
+			auto tscore = totalscore;
+			tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+			for (size_t i = 0; i < 6; i++)
+			{
+				float dig = (float)((int)tscore % 10);
+				tscore = (int)tscore / 10;
+				std::vector<Vertex2D> vertexData =
+				{
+					Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+					Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+					Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+					Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+				};
+				gfx.tscoredigf[i].UpdateUV(vertexData);
+			}
+
+			std::vector<Vertex2D> vertexData =
+			{
+				Vertex2D(-0.5f, -0.5f, 0.0f, gfx.car.catchcount * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+				Vertex2D(0.5f, -0.5f, 0.0f, gfx.car.catchcount * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+				Vertex2D(-0.5, 0.5, 0.0f, gfx.car.catchcount * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+				Vertex2D(0.5f, 0.5, 0.0f, gfx.car.catchcount * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+			};
+			gfx.catchcardig.UpdateUV(vertexData);
+
+			if (totalscore < 1000 && totalscore >= 0)
+			{
+				gfx.rank1idx = 3;
+			}
+			else if (totalscore < 2000 && totalscore >= 1000)
+			{
+				gfx.rank1idx = 2;
+			}
+			else if (totalscore < 3000 && totalscore >= 2000)
+			{
+				gfx.rank1idx = 1;
+			}
+			else if (totalscore < 4000 && totalscore >= 3000)
+			{
+				gfx.rank1idx = 0;
+			}
+			else if (totalscore >= 4000)
+			{
+				gfx.rank1idx = 18;
+			}
+
+			std::vector<Vertex2D> vertexData1 =
+			{
+				Vertex2D(-0.5f, -0.5f, 0.0f, gfx.rank1idx * 1.0f / 28.0f + 0.0f, 0.0f), //TopLeft
+				Vertex2D(0.5f, -0.5f, 0.0f, gfx.rank1idx * 1.0f / 28.0f + 1.0f / 28.0f , 0.0f), //TopRight
+				Vertex2D(-0.5, 0.5, 0.0f, gfx.rank1idx * 1.0f / 28.0f + 0.0f, 1.0f), //Bottom Left 
+				Vertex2D(0.5f, 0.5, 0.0f, gfx.rank1idx * 1.0f / 28.0f + 1.0f / 28.0f , 1.0f), //Bottom Right
+			};
+			gfx.rank1.UpdateUV(vertexData1);
+		}
+		else if (gfx.scorepageindex == 1)
+		{
+		/*	if (gfx.editname)
+			{
+				
+			}
+			else
+			{*/
+				//top1
+				for (size_t i = 0; i < 3; i++)
+				{
+					std::vector<Vertex2D> vertexData1 =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, gfx.top1[i] * 1.0f / 28.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, gfx.top1[i] * 1.0f / 28.0f + 1.0f / 28.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, gfx.top1[i] * 1.0f / 28.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, gfx.top1[i] * 1.0f / 28.0f + 1.0f / 28.0f , 1.0f), //Bottom Right
+					};
+					gfx.top1name[i].UpdateUV(vertexData1);
+				}
+
+				auto tscore = gfx.top1score;
+				tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+				for (size_t i = 0; i < 6; i++)
+				{
+					float dig = (float)((int)tscore % 10);
+					tscore = (int)tscore / 10;
+					std::vector<Vertex2D> vertexData =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+					};
+					gfx.top1scoredigf[i].UpdateUV(vertexData);
+				}
+
+				//top2
+				for (size_t i = 0; i < 3; i++)
+				{
+					std::vector<Vertex2D> vertexData1 =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, gfx.top2[i] * 1.0f / 28.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, gfx.top2[i] * 1.0f / 28.0f + 1.0f / 28.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, gfx.top2[i] * 1.0f / 28.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, gfx.top2[i] * 1.0f / 28.0f + 1.0f / 28.0f , 1.0f), //Bottom Right
+					};
+					gfx.top2name[i].UpdateUV(vertexData1);
+				}
+
+				tscore = gfx.top2score;
+				tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+				for (size_t i = 0; i < 6; i++)
+				{
+					float dig = (float)((int)tscore % 10);
+					tscore = (int)tscore / 10;
+					std::vector<Vertex2D> vertexData =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+					};
+					gfx.top2scoredigf[i].UpdateUV(vertexData);
+				}
+
+				//top3
+				for (size_t i = 0; i < 3; i++)
+				{
+					std::vector<Vertex2D> vertexData1 =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, gfx.top3[i] * 1.0f / 28.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, gfx.top3[i] * 1.0f / 28.0f + 1.0f / 28.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, gfx.top3[i] * 1.0f / 28.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, gfx.top3[i] * 1.0f / 28.0f + 1.0f / 28.0f , 1.0f), //Bottom Right
+					};
+					gfx.top3name[i].UpdateUV(vertexData1);
+				}
+
+				tscore = gfx.top3score;
+				tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+				for (size_t i = 0; i < 6; i++)
+				{
+					float dig = (float)((int)tscore % 10);
+					tscore = (int)tscore / 10;
+					std::vector<Vertex2D> vertexData =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+					};
+					gfx.top3scoredigf[i].UpdateUV(vertexData);
+				}
+
+				//top4
+				for (size_t i = 0; i < 3; i++)
+				{
+					std::vector<Vertex2D> vertexData1 =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, gfx.top4[i] * 1.0f / 28.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, gfx.top4[i] * 1.0f / 28.0f + 1.0f / 28.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, gfx.top4[i] * 1.0f / 28.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, gfx.top4[i] * 1.0f / 28.0f + 1.0f / 28.0f , 1.0f), //Bottom Right
+					};
+					gfx.top4name[i].UpdateUV(vertexData1);
+				}
+
+				tscore = gfx.top4score;
+				tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+				for (size_t i = 0; i < 6; i++)
+				{
+					float dig = (float)((int)tscore % 10);
+					tscore = (int)tscore / 10;
+					std::vector<Vertex2D> vertexData =
+					{
+						Vertex2D(-0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 0.0f, 0.0f), //TopLeft
+						Vertex2D(0.5f, -0.5f, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 0.0f), //TopRight
+						Vertex2D(-0.5, 0.5, 0.0f, dig * 1.0f / 11.0f + 0.0f, 1.0f), //Bottom Left 
+						Vertex2D(0.5f, 0.5, 0.0f, dig * 1.0f / 11.0f + 1.0f / 11.0f , 1.0f), //Bottom Right
+					};
+					gfx.top4scoredigf[i].UpdateUV(vertexData);
+				}
+
+				//quit
+				while (!keyboard.KeyBufferIsEmpty())
+				{
+					KeyboardEvent kbe = keyboard.ReadKey();
+					unsigned char keycode = kbe.GetKeyCode();
+					if (kbe.IsPress())
+					{
+						if (keycode == '\r')
+						{
+							gfx.scorepageindex++;
+							gfx.gamescore = 0;
+							gfx.car.catchcount = 0;
+							//gfx.savescore
+							if (gfx.scorepageindex > 1)
+								gfx.Fade(GameState::title);
+						}
+					}
+				}
+			//}
+
+			
 		}
 	}
 #pragma region GameState::game
@@ -113,6 +336,35 @@ void Engine::Update()
 		if (!gfx.gamepause)
 		{
 			auto cameratype = gfx.Camera3D.cameratype;
+
+			//update dynamic physxobject
+			PxShape* shapes[128];
+			unsigned int index = 0;
+			for (size_t i = 0; i < gfx.obstaclephysics.size(); i++)
+			{
+				auto phyobs = gfx.obstaclephysics.at(i);
+
+				const PxU32 nbShapes = phyobs->getNbShapes();
+				PX_ASSERT(nbShapes <= 128);
+				phyobs->getShapes(shapes, nbShapes);
+				const bool sleeping = phyobs->is<PxRigidDynamic>() ? phyobs->is<PxRigidDynamic>()->isSleeping() : false;
+
+				for (PxU32 j = 0; j < nbShapes; j++)
+				{
+					const PxMat44 shapePose(PxShapeExt::getGlobalPose(*shapes[j], *phyobs));
+					const PxGeometryHolder h = shapes[j]->getGeometry();
+
+					//auto mat = GetMatrixFromPxMatrix(shapePose);
+					auto mat = XMMatrixSet(shapePose.column0.x, shapePose.column0.y, shapePose.column0.z, shapePose.column0.w,
+										   shapePose.column1.x, shapePose.column1.y, shapePose.column1.z, shapePose.column1.w,
+										   shapePose.column2.x, shapePose.column2.y, shapePose.column2.z, shapePose.column2.w,
+										   shapePose.column3.x, shapePose.column3.y, shapePose.column3.z, shapePose.column3.w);
+					//gfx.obstaclego.at(index)->GetMesh().at(0).transformMatrix = mat;
+					gfx.obstaclego.at(index)->SetWorldMatirx(mat);
+					index++;
+				}
+			}
+			
 
 			// キーボードの読み込む
 			while (!keyboard.CharBufferIsEmpty())
@@ -283,8 +535,11 @@ void Engine::Update()
 				PxVec3 vel = Actor->getLinearVelocity();
 
 				gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+
+				
 				if (keyboard.KeyIsPressed('W'))
 				{
+					gfx.physxbase.gVehicle4W->getRigidDynamicActor()->addForce(dir * 10000);
 					if (keyboard.KeyIsPressed('A'))
 					{
 						gfx.physxbase.startTurnHardLeftMode();
@@ -298,15 +553,10 @@ void Engine::Update()
 						gfx.physxbase.releaseAllControls();
 						gfx.physxbase.startAccelerateForwardsMode();
 					}
-					if (keyboard.KeyIsPressed(VK_SHIFT))
-					{
-						if (dir.dot(vel) < 50)
-							gfx.car.actor->addForce(1000 * dir);
-					}
 				}
 				else if (keyboard.KeyIsPressed('S'))
 				{
-
+					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 					if (keyboard.KeyIsPressed('A'))
 					{
 						gfx.physxbase.startTurnHardLeftMode();
@@ -317,103 +567,15 @@ void Engine::Update()
 					}
 					else
 					{
+						gfx.physxbase.releaseAllControls();
 						gfx.physxbase.startAccelerateReverseMode();
 					}
-					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
+					
 				}
 				else
 				{
 					gfx.physxbase.releaseAllControls();
 				}
-				//control backup
-				//PxRigidDynamic* Actor = gfx.car.actor;
-				//physx::PxTransform transform = Actor->getGlobalPose();
-
-				//PxVec3 dir = transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f));
-				//PxVec3 vel = Actor->getLinearVelocity();
-				//if (keyboard.KeyIsPressed('W'))
-				//{
-				//	if (gfx.physxbase.gIsVehicleInAir) 
-				//	{
-				//		//Actor->addTorque(0.025f *transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
-				//	}
-				//	if (vel.normalize() < 15)
-				//	{
-				//		gfx.physxbase.startAccelerateForwardsMode();
-				//	}
-				//	else
-				//	{
-				//		gfx.physxbase.startAccelerateForwardsSecond();
-				//	}
-				//}
-				//else if (keyboard.KeyIsPressed('S'))
-				//{
-				//	if (gfx.physxbase.gIsVehicleInAir)
-				//	{
-				//		Actor->addTorque(-0.025f* transform.q.rotate(PxVec3(1.0f, 0.0f, 0.0f)), PxForceMode::eVELOCITY_CHANGE);
-				//	}
-				//	// Reculer
-				//	gfx.physxbase.startAccelerateReverseMode();
-				//}
-				//else {
-				//	gfx.physxbase.releaseAllControls();
-				//}
-
-				//if (keyboard.KeyIsPressed(VK_SHIFT))
-				//{
-				//	if (dir.dot(vel) < 50)
-				//		Actor->addForce(25 * dir);
-				//}
-				//else
-				//{
-				//	if (vel.normalize() > 25) {
-				//		Actor->addForce(-5 * vel.getNormalized());
-				//	}
-				//}
-
-				//if (keyboard.KeyIsPressed('A'))
-				//{
-				//	if (gfx.physxbase.gIsVehicleInAir)
-				//	{
-				//		Actor->addTorque(-0.05f * transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f)), PxForceMode::eVELOCITY_CHANGE);
-				//	}
-				//	gfx.physxbase.startTurnHardLeftMode();
-				//}
-				//else if (keyboard.KeyIsPressed('D'))
-				//{
-				//	if (gfx.physxbase.gIsVehicleInAir)
-				//	{
-				//		Actor->addTorque(0.05f * transform.q.rotate(PxVec3(0.0f, 0.0f, 1.0f)), PxForceMode::eVELOCITY_CHANGE);
-				//	}
-				//	gfx.physxbase.startTurnHardRightMode();
-				//}
-				//else {
-				//	gfx.physxbase.releaseAllControls();
-				//}
-
-				/*if (keyboard.KeyIsPressed('W'))
-				{
-					this->gfx.car.MoveFowards(dt, 1.0f,gfx.mapgo);
-					mIsInput = true;
-				}
-				else if (keyboard.KeyIsPressed('S'))
-				{
-					this->gfx.car.MoveFowards(dt, -1.0f, gfx.mapgo);
-					mIsInput = true;
-				}
-
-				if (keyboard.KeyIsPressed('A'))
-				{
-					this->gfx.car.Turn(dt, -1.0f);
-				}
-				else if (keyboard.KeyIsPressed('D'))
-				{
-					this->gfx.car.Turn(dt, 1.0f);
-				}
-				else
-				{
-					this->gfx.car.Turn(dt, 0.0f);
-				}*/
 			}
 
 			if (cameratype == 2)
@@ -538,7 +700,7 @@ void Engine::Update()
 				}
 				gfx.Camera3D.SetPosition(gfx.Camera3D.mCameraWorkTrack_Point.at(gfx.Camera3D.cwpointindex));
 				gfx.Camera3D.SetLookAtPos(gfx.Camera3D.focusgo->GetPositionFloat3());
-			}
+			}	
 
 			//camera works line
 			if (cameratype == 5)
@@ -600,11 +762,6 @@ void Engine::Update()
 
 			}
 
-			/*if (mIsInput == false)
-			{
-				this->gfx.car.MoveFowards(dt, 0.0f, gfx.mapgo);
-			}*/
-
 			//update car
 			this->gfx.car.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 
@@ -618,12 +775,12 @@ void Engine::Update()
 			gfx.moneyui.Update();
 
 			//update chase car
-			this->gfx.chasecar.Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
+			gfx.cac->mAICar->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 			gfx.cac->Update(1.0f / 60.0f);
 
 			//update chase car position sign
 			{
-				auto chasecarvecpos = gfx.chasecar.carrender.GetPositionVector();
+				auto chasecarvecpos = gfx.cac->mAICar->carrender.GetPositionVector();
 				auto camviewport = gfx.Camera3D.viewport;
 				auto vec = XMVector3Project(chasecarvecpos, camviewport.TopLeftX, camviewport.TopLeftY,
 					camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
@@ -651,7 +808,17 @@ void Engine::Update()
 				auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 				XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(gfx.Camera3D.roundviewrot.x, gfx.Camera3D.roundviewrot.y, 0.0f);
 				auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
-				auto testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back;
+				XMVECTOR testpos;
+				if (gfx.car.GetCarVelocity() <= 17.0f)
+				{
+					testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back;
+				}
+				else
+				{
+					testpos = gfx.car.carrender.GetPositionVector() + vec_backward * gfx.Camera3D.cf_back * gfx.car.GetCarVelocity() / 17.0f;
+				}
+				
+				
 				DirectX::XMFLOAT3 temp;
 				DirectX::XMStoreFloat3(&temp, testpos);
 				temp = DirectX::XMFLOAT3(temp.x, temp.y + gfx.Camera3D.cf_height, temp.z);
@@ -677,15 +844,13 @@ void Engine::Update()
 
 			}
 
-			//input sign
-			mIsInput = false;
-
 			//update map game object
 			for (size_t i = 0; i < gfx.mapgo.size(); i++)
 			{
 				//gfx.mapgo.at(i)->AdjustRotation(XMFLOAT3(0, 0.01, 0));
 				gfx.mapgo.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix());
 			}
+
 			//update npc
 			for (size_t i = 0; i < gfx.npc.size(); i++)
 				gfx.npc.at(i)->Update(1.0f, gfx.Camera3D.GetViewMatrix() * gfx.Camera3D.GetProjectionMatrix(),
@@ -694,7 +859,7 @@ void Engine::Update()
 			//collision
 			//衝突判定
 			auto cocar = gfx.car.carrender.GetCollisionObject();
-			auto cochasecar = gfx.chasecar.carrender.GetCollisionObject();
+			auto cochasecar = gfx.cac->mAICar->carrender.GetCollisionObject();
 			auto cocamera = gfx.Camera3D.GetCameraCollision();
 
 			//frustum culling
@@ -715,22 +880,32 @@ void Engine::Update()
 				if (coresult == 2 || coresult == 1)
 				{
 					gfx.car.warninguiflag = true;
-					gfx.cac->hasbeenfound = true;
+					if (gfx.cac->hasbeenfound == false)
+					{
+						gfx.cac->hasbeenfound = true;
+						gfx.car.StartDissolveAnimaion();
+						gfx.m_Sound->StopSound();
+						gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_chase);
+					}
 				}
 				else
 				{
 					gfx.car.warninguiflag = false;
 				}
 
+				//catch car
 				coresult = cocar->obb.Contains(cochasecar->obb);
 				if (coresult == 2 || coresult == 1) {
-					//catch car
+					
 					gfx.gamepause = true;
+					gfx.physxbase.gStepflag = false;
 
+					gfx.gamescore += 500;
 					//reset catch car animaiton status
 					gfx.car.catchcount++;
 					gfx.catchcar_animationsequenceflag = true;
 					gfx.cac->possign_flag = false;
+					//gfx.car.warninguiflag = false;
 					gfx.catchcar_animaitonindex = 0;
 					gfx.gamepausetimer.Restart();
 					gfx.Camera3D.DeepCopyTo(&tempcam);
@@ -745,7 +920,7 @@ void Engine::Update()
 				{
 					DirectX::ContainmentType coresult = cocar->obb.Contains(npc->starttrigger.obb);
 					if (npc->npcstate == 0 && (coresult == 2 || coresult == 1)
-						&& std::fabs(vel) <= 0.5 && !gfx.car.haspassenger && npc->starttrigger.collisionuse)
+						&& std::fabs(vel) <= 3 && !gfx.car.haspassenger && npc->starttrigger.collisionuse)
 					{
 						//hit girl
 						//change npcstate
@@ -764,27 +939,36 @@ void Engine::Update()
 					if (npc->endtrigger.collisionuse)
 					{
 						DirectX::ContainmentType coresult = cocar->obb.Contains(npc->endtrigger.obb);
-						if ((coresult == 2 || coresult == 1) && std::fabs(vel) <= 0.5 && gfx.car.haspassenger)
+						if ((coresult == 2 || coresult == 1) && std::fabs(vel) <= 3 && gfx.car.haspassenger)
 						{
 							//hit destination point
 							//change npcstate
 							npc->npcstate = 3;
+							npc->npctimer.Restart();
 							gfx.moneyui.Hide();
 							gfx.car.haspassenger = false;
 							npc->endtrigger.collisionuse = false;
 
 							//
-							gfx.gamescore += gfx.car.cardistance / 3.0f * 57;
+							gfx.gamescore += gfx.car.cardistance * 10;
+							gfx.car.cardistance = 0;
 						}
 					}
 				}
 			}
 
-			//npc count down end
+			//count down end
 			if (gfx.cac->countdown <= 0)
 			{
-				gfx.cac->countdown = 60;
-				gfx.Fade(GameState::score);
+				gfx.cac->CarEscape();
+				gfx.car.StartDissolveAnimaion();
+				gfx.m_Sound->StopSound();
+				gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_taxi);
+				if (gfx.cac->currentcarindex == 2)
+				{
+					gfx.Fade(GameState::score);
+					return;
+				}
 			}
 		}
 		else //game pause
@@ -837,56 +1021,76 @@ void Engine::Update()
 
 
 			//catch car animation
-			//change camera to 3 position and stay 1/3 second
+			//change camera to 3 position and stay 1 second
 			//make some noise
 			if (gfx.catchcar_animationsequenceflag) 
 			{
 				auto pausetime = gfx.gamepausetimer.GetMilisecondsElapsed();
+				gfx.b_siflag = true;
 				if (pausetime >= 1000){
 					//voice
 					//change camera
 					gfx.catchcar_animaitonindex++;
 					gfx.gamepausetimer.Restart();
+					
 					if (gfx.catchcar_animaitonindex >= gfx.catchcar_animaitonmax)
 					{
 						//fadeback to the screen
 						gfx.gamepause = false;
 						gfx.catchcar_animationsequenceflag = false;
 						gfx.catchcar_animaitonindex = 0;
+						gfx.physxbase.gStepflag = true;
 						//caught setting
-						gfx.cac->possign_flag = false;
-						gfx.chasecar.carrender.b_use = false;
-						gfx.chasecar.carrender.GetCollisionObject()->collisionuse = false;
+						
+						gfx.cac->canmove = false;
+						gfx.cac->CarEscape();
+
 						gfx.gamepausetimer.Stop();
+						gfx.b_siflag = false;
+						gfx.b_thiflag = false;
 						gfx.Fade(GameState::game);
+
+						if (gfx.cac->currentcarindex == 2)
+						{
+							gfx.cac->currentcarindex = 0;
+							gfx.Fade(GameState::score);
+							return;
+						}
 						//tempcam.DeepCopyTo(&gfx.Camera3D);
 					}
 				}
 
 				if (gfx.catchcar_animaitonindex == 0)
 				{
-					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetForwardVector() * 2;
+					gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
+					//gfx.m_Sound->PlaySE(Sound::SOUND_LABEL_SE_syoutotu);
+					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetForwardVector() * 30;
+					DirectX::XMFLOAT3 temp;
+					DirectX::XMStoreFloat3(&temp, testpos);
+					temp = DirectX::XMFLOAT3(temp.x, temp.y + 5, temp.z);
+					gfx.Camera3D.SetPosition(temp);
+					gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
+				}
+				else if (gfx.catchcar_animaitonindex == 1)
+				{
+					gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
+					//gfx.m_Sound->PlaySE(Sound::SOUND_LABEL_SE_syoutotu);
+					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetLeftVector() * 30;
 					DirectX::XMFLOAT3 temp;
 					DirectX::XMStoreFloat3(&temp, testpos);
 					temp = DirectX::XMFLOAT3(temp.x, temp.y + 3, temp.z);
 					gfx.Camera3D.SetPosition(temp);
 					gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 				}
-				else if (gfx.catchcar_animaitonindex == 1)
-				{
-					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetLeftVector() * 2;
-					DirectX::XMFLOAT3 temp;
-					DirectX::XMStoreFloat3(&temp, testpos);
-					temp = DirectX::XMFLOAT3(temp.x, temp.y - 0.3, temp.z);
-					gfx.Camera3D.SetPosition(temp);
-					gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
-				}
 				else if (gfx.catchcar_animaitonindex == 2)
 				{
-					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetRightVector() * 2;
+					gfx.m_Sound->PlayIndexSound(Sound::SOUND_LABEL_SE_syoutotu);
+					//gfx.m_Sound->PlaySE(Sound::SOUND_LABEL_SE_syoutotu);
+					gfx.b_thiflag = true;
+					auto testpos = gfx.car.carrender.GetPositionVector() + gfx.car.carrender.GetRightVector() * 20;
 					DirectX::XMFLOAT3 temp;
 					DirectX::XMStoreFloat3(&temp, testpos);
-					temp = DirectX::XMFLOAT3(temp.x, temp.y + 1, temp.z);
+					temp = DirectX::XMFLOAT3(temp.x, temp.y + 2.5, temp.z);
 					gfx.Camera3D.SetPosition(temp);
 					gfx.Camera3D.SetLookAtPos(gfx.car.carrender.GetPositionFloat3());
 				}
@@ -1082,6 +1286,7 @@ void Engine::ChangeStats(GameState state)
 		break;
 	case GameState::score:
 		gfx.stage.b_use = false;
+		gfx.ResetScore();
 		break;
 	case GameState::tutorial:
 		//reset tutorial

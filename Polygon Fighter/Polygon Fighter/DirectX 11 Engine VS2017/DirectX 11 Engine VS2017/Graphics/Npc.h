@@ -31,6 +31,8 @@ public:
 
 	MoneyUI* moneyui;
 
+	bool b_reachdestinationSign = false;
+
 	CollsionObject starttrigger;
 	CollsionObject endtrigger;
 	XMFLOAT3 tgpos = XMFLOAT3(200, 0, 200);
@@ -45,6 +47,7 @@ public:
 
 	bool uiflag = false;
 	Sprite npcUI_thank;
+	Sprite npcUI_reach;
 
 	bool Init(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, 
 		ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d

@@ -39,6 +39,8 @@ public:
 
 	static DirectX::XMMATRIX GetMatrixFromPxMatrix(PxMat44 mat);
 
+	
+
 private:
 	ID3D11Device * device;
 	ID3D11DeviceContext * deviceContext;

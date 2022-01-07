@@ -44,6 +44,7 @@ bool PhyGameObject::Initialize(const std::string & filePath, ID3D11Device * devi
 				//renderGeometry
 				meshes.push_back(ProcessDebugMesh(h.any()));
 				meshes.at(meshes.size() - 1).transformMatrix = mat;
+
 			}
 		}
 	}
@@ -60,6 +61,7 @@ void PhyGameObject::Draw(const XMMATRIX & viewProjectionMatrix)
 {
 	if (!b_use) return;
 
+	//physx debug mesh draw by driectx engine
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix

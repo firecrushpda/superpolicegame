@@ -41,6 +41,7 @@ protected:
 
 	DirectX::XMVECTOR posVector;//計算用ポジション
 	DirectX::XMVECTOR rotVector;//計算用ローテーション
+
 	DirectX::XMFLOAT3 pos;//ポジション
 	DirectX::XMFLOAT3 rot;//ローテーション
 

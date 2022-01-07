@@ -25,7 +25,7 @@ void PhysXBasic::initPhysics()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);//x5
+	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);//0.5f, 0.5f, 0.6f
 
 	gCooking = PxCreateCooking(PX_PHYSICS_VERSION, *gFoundation, PxCookingParams(PxTolerancesScale()));
 
@@ -64,10 +64,10 @@ void PhysXBasic::initPhysics()
 	gVehicleModeTimer = 0.0f;
 	gVehicleOrderProgress = 0;
 
-	gSteerVsForwardSpeedTable.addPair(0.0f, 0.75f);
-	gSteerVsForwardSpeedTable.addPair(5.0f, 0.75f);
-	gSteerVsForwardSpeedTable.addPair(30.0f, 0.125f);
-	gSteerVsForwardSpeedTable.addPair(120.0f, 0.1f);
+	gSteerVsForwardSpeedTable.addPair(0.0f, 75);//
+	gSteerVsForwardSpeedTable.addPair(5.0f, 75);//
+	gSteerVsForwardSpeedTable.addPair(30.0f, 12.5f);//
+	gSteerVsForwardSpeedTable.addPair(120.0f, 10);//
 	gSteerVsForwardSpeedTable.addPair(PX_MAX_F32, PX_MAX_F32);
 	gSteerVsForwardSpeedTable.addPair(PX_MAX_F32, PX_MAX_F32);
 	gSteerVsForwardSpeedTable.addPair(PX_MAX_F32, PX_MAX_F32);
@@ -75,7 +75,6 @@ void PhysXBasic::initPhysics()
 
 	startBrakeMode();
 
-	
 }
 
 VehicleDesc PhysXBasic::initVehicleDesc()
@@ -83,20 +82,20 @@ VehicleDesc PhysXBasic::initVehicleDesc()
 	//Set up the chassis mass, dimensions, moment of inertia, and center of mass offset.
 	//The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering.
 	//Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front.
-	const PxF32 chassisMass = 300.0f;//1500 
-	const PxVec3 chassisDims(0.5f, 0.4f, 1.0f);//2.5f 2.0f 5.0f
+	const PxF32 chassisMass = 750.0f;
+	const PxVec3 chassisDims(2.5f, 2.0f, 5.0f);
 	const PxVec3 chassisMOI
-	((chassisDims.y*chassisDims.y + chassisDims.z*chassisDims.z)*chassisMass / 12.0f,
-		(chassisDims.x*chassisDims.x + chassisDims.z*chassisDims.z) * 0.8f * chassisMass / 12.0f,
-		(chassisDims.x*chassisDims.x + chassisDims.y*chassisDims.y)*chassisMass / 12.0f);
-	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.1f + 0.65f, 0.25f); //-chassisDims.y * 0.5f + 0.65f
+	((chassisDims.y*chassisDims.y + chassisDims.z*chassisDims.z)*chassisMass / 12.0f,//
+		(chassisDims.x*chassisDims.x + chassisDims.z*chassisDims.z) * 0.8f * chassisMass / 12.0f,//  
+		(chassisDims.x*chassisDims.x + chassisDims.y*chassisDims.y)*chassisMass / 12.0f);//  
+	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.25f); //-chassisDims.y * 0.5f + 0.65f
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
-	const PxF32 wheelMass = 4.0f;//20.0f
-	const PxF32 wheelRadius = 0.1f;//0.5f
-	const PxF32 wheelWidth = 0.08f;//0.4f
-	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;//0.5f
+	const PxF32 wheelMass = 20.0f;//20.0f 
+	const PxF32 wheelRadius = 1;//0.5f
+	const PxF32 wheelWidth = 0.5f;//0.4f
+	const PxF32 wheelMOI = 0.5 * wheelMass * wheelRadius * wheelRadius;//0.5f
 	const PxU32 nbWheels = 4;
 
 	VehicleDesc vehicleDesc;
@@ -133,39 +132,42 @@ void PhysXBasic::startBrakeMode()
 
 void PhysXBasic::stepPhysics()
 {
-	const PxF32 timestep = 1.0f / 60.0f;
-
-	//Cycle through the driving modes to demonstrate how to accelerate/reverse/brake/turn etc.
-	//incrementDrivingMode(timestep);
-
-	//Update the control inputs for the vehicle.
-	if (gMimicKeyInputs)
+	if (gStepflag)
 	{
-		PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
+		const PxF32 timestep = 1.0f / 60.0f;
+
+		//Cycle through the driving modes to demonstrate how to accelerate/reverse/brake/turn etc.
+		//incrementDrivingMode(timestep);
+
+		//Update the control inputs for the vehicle.
+		if (gMimicKeyInputs)
+		{
+			PxVehicleDrive4WSmoothDigitalRawInputsAndSetAnalogInputs(gKeySmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
+		}
+		else
+		{
+			PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
+		}
+
+		//Raycasts.
+		PxVehicleWheels* vehicles[1] = { gVehicle4W };
+		PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
+		const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
+		PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
+
+		//Vehicle update.
+		const PxVec3 grav = gScene->getGravity();
+		PxWheelQueryResult wheelQueryResults[PX_MAX_NB_WHEELS];
+		PxVehicleWheelQueryResult vehicleQueryResults[1] = { {wheelQueryResults, gVehicle4W->mWheelsSimData.getNbWheels()} };
+		PxVehicleUpdates(timestep, grav, *gFrictionPairs, 1, vehicles, vehicleQueryResults);
+
+		//Work out if the vehicle is in the air.
+		gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+
+		//Scene update.
+		gScene->simulate(timestep);
+		gScene->fetchResults(true);
 	}
-	else
-	{
-		PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, timestep, gIsVehicleInAir, *gVehicle4W);
-	}
-
-	//Raycasts.
-	PxVehicleWheels* vehicles[1] = { gVehicle4W };
-	PxRaycastQueryResult* raycastResults = gVehicleSceneQueryData->getRaycastQueryResultBuffer(0);
-	const PxU32 raycastResultsSize = gVehicleSceneQueryData->getQueryResultBufferSize();
-	PxVehicleSuspensionRaycasts(gBatchQuery, 1, vehicles, raycastResultsSize, raycastResults);
-
-	//Vehicle update.
-	const PxVec3 grav = gScene->getGravity();
-	PxWheelQueryResult wheelQueryResults[PX_MAX_NB_WHEELS];
-	PxVehicleWheelQueryResult vehicleQueryResults[1] = { {wheelQueryResults, gVehicle4W->mWheelsSimData.getNbWheels()} };
-	PxVehicleUpdates(timestep, grav, *gFrictionPairs, 1, vehicles, vehicleQueryResults);
-
-	//Work out if the vehicle is in the air.
-	gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
-
-	//Scene update.
-	gScene->simulate(timestep);
-	gScene->fetchResults(true);
 }
 
 //not use 
@@ -344,9 +346,9 @@ void PhysXBasic::releaseAllControls()
 }
 
 DirectX::XMMATRIX PhysXBasic::GetMatrixFromPxMatrix(PxMat44 mat) {
-	auto rtn = XMMatrixSet(mat.column0.x, mat.column0.y, mat.column0.z, mat.column0.w,
-		mat.column1.x, mat.column1.y, mat.column1.z, mat.column1.w,
-		mat.column2.x, mat.column2.y, mat.column2.z, mat.column2.w,
-		mat.column3.x, mat.column3.y, mat.column3.z, mat.column3.w);
+	auto rtn = XMMatrixSet( mat.column0.x, mat.column0.y, mat.column0.z, mat.column0.w,
+							mat.column1.x, mat.column1.y, mat.column1.z, mat.column1.w,
+							mat.column2.x, mat.column2.y, mat.column2.z, mat.column2.w,
+							mat.column3.x, mat.column3.y, mat.column3.z, mat.column3.w);
 	return rtn;
 }

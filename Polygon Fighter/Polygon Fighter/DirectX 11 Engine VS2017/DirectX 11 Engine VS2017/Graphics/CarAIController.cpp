@@ -8,14 +8,15 @@
 
 CarAIController::CarAIController()
 {
-	mSpeed = 40.0f;
+	mSpeed = 35.0f;
 	mAvoidSpeed = 300.0f;
 	mWayPointNum = 1;
 	roadcontentfile = "SceneLayout.txt";
+	roadcontentfile1 = "SceneLayout1.txt";
+	roadcontentfile2 = "SceneLayout2.txt";
 	possign_flag = true;
 
 	LoadContent();
-
 }
 
 
@@ -26,6 +27,7 @@ CarAIController::~CarAIController()
 
 void CarAIController::MoveTowards(XMFLOAT3* pos, float delta)
 {
+	auto mTrackPoints = GetCurrentTrack();
 	float epsilon = 1.0f;
 	XMFLOAT3 dir;
 
@@ -71,10 +73,22 @@ void CarAIController::MoveTowards(XMFLOAT3* pos, float delta)
 
 void CarAIController::Update(float delta)
 {
+	auto mTrackPoints = GetCurrentTrack();
 	MoveTowards(&mTrackPoints[mWayPointNum], delta);
 	if (countdown > 0 && hasbeenfound)
 	{
 		countdown-= 1.0f / 60.0f;
+	}
+	if (b_cooldown)
+	{
+		cooldowmtimer += 1.0f / 60.0f;
+		if (cooldowmtimer >= cooldown_waittime)
+		{
+			b_cooldown = false;
+			cooldowmtimer = 0.0f;
+
+			CatchCar();
+		}
 	}
 }
 
@@ -110,7 +124,19 @@ void CarAIController::Avoid(XMFLOAT3 pos, float delta)
 
 void CarAIController::ResetCarPosition()
 {
-	mAICar->carrender.SetPosition(mTrackPoints.at(0));//mTrackPoints.size() - 1
+	auto mTrackPoints = GetCurrentTrack();
+	mAICar->carrender.SetPosition(mTrackPoints.at(0));
+}
+
+void CarAIController::CatchCar()
+{
+	currentcarindex++;
+	if (currentcarindex > 2) {
+		currentcarindex = 0;
+	}
+	possign_flag = true;
+	canmove = true;
+	SetAiCarByIndex();
 }
 
 void  CarAIController::LoadContent() 
@@ -142,5 +168,93 @@ void  CarAIController::LoadContent()
 		}
 	}
 
+	std::ifstream inFile2;
+	inFile2.open(roadcontentfile2);
+
+	if (!inFile2.good())
+	{
+		std::cerr << "ERROR: Cannot find Road Content file\n";
+		return;
+	}
+	else {
+		std::cerr << "Scene layout File found\n";
+
+		std::string input;
+		while (!inFile2.eof()) {
+			inFile2 >> input;
+
+			if (input.compare("O") == 0)
+			{
+				float x, y, z;
+
+				inFile2 >> x;
+				inFile2 >> y;
+				inFile2 >> z;
+				mTrackPoints2.push_back(XMFLOAT3(x, y, z));
+			}
+		}
+	}
+
+	std::ifstream inFile1;
+	inFile1.open(roadcontentfile1);
+
+	if (!inFile1.good())
+	{
+		std::cerr << "ERROR: Cannot find Road Content file\n";
+		return;
+	}
+	else {
+		std::cerr << "Scene layout File found\n";
+
+		std::string input;
+		while (!inFile1.eof()) {
+			inFile1 >> input;
+
+			if (input.compare("O") == 0)
+			{
+				float x, y, z;
+
+				inFile1 >> x;
+				inFile1 >> y;
+				inFile1 >> z;
+				mTrackPoints1.push_back(XMFLOAT3(x, y, z));
+				//this->AddWaypoint(XMFLOAT3(x, y, z));
+			}
+		}
+	}
+}
+
+void CarAIController::CarEscape() {
+	hasbeenfound = false;
+	countdown = 60;
+	b_cooldown = true;
+	cooldowmtimer = 0.0f;
+	possign_flag = false;
+
+	mAICar->carrender.b_modelview = false;
+	mAICar->carrender.b_use = false;
+	mAICar->carrender.GetCollisionObject()->collisionuse = false;
+}
+
+void CarAIController::ResetCACStatus() 
+{
+	mWayPointNum = 1;
+	countdown = 60;
+	b_cooldown = true;
+}
+
+void CarAIController::SetAiCarByIndex() {
+	if (currentcarindex == 0)
+	{
+		SetAICar(enemy);
+	}
+	else if (currentcarindex == 1)
+	{
+		SetAICar(enemy1);
+	}
+	else if (currentcarindex == 2)
+	{
+		SetAICar(enemy2);
+	}
 }
 

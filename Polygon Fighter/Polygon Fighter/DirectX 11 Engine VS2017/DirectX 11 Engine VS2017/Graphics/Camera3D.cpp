@@ -33,8 +33,6 @@ void Camera3D::SetProjectionValues(float fovDegrees, float aspectRatio, float ne
 	float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 
-	float frustumfovRadians = (fovDegrees + 45 / 360.0f) * XM_2PI;
-	auto frustumprojectionMatrix = XMMatrixPerspectiveFovLH(frustumfovRadians, aspectRatio, nearZ, farZ);
 	collision->orifrustum = BoundingFrustum(projectionMatrix);
 	collision->frustum = collision->orifrustum;
 }
@@ -93,7 +91,7 @@ void Camera3D::UpdateMatrix() //Updates view matrix and also updates the movemen
 	this->viewMatrix = XMMatrixLookAtLH(this->posVector, camTarget, upDir);
 
 	//collision
-	auto worldMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)*
+	auto worldMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) *
 			XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	collision->frustum = collision->orifrustum;

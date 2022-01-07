@@ -181,7 +181,7 @@ void Graphics::RenderFrame()
 			//draw car
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
-			chasecar.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
+			cac->mAICar->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
 			//draw npc
 			//girl.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
@@ -190,10 +190,30 @@ void Graphics::RenderFrame()
 			
 
 			//ステージ描画
-			/*for (size_t i = 0; i < mapgo.size(); i++)
-				mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());*/
+			if (b_showmapgo) {
+				for (size_t i = 0; i < mapgo.size(); i++)
+					mapgo.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			}
+			if (b_showObstaclego)
+			{
+				for (size_t i = 0; i < obstaclego.size(); i++)
+				{
+					obstaclego.at(i)->Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+				}
+			}
 
-			pgotest.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//draw temp phyx
+			//for (int i = 0; i < tempmapgodm.size(); i++)
+			//{
+			//	//Update Constant buffer with WVP Matrix
+			//	this->cb_vs_vertexshader.data.wvpMatrix = tempmapgodm[i].GetTransformMatrix() * Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix();//
+			//	this->cb_vs_vertexshader.data.worldMatrix = tempmapgodm[i].GetTransformMatrix();//
+
+			//	this->cb_vs_vertexshader.ApplyChanges();
+			//	tempmapgodm[i].Draw();
+			//}
+			if (b_drawphysics)
+				pgotest.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 		}
 
@@ -251,6 +271,12 @@ void Graphics::RenderFrame()
 
 			for (size_t i = 0; i < npc.size(); i++)
 				npc.at(i)->Draw2D(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+
+			if(b_thiflag)
+			taihouimage.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+
+			if (b_siflag)
+			shockimage.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
 		}
 		
 	}
@@ -273,6 +299,37 @@ void Graphics::RenderFrame()
 	if (gs == GameState::score)
 	{
 		score.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+
+		if (scorepageindex == 0)
+		{
+			score01.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			catchcardig.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			rank1.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				scoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				tscoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		}
+		else if (scorepageindex == 1)
+		{
+			rank.Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 3; i++)
+				top1name[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				top1scoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 3; i++)
+				top2name[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				top2scoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 3; i++)
+				top3name[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				top3scoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 3; i++)
+				top4name[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+			for (size_t i = 0; i < 6; i++)
+				top4scoredigf[i].Draw(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
+		}
 	}
 	
 	fade.DrawFade(camera2D.GetWorldMatrix() * camera2D.GetOrthoMatrix());
@@ -291,34 +348,28 @@ void Graphics::RenderFrame()
 
 	if (gs == GameState::game)
 	{
-		//debug text
-		/*auto mapgo1 = chasecar.carrender.GetPositionVector();
-		auto camviewport = Camera3D.viewport;
-		auto vec = XMVector3Project(mapgo1, camviewport.TopLeftX, camviewport.TopLeftY,
-			camviewport.Width, camviewport.Height, camviewport.MinDepth, camviewport.MaxDepth,
-			Camera3D.GetProjectionMatrix(), Camera3D.GetViewMatrix(), DirectX::XMMatrixIdentity());
-		XMFLOAT3 co;
-		XMStoreFloat3(&co,vec);
-		co = XMFLOAT3(clamp(co.x, -200.0f, windowWidth + 200.0f), clamp(co.y, -200.0f, windowHeight + 200.0f) + 100,0);*/
 		auto co = car.actor->getGlobalPose().q;
 		float angle; PxVec3 rot;
 		co.toRadiansAndUnitAxis(angle, rot);
 		PxMat44 trans = car.actor->getGlobalPose();
+		 
 
-		std::string pos = "rot" + std::to_string(angle * rot.x) + "_" + std::to_string(angle * rot.y) + "_" + std::to_string(angle * rot.z);
+		auto carpos = car.carrender.GetPositionFloat3();
+		std::string pos = "pos" + std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);//std::to_string(car.GetCarVelocity());//"rot" + std::to_string(co.getBasisVector0().x) + "_" + std::to_string(co.getBasisVector0().y) + "_" + std::to_string(co.getBasisVector0().z);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
-		std::wstring carpos = cv.from_bytes(pos);
+		std::wstring carposw = cv.from_bytes(pos);
 
-		XMFLOAT3 camp = Camera3D.GetPositionFloat3();
-		pos = "camera position " + std::to_string(camp.x) + "_" + std::to_string(camp.y) + "_" + std::to_string(camp.z);
+		auto coccar = cac->mAICar->carrender.GetCollisionObject()->collisionuse;
+		pos = "cochasecar " + std::to_string(coccar);
 		std::wstring campos = cv.from_bytes(pos);
 
-		//auto vel = std::to_string(co.Extents.x) + "_" + std::to_string(co.Extents.y) + "_" + std::to_string(co.Extents.z);
-		//std::wstring velutf8 = cv.from_bytes(vel);
+		auto velinstance = car.GetCarVelocity();
+		auto vel = std::to_string(velinstance);//std::to_string(velinstance.x) + "_" + std::to_string(velinstance.y) + "_" + std::to_string(velinstance.z);
+		std::wstring velutf8 = cv.from_bytes(vel);
 
 		//collision text debug
 		auto cocar = car.carrender.GetCollisionObject();
-		auto cochasecar = chasecar.carrender.GetCollisionObject();
+		auto cochasecar =  cac->mAICar->carrender.GetCollisionObject();
 		auto cocamera = Camera3D.GetCameraCollision();
 		auto triggernpc = npc.at(0)->starttrigger;
 
@@ -332,7 +383,7 @@ void Graphics::RenderFrame()
 		if (b_debugUIflag)
 		{
 			spriteBatch->Begin(DirectX::SpriteSortMode_Deferred);
-			spriteFont->DrawString(spriteBatch.get(), carpos.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+			//spriteFont->DrawString(spriteBatch.get(), carposw.c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), campos.c_str(), DirectX::XMFLOAT2(0, 20), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), velutf8.c_str(), DirectX::XMFLOAT2(0, 40), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 			//spriteFont->DrawString(spriteBatch.get(), testboolutf8.c_str(), DirectX::XMFLOAT2(0, 60), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -369,6 +420,8 @@ void Graphics::RenderFrame()
 		ImGui::DragFloat3("mCarMaxSpeed", &car.mCarMaxSpeed.x, 0.1f, 0.0f, 8.0f);
 		ImGui::DragFloat3("mCarAcceleration", &car.mCarAcceleration.x, 0.1f, 0.0f, 1.0f);
 		ImGui::Checkbox("mCarAiContronlCanMove",&cac->canmove);
+		ImGui::Checkbox("showMapGO", &b_showmapgo);
+		ImGui::Checkbox("showPhysicsGO", &b_drawphysics);
 		ImGui::NewLine();
 		ImGui::Checkbox("UIflag", &b_UIflag);
 		ImGui::Checkbox("b_debugUIflag", &b_debugUIflag);
@@ -715,8 +768,71 @@ bool Graphics::InitializeScene()
 		tutorial2.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\piano.PNG", this->cb_vs_vertexshader_2d);
 		tutorial_background.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\fade_black.png", this->cb_vs_vertexshader_2d);
 
+		//shock image for game pause
+		taihouimage.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\cutin01.jpg", this->cb_vs_vertexshader_2d);
+		shockimage.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\shock.png", this->cb_vs_vertexshader_2d);
+
 		//score
 		score.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\result.jpg", this->cb_vs_vertexshader_2d);
+		score01.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\score01.png", this->cb_vs_vertexshader_2d);
+		rank.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\ranking01.png", this->cb_vs_vertexshader_2d);
+		catchcardig.Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+		catchcardig.SetPosition(windowWidth / 2 - 200, windowHeight / 2 - 75, 0);
+		rank1.Initialize(this->device.Get(), this->deviceContext.Get(), 49.7, 50, "Data/Textures/moji01.png", cb_vs_vertexshader_2d);
+		rank1.SetPosition(windowWidth - 400, windowHeight - 150, 0);
+		for (size_t i = 0; i < 6; i++)
+		{
+			scoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			scoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2 - 75, 0);
+		}
+		for (size_t i = 0; i < 6; i++)
+		{
+			tscoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			tscoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2, 0);
+		}
+
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			top1name[i].Initialize(this->device.Get(), this->deviceContext.Get(), 49.7, 50, "Data/Textures/moji01.png", cb_vs_vertexshader_2d);
+			top1name[i].SetPosition(windowWidth / 2  - 200 + i * 49.7, windowHeight / 2 - 125, 0);
+		}
+		for (size_t i = 0; i < 6; i++)
+		{
+			top1scoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			top1scoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2 - 120, 0);
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			top2name[i].Initialize(this->device.Get(), this->deviceContext.Get(), 49.7, 50, "Data/Textures/moji01.png", cb_vs_vertexshader_2d);
+			top2name[i].SetPosition(windowWidth / 2 - 200  + i * 49.7, windowHeight / 2 - 125 + 75, 0);
+		}
+		for (size_t i = 0; i < 6; i++)
+		{
+			top2scoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			top2scoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2 - 120 +75, 0);
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			top3name[i].Initialize(this->device.Get(), this->deviceContext.Get(), 49.7, 50, "Data/Textures/moji01.png", cb_vs_vertexshader_2d);
+			top3name[i].SetPosition(windowWidth / 2 - 200 + i * 49.7, windowHeight / 2 - 125 + 150, 0);
+		}
+		for (size_t i = 0; i < 6; i++)
+		{
+			top3scoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			top3scoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2 - 120 + 150, 0);
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			top4name[i].Initialize(this->device.Get(), this->deviceContext.Get(), 49.7, 50, "Data/Textures/moji01.png", cb_vs_vertexshader_2d);
+			top4name[i].SetPosition(windowWidth / 2 - 200 + i * 49.7, windowHeight / 2 - 125 + 225, 0);
+		}
+		for (size_t i = 0; i < 6; i++)
+		{
+			top4scoredigf[i].Initialize(this->device.Get(), this->deviceContext.Get(), 26.4, 40, "Data/Textures/score_m01.png", cb_vs_vertexshader_2d);
+			top4scoredigf[i].SetPosition(windowWidth - 250 - 26.4 * (i + 1), windowHeight / 2  - 120 + 225, 0);
+		}
+		
 
 		//stage
 		if (!stage.Initialize("Data\\Objects\\stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -728,29 +844,34 @@ bool Graphics::InitializeScene()
 			return false;
 		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		gameroad.SetCollisionBoxView(false);
+
 		if (!zimen.Initialize("Data\\Objects\\test\\zimen.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		zimen.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		zimen.SetCollisionBoxView(false);
+		//zimen.SetScale(XMFLOAT3(10, 0, 10));
 		if (!zimen1.Initialize("Data\\Objects\\test\\zimen_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		zimen1.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		zimen1.SetCollisionBoxView(false);
+		//zimen1.SetScale(XMFLOAT3(10, 0, 10));
 		if (!field_L.Initialize("Data\\Objects\\test\\field_L.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		field_L.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		field_L.SetCollisionBoxView(false);
+		//field_L.SetScale(XMFLOAT3(100, 1, 1));
+		//field_L.SetPosition(XMFLOAT3(0, 300, 0));
 		if (!field_R.Initialize("Data\\Objects\\test\\field_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		field_R.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		field_R.SetCollisionBoxView(false);
-		field_R.SetScale(XMFLOAT3(10, 0, 10));
+		//field_R.SetScale(XMFLOAT3(10, 0, 10));
 
 		//game character car
 		if(!car.CarInitialize("Data\\Objects\\test\\police.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,true))
 			return false;
-		car.carrender.SetScale(0.3, 0.3, 0.3);
-		car.taxirender.SetScale(0.15, 0.15, 0.15);
+		car.carrender.SetScale(1.5, 1.5, 1.5);
+		car.taxirender.SetScale(0.65, 0.65, 0.65);
 		//car.carrender.SetPosition(100, 0, 100);
 		car.carbar.Initialize("Data\\Objects\\test\\p_steering.obj", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
 		car.carbar.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(XM_PI, XM_PI / 2, 0));
@@ -763,15 +884,31 @@ bool Graphics::InitializeScene()
 		//game chase car
 		if (!chasecar.CarInitialize("Data\\Objects\\test\\enemy.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader,false))
 			return false;
-		chasecar.carrender.SetScale(0.2, 0.2, 0.2);
 		chasecar.carrender.SetCollisionBoxView(false);
 		chasecar.carbar.b_use = false;
+
+		if (!chasecar1.CarInitialize("Data\\Objects\\test\\enemy02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, false))
+			return false;
+		chasecar1.carrender.SetCollisionBoxView(false);
+		chasecar1.carrender.GetCollisionObject()->collisionuse = false;
+		chasecar1.carrender.b_use = false;
+		chasecar1.carbar.b_use = false;
+
+		if (!chasecar2.CarInitialize("Data\\Objects\\test\\enemy03.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, false))
+			return false;
+		chasecar2.carrender.SetCollisionBoxView(false);
+		chasecar2.carrender.b_use = false;
+		chasecar2.carrender.GetCollisionObject()->collisionuse = false;
+		chasecar2.carbar.b_use = false;
 		
 		//car AI 
 		cac = new CarAIController();
-		cac->SetAICar(&chasecar);
+		//cac->cooldowmtimer.Start();
+		cac->enemy = &chasecar;
+		cac->enemy1 = &chasecar1;
+		cac->enemy2 = &chasecar2;
+		cac->SetAiCarByIndex();
 		cac->ResetCarPosition();
-		//auto carpos = car.carrender.GetPositionFloat3();
 
 		//load prerender quad
 		if (!quad.Initialize("Data\\Objects\\quad.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -807,38 +944,18 @@ bool Graphics::InitializeScene()
 		car.warningui.SetPosition(XMFLOAT3(windowWidth / 2 - 48, windowHeight / 2 - 19, 0));
 		moneyui.Initialize(this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader_2d, windowWidth, windowHeight,&car);
 
+		//physics
+		physxbase.initPhysics();
+		car.actor = physxbase.gVehicle4W->getRigidDynamicActor();
+
 		//load map game object
 		LoadMap();
 
-		//physics
-		physxbase.initPhysics();
-		
-		//read map gameobject and create buildings
-		//const PxF32 boxHalfHeights[1] = { 5.0f };
-		//const PxF32 boxZ[1] = { 20.0f };
-		for (PxU32 i = 0; i < mapgo.size(); i++)
-		{
-			auto go = mapgo.at(i);
-			auto co = go->GetCollisionObject();
-			
-			PxTransform t(PxVec3(co->obb.Center.x, co->obb.Center.y, co->obb.Center.z), PxQuat(PxIdentity));
-			PxRigidStatic* rd = physxbase.gPhysics->createRigidStatic(t);
+		//load obstacle
+		LoadObstacle();
 
-			PxBoxGeometry boxGeom(PxVec3(co->obb.Extents.x, co->obb.Extents.y, co->obb.Extents.z));
-			PxShape* shape = PxRigidActorExt::createExclusiveShape(*rd, boxGeom, *physxbase.gMaterial);
-
-			PxFilterData simFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_WHEEL, PxPairFlag::eMODIFY_CONTACTS | PxPairFlag::eDETECT_CCD_CONTACT, 0);
-			shape->setSimulationFilterData(simFilterData);
-			PxFilterData qryFilterData;
-			setupDrivableSurface(qryFilterData);
-			shape->setQueryFilterData(qryFilterData);
-
-			physxbase.gScene->addActor(*rd);
-		}
-
+		//physics draw
 		pgotest.Initialize("", this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader, &physxbase);
-		car.actor = physxbase.gVehicle4W->getRigidDynamicActor();
-
 
 		//load npc object
 		LoadNpc();
@@ -1237,7 +1354,7 @@ void Graphics::SetDepthEnable(bool Enable)
 void Graphics::LoadMap() {
 	mapgo.clear();
 
-	std::ifstream inFile;
+	std::ifstream inFile; 
 	inFile.open("Map.txt");
 
 	if (!inFile.good())
@@ -1296,9 +1413,9 @@ void Graphics::LoadMap() {
 						go->DeepCopy(*primitivesgo.at(primitiveindex));
 						mapgo.push_back(go);
 					}
-					go->SetPosition(XMFLOAT3(px * 10, py * 10, pz * 10));
-					go->SetRotation(XMFLOAT3(rx, ry, rz));
-					go->SetScale(sx * 10, sy * 10, sz * 10);
+					go->SetPosition(XMFLOAT3(px * 10 , py * 10 , pz * 10 ));
+					go->SetRotation(XMFLOAT3(rx , ry, rz ));
+					go->SetScale(sx * 10, sy * 10, sz  * 10);
 					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
 					go->SetCollisionBoxView(false);
 				}
@@ -1306,7 +1423,149 @@ void Graphics::LoadMap() {
 		}
 	}
 
-	//primitivesgo.clear();
+	//read map gameobject and create buildings
+	for (PxU32 i = 0; i < mapgo.size(); i++)
+	{
+		auto go = mapgo.at(i);
+		auto co = go->GetCollisionObject();
+
+		auto scale = go->GetScaleFloat3();
+		auto rot = go->GetRotationFloat3();
+		auto pos = go->GetPositionFloat3();
+		auto trans = XMMatrixScaling(scale.x, scale.y, scale.z)
+			* XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z)
+			* XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+		auto xppos = XMVector3TransformCoord(XMVectorSet(co->originobb.Center.x, co->originobb.Center.y, co->originobb.Center.z, 0), trans);//
+		XMFLOAT3 ttxppos; XMStoreFloat3(&ttxppos, xppos);
+		auto quat = XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z);
+		XMFLOAT4 ttquat; XMStoreFloat4(&ttquat, quat);
+
+		PxTransform t(PxVec3(ttxppos.x, ttxppos.y, ttxppos.z), PxQuat(ttquat.x, ttquat.y, ttquat.z, ttquat.w));
+		PxRigidStatic* rd = physxbase.gPhysics->createRigidStatic(t);
+
+		PxBoxGeometry boxGeom(PxVec3(co->originobb.Extents.x * scale.x,
+								co->originobb.Extents.y * scale.y,
+								co->originobb.Extents.z * scale.z));
+		PxShape* shape = PxRigidActorExt::createExclusiveShape(*rd, boxGeom, *physxbase.gMaterial);
+
+		PxFilterData simFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_WHEEL, PxPairFlag::eMODIFY_CONTACTS | PxPairFlag::eDETECT_CCD_CONTACT, 0);
+		shape->setSimulationFilterData(simFilterData);
+		PxFilterData qryFilterData;
+		setupDrivableSurface(qryFilterData);
+		shape->setQueryFilterData(qryFilterData);
+
+		physxbase.gScene->addActor(*rd);
+	}
+}
+
+void Graphics::LoadObstacle() {
+	obstaclego.clear();
+
+	std::ifstream inFile;
+	inFile.open("Obstacles.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Map file\n";
+		return;
+	}
+	else {
+		std::cerr << "Obstacle File found\n";
+		std::string datafile = "";
+
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+				std::string filename;
+				inFile >> filename;
+
+				//compare primitive
+				int primitiveindex = -1;
+				if (filename != "")
+					primitiveindex = CampareMapname(filename);
+
+				float px, py, pz;
+
+				inFile >> px;
+				inFile >> py;
+				inFile >> pz;
+
+				float rx, ry, rz;
+
+				inFile >> rx;
+				inFile >> ry;
+				inFile >> rz;
+
+				float sx, sy, sz;
+
+				inFile >> sx;
+				inFile >> sy;
+				inFile >> sz;
+
+				if (filename != "")
+				{
+					RenderableGameObject* go = new RenderableGameObject();
+					if (primitiveindex == -1)
+					{
+						go->Initialize(filename, this->device.Get(), this->deviceContext.Get(), cb_vs_vertexshader);
+						go->path = filename;
+						obstaclego.push_back(go);
+						primitivesgo.push_back(go);
+					}
+					else
+					{
+						go->DeepCopy(*primitivesgo.at(primitiveindex));
+						obstaclego.push_back(go);
+					}
+					go->SetPosition(XMFLOAT3(px, py, pz));
+					go->SetRotation(XMFLOAT3(rx, ry, rz));
+					go->SetScale(sx, sy, sz);
+					go->SetGlobalMatirx(DirectX::XMMatrixIdentity());
+					go->SetCollisionBoxView(false);
+				}
+			}
+		}
+	}
+
+	//read obstacl gameobject and create buildings
+	for (PxU32 i = 0; i < obstaclego.size(); i++)
+	{
+		auto go = obstaclego.at(i);
+		auto co = go->GetCollisionObject();
+
+		auto scale = go->GetScaleFloat3();
+		auto rot = go->GetRotationFloat3();
+		auto pos = go->GetPositionFloat3();
+		auto trans = XMMatrixScaling(scale.x, scale.y, scale.z)
+			* XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z)
+			* XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+		auto xppos = XMVector3TransformCoord(XMVectorSet(co->originobb.Center.x, co->originobb.Center.y, co->originobb.Center.z, 0), trans);//
+		XMFLOAT3 ttxppos; XMStoreFloat3(&ttxppos, xppos);
+		auto quat = XMQuaternionRotationRollPitchYaw(rot.x, rot.y, rot.z);
+		XMFLOAT4 ttquat; XMStoreFloat4(&ttquat, quat);
+
+		PxTransform t(PxVec3(ttxppos.x, ttxppos.y + 1.7, ttxppos.z), PxQuat(ttquat.x, ttquat.y, ttquat.z, ttquat.w));
+		PxRigidDynamic* rd = physxbase.gPhysics->createRigidDynamic(t);
+
+		PxBoxGeometry boxGeom(PxVec3(co->originobb.Extents.x * scale.x,
+									 co->originobb.Extents.y * scale.y,
+									 co->originobb.Extents.z * scale.z));
+		PxShape* shape = PxRigidActorExt::createExclusiveShape(*rd, boxGeom, *physxbase.gMaterial);
+
+		PxFilterData simFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_WHEEL, PxPairFlag::eMODIFY_CONTACTS | PxPairFlag::eDETECT_CCD_CONTACT, 0);
+		shape->setSimulationFilterData(simFilterData);
+		PxFilterData qryFilterData;
+		setupDrivableSurface(qryFilterData);
+		shape->setQueryFilterData(qryFilterData);
+
+		obstaclephysics.push_back(rd);
+		physxbase.gScene->addActor(*rd);
+	}
 }
 
 //return true if primitive already has value
@@ -1417,13 +1676,139 @@ void Graphics::ResetGame()
 	stage.b_use = false;
 	car.cardrate = 1.0f;
 	car.taxidrate = 0.0f;
-	car.carrender.SetScale(0.3, 0.3, 0.3);
-	//car.carrender.SetPosition(XMFLOAT3(1095, 1, 812));
+	car.carrender.SetScale(1.5, 1.5, 1.5);
 	car.taxirender.b_modelview = true;
+	Camera3D.roundviewrot = XMFLOAT3(0, 0, 0);
+	PxTransform startTransform(PxVec3(0, 2.5f, 0), PxQuat(PxIdentity));
+	physxbase.gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
+	physxbase.gVehicle4W->getRigidDynamicActor()->setLinearVelocity(PxVec3(0, 0, 0));
+
+	//cac->currentcarindex = 0;
+	//cac->SetAiCarByIndex();
 
 	m_Sound->StopSound();
 	m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_taxi);
 }
+
+void Graphics::ResetScore()
+{
+	for (size_t i = 0; i < npc.size(); i++)
+	{
+		auto tgnpc = npc.at(i);
+		tgnpc->npcstate = 0;
+		tgnpc->starttrigger.collisionuse = true;
+		tgnpc->endtrigger.collisionuse = true;
+	}
+	car.haspassenger = false;
+	moneyui.Hide();
+
+	LoadScore();
+	CompareScore();
+
+	scorepageindex = 0;
+	scorepagetimer = 0.0f;
+	//gfx.gamescore
+}
+
+void Graphics::LoadScore() {
+	std::ifstream inFile;
+	inFile.open("Score.txt");
+
+	if (!inFile.good())
+	{
+		std::cerr << "ERROR: Cannot find Map file\n";
+		return;
+	}
+	else {
+		std::cerr << "Npc File found\n";
+
+		std::string input;
+		while (!inFile.eof()) {
+			inFile >> input;
+
+			if (input.compare("O") == 0)
+			{
+				inFile >> top1[0];
+				inFile >> top1[1];
+				inFile >> top1[2];
+
+				inFile >> top1score;
+
+				inFile >> top2[0];
+				inFile >> top2[1];
+				inFile >> top2[2];
+
+				inFile >> top2score;
+
+				inFile >> top3[0];
+				inFile >> top3[1];
+				inFile >> top3[2];
+
+				inFile >> top3score;
+
+				inFile >> top4[0];
+				inFile >> top4[1];
+				inFile >> top4[2];
+
+				inFile >> top4score;
+
+			}
+		}
+	}
+
+}
+
+void Graphics::CompareScore() {
+	float totalscore = gamescore * (car.catchcount + 1);
+	auto tscore = totalscore;
+	tscore >= 999999 ? tscore = 999999 : tscore = tscore;
+	if (tscore <= top4score)
+	{
+		editname = false;
+	}
+	else
+	{
+		if (tscore >= top1score) {
+			for (size_t i = 0; i < 3; i++)
+				top4[i] = top3[i];
+			for (size_t i = 0; i < 3; i++)
+				top3[i] = top2[i];
+			for (size_t i = 0; i < 3; i++)
+				top2[i] = top1[i];
+
+			top4score = top3score;
+			top3score = top2score;
+			top2score = top1score;
+			top1score = totalscore;
+			editidx = 0;
+		}
+		else if(tscore < top1score && tscore >= top2score) {
+			for (size_t i = 0; i < 3; i++)
+				top3[i] = top2[i];
+			for (size_t i = 0; i < 3; i++)
+				top4[i] = top3[i];
+
+			top3score = top2score;
+			top4score = top3score;
+			top2score = totalscore;
+			editidx = 1;
+		}
+		else if (tscore < top2score && tscore >= top3score) {
+			for (size_t i = 0; i < 3; i++)
+				top4[i] = top3[i];
+
+			top4score = top3score;
+			top3score = totalscore;
+			editidx = 2;
+		}
+		else if (tscore < top3score && tscore >= top4score) {
+
+			top4score = totalscore;
+			editidx = 3;
+		}
+	}
+}
+
 
 #pragma region not use
 void Graphics::EditorRayCast(XMFLOAT2 mousepos)
@@ -1578,5 +1963,107 @@ void Graphics::EditorRayCast(XMFLOAT2 mousepos)
 //
 //	time++;
 //}
+
+
+Mesh Graphics::TempProcessDebugMesh(const PxGeometry& geom)
+{
+	std::vector<Vertex3D> vertices;
+	std::vector<DWORD> indices;
+
+	switch (geom.getType())
+	{
+	case PxGeometryType::eBOX:
+	{
+		const PxBoxGeometry& boxGeom = static_cast<const PxBoxGeometry&>(geom);
+		Mesh mesh = Mesh::DefaultGeometry(Mesh::PrimitiveGeomtry::box, device.Get(), deviceContext.Get(),
+			"Date\\Textures\\fade_black.png", "PhysicGameobject");
+		auto scale = XMMatrixScaling(boxGeom.halfExtents.x, boxGeom.halfExtents.y, boxGeom.halfExtents.z);
+		mesh.transformMatrix = scale * mesh.transformMatrix;
+		return mesh;
+	}
+	case PxGeometryType::eCONVEXMESH:
+	{
+		const PxConvexMeshGeometry& convexGeom = static_cast<const PxConvexMeshGeometry&>(geom);
+
+		//Compute triangles for each polygon.
+		const PxVec3& scale = convexGeom.scale.scale;
+		PxConvexMesh* mesh = convexGeom.convexMesh;
+		const PxU32 nbPolys = mesh->getNbPolygons();
+		const PxU8* polygons = mesh->getIndexBuffer();
+		const PxVec3* verts = mesh->getVertices();
+		PxU32 nbVerts = mesh->getNbVertices();
+		PX_UNUSED(nbVerts);
+
+		PxU32 numTotalTriangles = 0;
+
+		//バーテックス情報処理
+		//Get vertices
+		for (UINT i = 0; i < nbVerts; i++)
+		{
+			Vertex3D vertex;
+
+			vertex.pos.x = verts[i].x;
+			vertex.pos.y = verts[i].y;
+			vertex.pos.z = verts[i].z;
+
+			vertex.texCoord = XMFLOAT2(1, 1);
+
+			vertex.bone_index.w = -1;
+			vertex.bone_index.x = -1;
+			vertex.bone_index.y = -1;
+			vertex.bone_index.z = -1;
+
+			vertex.bone_weights.w = -1;
+			vertex.bone_weights.x = -1;
+			vertex.bone_weights.y = -1;
+			vertex.bone_weights.z = -1;
+
+			vertices.push_back(vertex);
+		}
+
+		//インデックス情報
+		for (PxU32 i = 0; i < nbPolys; i++)
+		{
+			PxHullPolygon data;
+			mesh->getPolygonData(i, data);
+
+			const PxU32 nbTris = PxU32(data.mNbVerts - 2);
+			const PxU8 vref0 = polygons[data.mIndexBase + 0];
+			PX_ASSERT(vref0 < nbVerts);
+			for (PxU32 j = 0; j < nbTris; j++)
+			{
+				const PxU32 vref1 = polygons[data.mIndexBase + 0 + j + 1];
+				const PxU32 vref2 = polygons[data.mIndexBase + 0 + j + 2];
+
+				//generate face normal:
+				PxVec3 e0 = verts[vref1] - verts[vref0];
+				PxVec3 e1 = verts[vref2] - verts[vref0];
+
+				PX_ASSERT(vref1 < nbVerts);
+				PX_ASSERT(vref2 < nbVerts);
+
+				PxVec3 fnormal = e0.cross(e1);
+				fnormal.normalize();
+
+				indices.push_back(vref0);
+				indices.push_back(vref1);
+				indices.push_back(vref2);
+
+				vertices.at(vref0).normal = XMFLOAT3(fnormal.x, fnormal.y, fnormal.z);
+				vertices.at(vref1).normal = XMFLOAT3(fnormal.x, fnormal.y, fnormal.z);
+				vertices.at(vref2).normal = XMFLOAT3(fnormal.x, fnormal.y, fnormal.z);
+
+			}
+		}
+
+		std::vector<Texture> textures;
+		Texture diskTexture(device.Get(), "Date\\Textures\\fade_black.png", aiTextureType::aiTextureType_NONE);
+		textures.push_back(diskTexture);
+
+		return Mesh(device.Get(), deviceContext.Get(), vertices, indices, textures, DirectX::XMMatrixIdentity(), "Debugmesh");
+	}
+	break;
+	}
+}
 
 #pragma endregion

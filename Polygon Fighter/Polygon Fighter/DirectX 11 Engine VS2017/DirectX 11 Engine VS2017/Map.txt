@@ -103,7 +103,7 @@ O Data\Objects\test\house.obj
 0 2.89725 0
 0.5 0.5 0.5
 O Data\Objects\test\house.obj
--6.809 1.90735e-06 50.147
+-6.809 -2 50.147
 0 0 0
 0.5 0.5 0.5
 O Data\Objects\test\house_blue.obj
@@ -111,7 +111,7 @@ O Data\Objects\test\house_blue.obj
 0 -2.19912 0
 0.5 0.5 0.5
 O Data\Objects\test\house_blue.obj
-189.292 0 5.051
+189.292 -2 5.051
 0 0.750491 0
 0.5 0.5 0.5
 O Data\Objects\test\house_orange.obj
@@ -151,7 +151,7 @@ O Data\Objects\test\yama.obj
 0 0 0
 20.9 13 4.7
 O Data\Objects\test\yama.obj
-230.992 1.52588e-05 126.914
+230.992 0 126.914
 0 0.261799 0
 11.2 3.8 4
 O Data\Objects\test\yama.obj
@@ -159,7 +159,7 @@ O Data\Objects\test\yama.obj
 0 0 0
 9.5 18.6 31.7
 O Data\Objects\test\yama.obj
--189.145 -1.52588e-05 7.42986
+-189.145 0 7.42986
 0 0 0
 11.9 26 35.3
 O Data\Objects\test\yama.obj

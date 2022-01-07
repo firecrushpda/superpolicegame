@@ -482,7 +482,7 @@ int RenderableGameObject::GetTextureIndex(aiString * pStr)
 //=============================================================================
 void RenderableGameObject::UpdateCollisionBox(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	collision->obb = collision->originobb;
+	collision->obb = collision->originobb; 
 	auto coworldMatrix = XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z)
 		* XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z)
 		* XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
@@ -533,6 +533,7 @@ void RenderableGameObject::DeepCopy(const RenderableGameObject& go)
 	collision->debugmesh = go.collision->debugmesh;
 	collision->debugmeshflag = go.collision->debugmeshflag;
 	collision->obb = go.collision->obb;
+	collision->originobb = go.collision->originobb;
 	collision->oritransform = go.collision->oritransform;
 
 	model = go.model;

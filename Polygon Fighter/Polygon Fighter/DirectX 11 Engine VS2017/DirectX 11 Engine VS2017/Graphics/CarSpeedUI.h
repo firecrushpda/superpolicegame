@@ -11,11 +11,9 @@ class CarSpeedUI
 {
 public:
 	Sprite speedbar;
-
 	Sprite warningUI;
-
 	Sprite flywarningUI;
-
+	Sprite modeUI;
 	Sprite catchcarcountBGUI;
 	Sprite catchcarcountUI;
 

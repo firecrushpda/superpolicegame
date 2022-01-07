@@ -16,15 +16,16 @@ bool Npc::Init(const std::string & filePath, ID3D11Device * device, ID3D11Device
 	girl.SetPosition(0, 1, 0);
 	girl.SetScale(0.005, 0.005, 0.005);
 	girl.SetRotation(XMFLOAT3(-XM_PI / 2, 0, 0));
-	//girl.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
 	girl.SetCollisionBoxView(false);
 
 	//sprite
 	npcUI_thank.Initialize(device, deviceContext, 400, 200, "Data\\Textures\\npcUIthank.png", cb_vs_vertexshader_2d);
 	npcUI_thank.SetPosition(XMFLOAT3(windowwidth / 2 - 200, windowwidth - 100, 0));
-	
+	npcUI_reach.Initialize(device, deviceContext, 576, 32, "Data\\Textures\\ride01.png", cb_vs_vertexshader_2d);
+	npcUI_reach.SetPosition(XMFLOAT3(windowwidth / 2 - 288, 35, 0));
+
 	//pos sign
-	possign.Initialize(device, deviceContext, 75, 77, "Data\\Textures\\marker01.png", cb_vs_vertexshader_2d);
+	possign.Initialize(device, deviceContext, 75, 77, "Data\\Textures\\mokuteki.png", cb_vs_vertexshader_2d);
 	desdirsign.Initialize(device, deviceContext, 76, 132, "Data\\Textures\\yajirushi01.png", cb_vs_vertexshader_2d);
 	desdirsign.SetPosition(XMFLOAT3(windowwidth/2 - 76,windowheight/2 - 132,0));
 
@@ -62,6 +63,14 @@ void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix,XMFLOAT3 carpos
 
 			//reset camera
 			this->camera3d->cameratype = 0;
+		}
+	}
+
+	if (npcstate == 3)
+	{
+		if (npctimer.GetMilisecondsElapsed() >= 2000 && !b_reachdestinationSign) {
+			npctimer.Stop();
+			b_reachdestinationSign = true;
 		}
 	}
 
@@ -114,8 +123,7 @@ void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix,XMFLOAT3 carpos
 	//dessign rot
 	auto desdir = XMFLOAT2(tgpos.x - carpos.x,tgpos.z - carpos.z);
 	float angle = atan2(desdir.x, desdir.y);
-	//desdirsign.AdjustRotation(XMFLOAT3(0, 0, 0.01));
-	desdirsign.SetRotation(XMFLOAT3(0,0, angle));
+	desdirsign.SetRotation(XMFLOAT3(0, 0, angle));
 }
 //
 void Npc::Draw3D(const XMMATRIX & viewProjectionMatrix) 
@@ -136,7 +144,11 @@ void Npc::Draw2D(const XMMATRIX & viewProjectionMatrix2d)
 	{
 		desdirsign.Draw(viewProjectionMatrix2d);
 	}
-		
+	
+	if (!b_reachdestinationSign && npcstate == 3)
+	{
+		npcUI_reach.Draw(viewProjectionMatrix2d);
+	}
 	
 	if (uiflag)
 		npcUI_thank.Draw(viewProjectionMatrix2d);

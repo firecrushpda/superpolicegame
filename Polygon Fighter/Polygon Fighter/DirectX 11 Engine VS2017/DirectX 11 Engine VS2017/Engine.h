@@ -23,6 +23,8 @@ private:
 
 	Timer timer;//タイマー
 
+	Timer chasecarcdtimer;
+
 	//DirectX::ContainmentType precoreslut;
 	
 	bool testbool = false;

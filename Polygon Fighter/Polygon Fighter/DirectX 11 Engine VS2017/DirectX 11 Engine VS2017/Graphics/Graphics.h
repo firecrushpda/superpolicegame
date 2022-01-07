@@ -68,6 +68,11 @@ public:
 	Sprite tutorial_background;
 	Sprite score;
 
+	bool b_siflag = false;
+	bool b_thiflag = false;
+	Sprite shockimage;
+	Sprite taihouimage;
+
 	MoneyUI moneyui;
 
 	//ステージ
@@ -89,12 +94,22 @@ public:
 	RenderableGameObject test;
 
 	//map game object
+	bool b_showmapgo = true;
+	bool b_showObstaclego = true;
 	std::vector<RenderableGameObject*> mapgo;
+	std::vector<RenderableGameObject*> obstaclego;
+	std::vector<PxRigidDynamic*> obstaclephysics;
 	std::vector<RenderableGameObject*> primitivesgo;
+
+	//not use
+	std::vector<Mesh> tempmapgodm;
+	Mesh TempProcessDebugMesh(const PxGeometry& geom);
 
 	//
 	Car car;
 	Car chasecar;
+	Car chasecar1;
+	Car chasecar2;
 	CarAIController* cac;
 
 	RenderableGameObject quad;
@@ -127,7 +142,38 @@ public:
 	int windowHeight = 0;
 
 	//game score
+	unsigned int scorepageindex = 0;
+	float scorepagetimer = 0.0f;
 	float gamescore = 0;
+	Sprite score01;
+	Sprite rank;
+	int rank1idx;
+	Sprite rank1;
+	Sprite catchcardig;
+	Sprite scoredigf[6];
+	Sprite tscoredigf[6];
+
+	int top1[3];
+	Sprite top1name[3];
+	Sprite top1scoredigf[6];
+	float top1score;
+	int top2[3];
+	Sprite top2name[3];
+	Sprite top2scoredigf[6];
+	float top2score;
+	int top3[3];
+	Sprite top3name[3];
+	Sprite top3scoredigf[6];
+	float top3score;
+	int top4[3];
+	Sprite top4name[3];
+	Sprite top4scoredigf[6];
+	float top4score;
+	bool editname = false;
+	int editidx = -1;
+
+	void LoadScore();
+	void CompareScore();
 
 	//game pause
 	bool gamepause = false;
@@ -142,6 +188,7 @@ public:
 
 	void ResetTitle();
 	void ResetGame();
+	void ResetScore();
 
 	void EditorRayCast(XMFLOAT2 mousepos);
 
@@ -152,6 +199,7 @@ public:
 	Sound* m_Sound;
 
 	//physics
+	bool b_drawphysics = false;
 	PhyGameObject pgotest;
 	PhysXBasic physxbase;
 
@@ -167,8 +215,9 @@ private:
 	void EffekseerDraw();
 
 	void LoadMap();
-	int CampareMapname(std::string name);
+	void LoadObstacle();
 	void LoadNpc();
+	int CampareMapname(std::string name);
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;//ダイレクトエクスデバイス
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;//ダイレクトエクスデバイスコンテスト

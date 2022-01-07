@@ -1,0 +1,312 @@
+O Data\Objects\test\corn2.obj
+227.28 5 90.7897
+0 0 0
+0.1 0.1 0.1
+O Data\Objects\test\corn2.obj
+712.035 5 568.559
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+695.53 5 642.227
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+643.547 5 830.023
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+624.032 5 918.391
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+530.239 5 993.558
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+357.698 5 992.995
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+250.244 5 997.493
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+118.155 5 998.164
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1.30402 5 995.474
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-141.282 5 996.764
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-272.369 5 994.274
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-405.372 5 998.872
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-546.233 5 994.156
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-684.075 5 994.517
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-819.282 5 998.757
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-943.132 5 994.036
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1105.46 5 997.415
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1237.63 5 995.633
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1338.75 5 979.42
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1415.06 5 871.263
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1422.31 5 635.186
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1420.28 5 345.743
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1422.57 5 209.25
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1425.27 5 -16.6189
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1419.91 5 -256.762
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1423.51 5 -442.877
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1421.06 5 -613.865
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1419.81 5 -731.889
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1344.63 5 -838.319
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1250.91 5 -861.297
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1157.1 5 -859.823
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-1026.93 5 -860.766
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-824.615 5 -866.522
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-733.816 5 -862.757
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-522.86 5 -865.21
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-304.033 5 -862.841
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+-202.712 5 -867.117
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+36.9562 5 -863.405
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+169.482 5 -867.148
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+288.684 5 -863.46
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+461.388 5 -868.703
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+623.609 5 -839.647
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+750.944 5 -781.257
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+886.573 5 -620.31
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+930.011 5 -500.801
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+920.903 5 -355.855
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+908.296 5 -257.827
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+895.135 5 -190.769
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+865.922 5 -76.6059
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+817.903 5 115.609
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+762.348 5 344.209
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+732.544 5 462.414
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+656.933 5 557.908
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+567.145 5 492.13
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+416.664 5 376.079
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+309.028 5 305.542
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+138.896 5 169.351
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+128.274 5 -45.709
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+127.334 5 -183.409
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+122.083 5 -352.399
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+122.971 5 -498.686
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+122.473 5 -596.07
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+120.524 5 -705.918
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1260.19 5 965.424
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1359.49 5 1017.47
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1515.76 5 1021.51
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1698.54 5 1022.28
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1928.52 5 1018.8
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2210.64 5 1021.46
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2413.39 5 1005.33
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2423.5 5 811.969
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2422.85 5 536.108
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2296.65 5 395.997
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+2085.55 5 187.156
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1902.49 5 -0.922956
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1701.49 5 -197.42
+0 0 0
+1 1 1
+O Data\Objects\test\corn2.obj
+1593.89 5 -238.554
+0 0 0
+1 1 1

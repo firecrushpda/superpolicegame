@@ -33,10 +33,13 @@ void CarSpeedUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceC
 	}
 
 	warningUI.Initialize(device, deviceContext, 320, 128, "Data/Textures/ihan01.png", cb_vs_vertexshader_2d);
-	warningUI.SetPosition(XMFLOAT3(windowwidth / 2 - 160, windowheight/2 - 64, 0));
+	warningUI.SetPosition(XMFLOAT3(windowwidth / 2 - 160, windowheight/2 + 64, 0));
 
 	flywarningUI.Initialize(device, deviceContext, 158, 160, "Data/Textures/tobidashi01.png", cb_vs_vertexshader_2d);
 	flywarningUI.SetPosition(XMFLOAT3(windowwidth / 2 - 79 , windowheight / 2 - 80 + 190, 0));
+
+	modeUI.Initialize(device, deviceContext, 256, 32, "Data/Textures/mode01.png", cb_vs_vertexshader_2d);
+	modeUI.SetPosition(XMFLOAT3(windowwidth / 2 - 128, 32, 0));
 
 	catchcarcountBGUI.Initialize(device, deviceContext, 192, 92, "Data/Textures/taiho01.png", cb_vs_vertexshader_2d);
 	catchcarcountBGUI.SetPosition(XMFLOAT3(windowwidth - 192, 0, 0));
@@ -124,11 +127,14 @@ void CarSpeedUI::Draw(XMMATRIX orthoMatrix, bool warningUIflag, bool flywarningU
 	for (size_t i = 0; i < 2; i++)
 		speeddigb[i].Draw(orthoMatrix);
 
-	if (warningUIflag)
+	if (warningUIflag){
 		warningUI.Draw(orthoMatrix);
+		modeUI.Draw(orthoMatrix);
+	}
+		
 
 	if (flywarningUIflag)
-		flywarningUI.Draw(orthoMatrix);
+		//flywarningUI.Draw(orthoMatrix);
 
 	catchcarcountBGUI.Draw(orthoMatrix);
 	catchcarcountUI.Draw(orthoMatrix);

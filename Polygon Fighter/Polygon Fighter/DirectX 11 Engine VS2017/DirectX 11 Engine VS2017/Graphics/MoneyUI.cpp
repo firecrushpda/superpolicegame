@@ -15,8 +15,8 @@ void MoneyUI::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCont
 
 void MoneyUI::Update()
 {
-	auto distance = car->cardistance / 3.0f;
-	int money = distance * 57;
+	auto distance = car->cardistance;
+	int money = distance * 10;
 	for (size_t i = 0; i < 6; i++)
 	{
 		float dig = (float)(money % 10);

@@ -58,6 +58,7 @@ public:
 	bool CarInitialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, bool isCharacter);
 	void Update(float delta_time, const XMMATRIX & viewProjectionMatrix);
 	void Draw(const XMMATRIX & viewProjectionMatrix, ConstantBuffer<CB_PS_IBLSTATUS>& cbps_iblstatus);
+	DirectX::XMMATRIX GetMatrixFromPxMatrix(PxMat44 mat);
 
 	void MoveFowards(float delta, float accelfactor, std::vector<RenderableGameObject*> mapgo);
 	float CalcWheelSpeed(float delta);
