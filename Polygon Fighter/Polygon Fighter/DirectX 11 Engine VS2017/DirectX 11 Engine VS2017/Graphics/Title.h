@@ -10,7 +10,7 @@ public:
 	Sprite tutorial;
 	Sprite editor;
 	
-	float cam_rotfrequance = 0.01;
+	float cam_rotfrequance = 0.005;
 	float cam_updowmflag = true;
 	UINT g_gamemode = 0;
 	bool alphaflag;

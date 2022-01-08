@@ -143,28 +143,27 @@ void Graphics::RenderFrame()
 
 		if (gs == GameState::title)
 		{
-			stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-
-			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
+			//stage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			titlestage.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
 
 			auto viewrot = Camera3D.roundviewrot;
-			Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + title.cam_rotfrequance, viewrot.z);
 			if (title.cam_updowmflag)
-				Camera3D.cf_height += 0.05;
+				Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y + title.cam_rotfrequance, viewrot.z);
 			else
-				Camera3D.cf_height -= 0.05;
+				Camera3D.roundviewrot = XMFLOAT3(viewrot.x, viewrot.y - title.cam_rotfrequance, viewrot.z);
 
-			if (Camera3D.cf_height <= 5 || Camera3D.cf_height >= 10)
+			if (Camera3D.roundviewrot.y <= 2.9f || Camera3D.roundviewrot.y >= 3.5f)
 				title.cam_updowmflag = !title.cam_updowmflag;
 
 			auto dback = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
 			XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(Camera3D.roundviewrot.x, Camera3D.roundviewrot.y, 0.0f);
 			auto vec_backward = XMVector3TransformCoord(dback, vecRotationMatrix);
 
-			auto testpos = car.carrender.GetPositionVector() + vec_backward * 13; //title cf_back
+			auto testpos = car.carrender.GetPositionVector() + vec_backward * 250; //title cf_back
 			DirectX::XMFLOAT3 temp;
 			DirectX::XMStoreFloat3(&temp, testpos);
-			temp = DirectX::XMFLOAT3(temp.x, temp.y + 5.0f, temp.z);//title cf_height
+			temp = DirectX::XMFLOAT3(temp.x, temp.y + 50.0f, temp.z);//title cf_height
 			Camera3D.SetPosition(temp);
 			Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
 		}
@@ -174,9 +173,9 @@ void Graphics::RenderFrame()
 			
 			gameroad.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 			zimen.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			zimen1.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			field_L.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
-			field_R.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//zimen1.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//field_L.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+			//field_R.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 
 			//draw car
 			car.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix(), cb_ps_iblstatus);
@@ -764,8 +763,8 @@ bool Graphics::InitializeScene()
 		tempgs = GameState::title;
 
 		//tutorial
-		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\script.png" ,this->cb_vs_vertexshader_2d);
-		tutorial2.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\piano.PNG", this->cb_vs_vertexshader_2d);
+		tutorial.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight,"Data\\Textures\\tutorial_2.png" ,this->cb_vs_vertexshader_2d);
+		tutorial2.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\tutorial1.png", this->cb_vs_vertexshader_2d);
 		tutorial_background.Initialize(this->device.Get(), this->deviceContext.Get(), windowWidth, windowHeight, "Data\\Textures\\fade_black.png", this->cb_vs_vertexshader_2d);
 
 		//shock image for game pause
@@ -838,6 +837,12 @@ bool Graphics::InitializeScene()
 		if (!stage.Initialize("Data\\Objects\\stage.FBX", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;//Stage.FBX
 		stage.SetCollisionBoxView(false);
+		if (!titlestage.Initialize("Data\\Objects\\test\\title_2.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+			return false;
+		titlestage.SetCollisionBoxView(false);
+		
+		titlestage.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, XM_PI / 2, 0));
+		titlestage.SetPosition(0, -100, 0);
 
 		//game stage
 		if (!gameroad.Initialize("Data\\Objects\\test\\douro_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
@@ -845,26 +850,28 @@ bool Graphics::InitializeScene()
 		gameroad.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		gameroad.SetCollisionBoxView(false);
 
-		if (!zimen.Initialize("Data\\Objects\\test\\zimen.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		if (!zimen.Initialize("Data\\Objects\\test\\ground3.fbx", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
 			return false;
 		zimen.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
 		zimen.SetCollisionBoxView(false);
+		zimen.SetPosition(312.5, 0, - 11.78);
+		zimen.SetScale(0.01, 0.01, 0.01);
 		//zimen.SetScale(XMFLOAT3(10, 0, 10));
-		if (!zimen1.Initialize("Data\\Objects\\test\\zimen_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;
-		zimen1.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
-		zimen1.SetCollisionBoxView(false);
-		//zimen1.SetScale(XMFLOAT3(10, 0, 10));
-		if (!field_L.Initialize("Data\\Objects\\test\\field_L.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;
-		field_L.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
-		field_L.SetCollisionBoxView(false);
-		//field_L.SetScale(XMFLOAT3(100, 1, 1));
-		//field_L.SetPosition(XMFLOAT3(0, 300, 0));
-		if (!field_R.Initialize("Data\\Objects\\test\\field_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
-			return false;
-		field_R.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
-		field_R.SetCollisionBoxView(false);
+		//if (!zimen1.Initialize("Data\\Objects\\test\\zimen_02.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		//	return false;
+		//zimen1.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		//zimen1.SetCollisionBoxView(false);
+		////zimen1.SetScale(XMFLOAT3(10, 0, 10));
+		//if (!field_L.Initialize("Data\\Objects\\test\\field_L.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		//	return false;
+		//field_L.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		//field_L.SetCollisionBoxView(false);
+		////field_L.SetScale(XMFLOAT3(100, 1, 1));
+		////field_L.SetPosition(XMFLOAT3(0, 300, 0));
+		//if (!field_R.Initialize("Data\\Objects\\test\\field_R.obj", this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader))
+		//	return false;
+		//field_R.SetGlobalMatirx(XMMatrixRotationRollPitchYaw(0, 0, 0));
+		//field_R.SetCollisionBoxView(false);
 		//field_R.SetScale(XMFLOAT3(10, 0, 10));
 
 		//game character car
@@ -1647,6 +1654,7 @@ void Graphics::ResetTitle()
 {
 	//reset title
 	stage.b_use = true;
+	titlestage.b_use = true;
 	car.taxirender.b_modelview = false;
 	car.carrender.SetScale(2, 2, 2);
 	car.carrender.SetPosition(XMFLOAT3(0, 3, 0));
@@ -1666,6 +1674,8 @@ void Graphics::ResetTitle()
 	Camera3D.SetPosition(temp);
 	Camera3D.SetLookAtPos(car.carrender.GetPositionFloat3());
 
+	Camera3D.roundviewrot = XMFLOAT3(viewrot.x, 3.0f, viewrot.z);
+
 	m_Sound->StopSound();
 	m_Sound->PlayIndexSound(Sound::SOUND_LABEL_BGM_BetterDays);
 }
@@ -1674,12 +1684,13 @@ void Graphics::ResetGame()
 {
 	//reset game
 	stage.b_use = false;
+	titlestage.b_use = false;
 	car.cardrate = 1.0f;
 	car.taxidrate = 0.0f;
 	car.carrender.SetScale(1.5, 1.5, 1.5);
 	car.taxirender.b_modelview = true;
 	Camera3D.roundviewrot = XMFLOAT3(0, 0, 0);
-	PxTransform startTransform(PxVec3(0, 2.5f, 0), PxQuat(PxIdentity));
+	PxTransform startTransform(PxVec3(770.0f, 2.5f, -760.0f), PxQuat(PxIdentity));//-131 0 105
 	physxbase.gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	physxbase.gVehicle4W->getRigidDynamicActor()->setLinearVelocity(PxVec3(0, 0, 0));
 
@@ -1707,7 +1718,6 @@ void Graphics::ResetScore()
 
 	scorepageindex = 0;
 	scorepagetimer = 0.0f;
-	//gfx.gamescore
 }
 
 void Graphics::LoadScore() {
@@ -1759,7 +1769,7 @@ void Graphics::LoadScore() {
 }
 
 void Graphics::CompareScore() {
-	float totalscore = gamescore * (car.catchcount + 1);
+	float totalscore = gamescore * car.catchcount + 100;
 	auto tscore = totalscore;
 	tscore >= 999999 ? tscore = 999999 : tscore = tscore;
 	if (tscore <= top4score)
@@ -1788,8 +1798,8 @@ void Graphics::CompareScore() {
 			for (size_t i = 0; i < 3; i++)
 				top4[i] = top3[i];
 
-			top3score = top2score;
 			top4score = top3score;
+			top3score = top2score;
 			top2score = totalscore;
 			editidx = 1;
 		}

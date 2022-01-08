@@ -77,18 +77,15 @@ public:
 
 	//ステージ
 	RenderableGameObject stage;
+	RenderableGameObject titlestage;
 
 	//ステージ
 	RenderableGameObject gameroad;
 	RenderableGameObject zimen;
-	RenderableGameObject zimen1;
-	RenderableGameObject field_L;
-	RenderableGameObject field_R;
 
 	//ステージ
 	std::vector<Npc*> npc;
 	unsigned int currentnpcindex;
-	//Npc npc;
 
 	//ステージ
 	RenderableGameObject test;
@@ -145,6 +142,8 @@ public:
 	unsigned int scorepageindex = 0;
 	float scorepagetimer = 0.0f;
 	float gamescore = 0;
+	//float gamescore_catch = 0;
+	//float gamescore_ride = 0;
 	Sprite score01;
 	Sprite rank;
 	int rank1idx;

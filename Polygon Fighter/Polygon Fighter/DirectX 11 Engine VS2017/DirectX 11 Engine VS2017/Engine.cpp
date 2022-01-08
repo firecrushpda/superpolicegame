@@ -111,7 +111,7 @@ void Engine::Update()
 				}
 			}
 
-			int score = gfx.gamescore;
+			int score = gfx.gamescore + 100;
 			score >= 999999 ? score = 999999 : score = score;
 			for (size_t i = 0; i < 6; i++)
 			{
@@ -127,7 +127,7 @@ void Engine::Update()
 				gfx.scoredigf[i].UpdateUV(vertexData);
 			}
 
-			float totalscore = gfx.gamescore * (gfx.car.catchcount + 1);
+			float totalscore = 100 + gfx.gamescore * (gfx.car.catchcount);
 			auto tscore = totalscore;
 			tscore >= 999999 ? tscore = 999999 : tscore = tscore;
 			for (size_t i = 0; i < 6; i++)
@@ -556,6 +556,7 @@ void Engine::Update()
 				}
 				else if (keyboard.KeyIsPressed('S'))
 				{
+					gfx.physxbase.gVehicle4W->getRigidDynamicActor()->addForce(dir * -10000);
 					gfx.physxbase.gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 					if (keyboard.KeyIsPressed('A'))
 					{
@@ -950,7 +951,7 @@ void Engine::Update()
 							npc->endtrigger.collisionuse = false;
 
 							//
-							gfx.gamescore += gfx.car.cardistance * 10;
+							gfx.gamescore += gfx.car.cardistance * 5;
 							gfx.car.cardistance = 0;
 						}
 					}
@@ -1286,16 +1287,19 @@ void Engine::ChangeStats(GameState state)
 		break;
 	case GameState::score:
 		gfx.stage.b_use = false;
+		gfx.titlestage.b_use = false;
 		gfx.ResetScore();
 		break;
 	case GameState::tutorial:
 		//reset tutorial
 		gfx.tutorialtexno = 0;
 		gfx.stage.b_use = false;
+		gfx.titlestage.b_use = false;
 		break;
 	case GameState::catchcar:
 		//catch car fade
 		gfx.stage.b_use = false;
+		gfx.titlestage.b_use = false;
 		break;
 	}
 }
