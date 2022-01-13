@@ -1690,7 +1690,7 @@ void Graphics::ResetGame()
 	car.carrender.SetScale(1.5, 1.5, 1.5);
 	car.taxirender.b_modelview = true;
 	Camera3D.roundviewrot = XMFLOAT3(0, 0, 0);
-	PxTransform startTransform(PxVec3(770.0f, 2.5f, -760.0f), PxQuat(PxIdentity));//-131 0 105
+	PxTransform startTransform(PxVec3(924, 2.5f, -366.0f), PxQuat(PxIdentity));//-131 0 105
 	physxbase.gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	physxbase.gVehicle4W->getRigidDynamicActor()->setLinearVelocity(PxVec3(0, 0, 0));
 

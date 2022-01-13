@@ -123,7 +123,7 @@ void Npc::Update(float dt, const XMMATRIX & viewProjectionMatrix,XMFLOAT3 carpos
 	//dessign rot
 	auto desdir = XMFLOAT2(tgpos.x - carpos.x,tgpos.z - carpos.z);
 	float angle = atan2(desdir.x, desdir.y);
-	desdirsign.SetRotation(XMFLOAT3(0, 0, angle));
+	desdirsign.SetRotation(XMFLOAT3(0, 0, -angle));
 }
 //
 void Npc::Draw3D(const XMMATRIX & viewProjectionMatrix) 
