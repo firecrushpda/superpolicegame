@@ -353,8 +353,8 @@ void Graphics::RenderFrame()
 		PxMat44 trans = car.actor->getGlobalPose();
 		 
 
-		auto carpos = car.carrender.GetPositionFloat3();
-		std::string pos = "pos" + std::to_string(carpos.x) + "_" + std::to_string(carpos.y) + "_" + std::to_string(carpos.z);//std::to_string(car.GetCarVelocity());//"rot" + std::to_string(co.getBasisVector0().x) + "_" + std::to_string(co.getBasisVector0().y) + "_" + std::to_string(co.getBasisVector0().z);
+		auto carpos = car.GetCarVelocity();
+		std::string pos = "speed" + std::to_string(carpos); 
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 		std::wstring carposw = cv.from_bytes(pos);
 
@@ -1690,7 +1690,7 @@ void Graphics::ResetGame()
 	car.carrender.SetScale(1.5, 1.5, 1.5);
 	car.taxirender.b_modelview = true;
 	Camera3D.roundviewrot = XMFLOAT3(0, 0, 0);
-	PxTransform startTransform(PxVec3(924, 2.5f, -366.0f), PxQuat(PxIdentity));//-131 0 105
+	PxTransform startTransform(PxVec3(930.0f, 2.5f, -370.0f), PxQuat(PxIdentity));//-131 0 105
 	physxbase.gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	physxbase.gVehicle4W->getRigidDynamicActor()->setLinearVelocity(PxVec3(0, 0, 0));
 
